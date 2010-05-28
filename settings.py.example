@@ -1,3 +1,4 @@
+import os
 # Django settings for trinity project.
 
 PROJECT_DIR = os.path.dirname(__file__)
