@@ -10,15 +10,16 @@
 			<th>Replies</th>
 			<th>Last post</th>
 		</tr>
+		{% for t in topics %}
 		<tr>
-			{% for t in topic %}
-			<td>{{ t.title }}</td>
+			{% url forums.views.topic_view t.id as topic_url %}
+			<td><a href="{{ topic_url }}">{{ t.title }}</a></td>
 			<td>{{ t.first_post.author }}</td>
-			<td>{{ t.post_count|add:"-1" }}</td>
-			<td><a href="{% url forums.view.topic_view t.id post_id=t.last_post.id %}">{{ t.last_post.created_at|date }}</a> by {{ t.last_post.author }}</td>
-			{% empty %}
+			<td>{{ t.post_count }}{# nice hack #}</td>
+			<td><a href="{{ topic_url }}">{{ t.last_post.created_at|date:"Y-m-d H:i:s" }}</a> by {{ t.last_post.author }}</td>
+		{% empty %}
 			<td colspan="4">No topics in this forum.</td>
-			{% endfor %}
 		</tr>
+		{% endfor %}
 	</table>
 {% endblock content %}

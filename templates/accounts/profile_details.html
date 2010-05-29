@@ -1,1 +1,17 @@
 {% extends "base.html" %}
+{% block content %}
+	username - {{ user_details.username }}<br>
+	first_name - {{ user_details.first_name }}<br>
+	last_name - {{ user_details.last_name }}<br>
+	is_staff - {{ user_details.is_staff }}<br>
+	is_active - {{ user_details.is_active }}<br>
+	is_superuser - {{ user_details.is_superuser }}<br>
+	last_login - {{ user_details.last_login }}<br>
+	date_joined - {{ user_details.date_joined }}<br>
+	<br><br>
+	avatar - {{ user_details.get_profile.avatar.get_absolute_url }}<br>
+	signature - {{ user_details.get_profile.signature }}<br>
+	location - {{ user_details.get_profile.location }}<br>
+	website - {{ user_details.get_profile.website }}<br>
+	post_count - {{ user_details.get_profile.post_count }}<br>
+{% endblock content %}

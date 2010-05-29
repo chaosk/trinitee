@@ -11,15 +11,15 @@ class Post(models.Model):
 	content = models.TextField()
 
 	class Meta:
-		ordering = ('')
-		get_latest_by = ''
+		ordering = ['created_at']
+		get_latest_by = 'created_at'
 		verbose_name_plural = ('Posts')
 
 	def __unicode__(self):
 		return "%s by %s" % (self.id, self.author)
 	
 	def get_absolute_url(self):
-		return (forums.views.post_view, [str(self.id)])
+		return "/forum/post/%s" % str(self.id)
 
 class Topic(models.Model):
 	created_at = models.DateTimeField(auto_now_add=datetime.datetime.now)
@@ -30,23 +30,27 @@ class Topic(models.Model):
 	is_closed = models.BooleanField(default=False)
 	
 	def _get_first_post(self):
-		return Post.objects.filter(topic__exact=self).first('created_at')
+		return Post.objects.filter(topic__exact=self).order_by('created_at')[0:1].get()
 	first_post = property(_get_first_post)
 	
 	def _get_last_post(self):
-		return Post.objects.filter(topic__exact=self).latest('created_at')
+		return Post.objects.filter(topic__exact=self).latest()
 	last_post = property(_get_last_post)
 	
+	def _get_post_count(self):
+		return Post.objects.filter(topic__exact=self).count()
+	post_count = property(_get_post_count)
+	
 	class Meta:
-		ordering = ('')
-		get_latest_by = ''
+		ordering = ['-created_at']
+		get_latest_by = 'created_at'
 		verbose_name_plural = ('Topics')
 
 	def __unicode__(self):
 		return self.title
 	
 	def get_absolute_url(self):
-		return (forums.views.topic_view, [str(self.id)])
+		return "/forum/topic/%s" % str(self.id)
 
 class Forum(models.Model):
 	name = models.CharField(max_length=100)
@@ -59,7 +63,7 @@ class Forum(models.Model):
 	last_post = property(_get_last_post)
 
 	class Meta:
-		ordering = ('-ordering', 'name')
+		ordering = ['-ordering', 'name']
 		get_latest_by = ''
 		verbose_name_plural = ('Forums')
 
@@ -67,7 +71,7 @@ class Forum(models.Model):
 		return self.name
 	
 	def get_absolute_url(self):
-		return (forums.views.forum_view, [str(self.id)])
+		return "/forum/%s" % str(self.id)
 
 
 class Category(models.Model):
@@ -76,7 +80,7 @@ class Category(models.Model):
 	description = models.TextField(blank=True)
 
 	class Meta:
-		ordering = ('-ordering', 'name')
+		ordering = ['-ordering', 'name']
 		get_latest_by = ''
 		verbose_name_plural = ('Categories')
 

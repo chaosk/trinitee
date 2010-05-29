@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-	<form action="{% url forums.views.topic_new %}" method="post">
+	<form action="{% url forums.views.topic_new forum.id %}" method="post">
 	    {% include "snippets/form.html" %}
 	    <p><input type="submit" value="Post new topic" /></p>
 	</form>

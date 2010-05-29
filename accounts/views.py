@@ -42,9 +42,9 @@ def profile_index(request):
 def profile_edit(request):
 	return render_to_response('accounts/profile_edit.html')
 
-def profile_details(request, profile_id):
-	profile = get_object_or_404(UserProfile, ph=profile_id)
-	return render_to_response('accounts/profile_details.html', {'profile': profile})
+def profile_details(request, user_id):
+	user_details = get_object_or_404(User, id=user_id)
+	return render_to_response('accounts/profile_details.html', {'user_details': user_details}, context_instance=RequestContext(request))
 
 def register(request):
 	if request.method == 'POST':

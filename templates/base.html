@@ -10,4 +10,4 @@
 {% block content %}
 {% endblock content %}
 <hr>
-user: {{ user|default:"Guest" }} - {% if user.is_authenticated %}<a href="{% url accounts.views.logout_ %}">Logout</a>{% else %}<a href="{% url accounts.views.login_ %}">Login</a> (test:test){% endif %}
+user: {{ user.username|default:"Guest" }} - {% if user.is_authenticated %}<a href="{% url accounts.views.logout_ %}">Logout</a>{% else %}<a href="{% url accounts.views.login_ %}">Login</a> (test:test){% endif %}
