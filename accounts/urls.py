@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('trinitee.accounts.views',
-	(r'^profile/$', 'profile_index'),
+	(r'^$', 'profile_index'),
 	(r'^edit/$', 'profile_edit'),
 	(r'^login/$', 'login_'),
 	(r'^logout/$', 'logout_'),

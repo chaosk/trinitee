@@ -22,7 +22,7 @@ def login_(request):
 				if user.is_active:
 					login(request, user)
 					messages.success(request, "Logged in successfully.")
-					return redirect('/accounts/profile/')
+					return redirect(reverse('accounts.views.profile_index'))
 				else:
 					messages.error(request, "Your account is not active.")
 			else:
