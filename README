@@ -1,0 +1,15 @@
+Trinitee.
+
+Author: Krzysztof Socha <ksocha.com>
+
+System requirements:
+Python 2.4-2.x
+Django (1.2+)
+PIL
+
+Installation:
+- clone this repository
+- move settings.py.example to settings.py
+- fill db data and change SECRET_CODE
+- `python manage.py syncdb`, create a superuser
+- `python manage.py runserver`
