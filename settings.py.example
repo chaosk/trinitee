@@ -1,5 +1,5 @@
 import os
-# Django settings for trinity project.
+# Django settings for trinitee project.
 
 PROJECT_DIR = os.path.dirname(__file__)
 
@@ -84,7 +84,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'trinity.urls'
+ROOT_URLCONF = 'trinitee.urls'
 
 TEMPLATE_DIRS = (
 	os.path.join(PROJECT_DIR, 'templates'),
@@ -99,8 +99,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-	'trinity.accounts',
-	'trinity.forums',
+	'trinitee.accounts',
+	'trinitee.forums',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+	<h4>forum >> <a href="{% url forum_view forum.id %}">{{ forum.name }}</a></h4>
+	<h2>{{ forum.name }}</h2>
+	<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a> 
+	<table cellspacing="5" cellpadding="5">
+		<tr>
+			<th>Title</th>
+			<th>Author</th>
+			<th>Replies</th>
+			<th>Last post</th>
+		</tr>
+		<tr>
+			{% for t in topic %}
+			<td>{{ t.title }}</td>
+			<td>{{ t.first_post.author }}</td>
+			<td>{{ t.post_count|add:"-1" }}</td>
+			<td><a href="{% url forums.view.topic_view t.id post_id=t.last_post.id %}">{{ t.last_post.created_at|date }}</a> by {{ t.last_post.author }}</td>
+			{% empty %}
+			<td colspan="4">No topics in this forum.</td>
+			{% endfor %}
+		</tr>
+	</table>
+{% endblock content %}

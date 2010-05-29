@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
@@ -29,3 +30,10 @@ class Avatar(models.Model):
 	
 	def get_absolute_url(self):
 		return image.url
+
+def post_save_signal_receiver(sender, **kwarg):
+	if isinstance(kwarg['instance'], User) and kwarg['created'] == True:
+		profile = UserProfile(user=kwarg['instance'])
+		profile.save()
+
+post_save.connect(post_save_signal_receiver)

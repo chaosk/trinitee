@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+	<h2>Categories</h2>
+	<ul>
+	{% for c in categories %}
+		<li>{{ c.name }} - {{ c.description|default:"nodesc" }}
+			<ul>
+			{% for f in c.forums %}
+				<li>
+					<a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> - {{ f.description|default:"nodesc" }} - {% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new f.id %}">+ new topic</a>{% else %}You don't have permission to post a new topic{% endif %} {% if f.last_post %}- Last post: {{ c.last_post.created_at }} in {{ c.last_post.topic }} by {{ c.last_post.author }}{% endif %}
+				</li>
+			{% endfor %}
+			</ul>
+		</li>
+	{% empty %}
+		No categories. :-(
+	{% endfor %}
+	</ul>
+{% endblock content %}
