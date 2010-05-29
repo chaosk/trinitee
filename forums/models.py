@@ -7,7 +7,8 @@ class Post(models.Model):
 	created_at = models.DateTimeField(auto_now_add=datetime.datetime.now)
 	author = models.ForeignKey(User, related_name='author')
 	modified_at = models.DateField(auto_now=datetime.datetime.now)
-	modified_by = models.ForeignKey(User, blank=True, null=True, related_name='modified_by')
+	modified_by = models.ForeignKey(User, blank=True, null=True,
+		related_name='modified_by')
 	content = models.TextField()
 
 	class Meta:
@@ -64,7 +65,6 @@ class Forum(models.Model):
 
 	class Meta:
 		ordering = ['-ordering', 'name']
-		get_latest_by = ''
 		verbose_name_plural = ('Forums')
 
 	def __unicode__(self):
@@ -81,7 +81,6 @@ class Category(models.Model):
 
 	class Meta:
 		ordering = ['-ordering', 'name']
-		get_latest_by = ''
 		verbose_name_plural = ('Categories')
 
 	def __unicode__(self):

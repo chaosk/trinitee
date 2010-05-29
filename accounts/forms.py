@@ -1,16 +1,34 @@
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
+from utils.django_recaptcha import ReCaptchaField
 
 class LoginForm(forms.Form):
 	username = forms.CharField(min_length=2, max_length=30, label='Username')
-	password = forms.CharField(min_length=4, label='Password', widget=forms.PasswordInput(render_value=False))		
+	password = forms.CharField(min_length=4, label='Password',
+		widget=forms.PasswordInput(render_value=False))		
 
 class RegistrationForm(forms.Form):
 	username = forms.CharField(min_length=2, max_length=30, label='Username')
-	password = forms.CharField(min_length=4, label='Password', widget=forms.PasswordInput(render_value=False))
-	password_confirmation = forms.CharField(min_length=4, label='Confirm password', widget=forms.PasswordInput(render_value=False))
+	password = forms.CharField(min_length=4, label='Password',
+		widget=forms.PasswordInput(render_value=False))
+	password_confirmation = forms.CharField(min_length=4,
+		label='Confirm password', widget=forms.PasswordInput(render_value=False))
 	email = forms.EmailField(label='E-mail')
 	email_confirmation = forms.EmailField(label='Confirm e-mail')
-	# TODO recaptcha
+	if settings.ENABLE_CAPTCHA:
+		recaptcha = ReCaptchaField()
+	
+	def clean_username(self):
+		cleaned_data = self.cleaned_data
+		username = cleaned_data.get('username')
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			return
+		self._errors['username'] = self.error_class(["This username is \
+			already taken."])
+		del cleaned_data['username']
 	
 	def clean(self):
 		cleaned_data = self.cleaned_data
@@ -29,7 +47,8 @@ class RegistrationForm(forms.Form):
 			del cleaned_data['email']
 			del cleaned_data['email_confirmation']
 
-		if password and password_confirmation and not password == password_confirmation:
+		if password and password_confirmation and \
+			not password == password_confirmation:
 			msg = "Passwords do not match."
 			self._errors['password'] = self.error_class([msg])
 			self._errors['password_confirmation'] = self.error_class([msg])

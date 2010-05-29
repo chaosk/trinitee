@@ -2,7 +2,7 @@
 {% block content %}
 	<h4>forum >> <a href="{% url forum_view forum.id %}">{{ forum.name }}</a></h4>
 	<h2>{{ forum.name }}</h2>
-	<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a> 
+	{% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a>{% endif %}
 	<table cellspacing="5" cellpadding="5">
 		<tr>
 			<th>Title</th>

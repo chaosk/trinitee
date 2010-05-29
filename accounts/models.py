@@ -1,10 +1,12 @@
+import datetime
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from forums.models import Post
 
 class UserProfile(models.Model):
-	user = models.OneToOneField(User)
+	user = models.OneToOneField(User, unique=True)
 	avatar = models.ForeignKey('Avatar', blank=True, null=True)
 	signature = models.CharField(blank=True, max_length=255)
 	location = models.TextField(blank=True)
@@ -33,9 +35,16 @@ class Avatar(models.Model):
 	def get_absolute_url(self):
 		return image.url
 
+class ActivationKey(models.Model):
+	user = models.OneToOneField(User)
+	key = models.CharField(max_length=100)
+	expiration_date = models.DateTimeField(auto_now_add=datetime.datetime.now()
+		+datetime.timedelta(days=settings.ACTIVATION_KEY_EXPIRY_TIME))
+
 def post_save_signal_receiver(sender, **kwarg):
-	if isinstance(kwarg['instance'], User) and kwarg['created'] == True:
+	if kwarg['created']:
 		profile = UserProfile(user=kwarg['instance'])
 		profile.save()
 
-post_save.connect(post_save_signal_receiver)
+post_save.connect(post_save_signal_receiver, sender=User,
+	dispatch_uid="accounts.models")

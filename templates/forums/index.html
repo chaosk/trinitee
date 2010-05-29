@@ -7,7 +7,7 @@
 			<ul>
 			{% for f in c.forums %}
 				<li>
-					<a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> - {{ f.description|default:"nodesc" }} - {% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new f.id %}">+ new topic</a>{% else %}You don't have permission to post a new topic{% endif %} {% if f.last_post %}- Last post: {{ f.last_post.created_at }} in <a href="{% url forums.views.topic_view f.last_post.topic.id %}">{{ f.last_post.topic }}</a> by {{ f.last_post.author }}{% endif %}
+					<a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> - {{ f.description|default:"nodesc" }} - {% if f.last_post %}- Last post: {{ f.last_post.created_at }} in <a href="{% url forums.views.topic_view f.last_post.topic.id %}">{{ f.last_post.topic }}</a> by {{ f.last_post.author }}{% endif %}
 				</li>
 			{% endfor %}
 			</ul>

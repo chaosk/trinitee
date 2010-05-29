@@ -9,10 +9,12 @@ handler404 = '___.views.404'
 handler500 = '___.views.500'
 
 urlpatterns = patterns('',
-	(r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'index.html'}),
+	(r'^$', 'django.views.generic.simple.direct_to_template',
+		{'template': 'index.html'}),
 	(r'^forum/', include('trinitee.forums.urls')),
 	(r'^accounts/', include('trinitee.accounts.urls')),
-	(r'^profile/(?P<user_id>\d+)/$', 'trinitee.accounts.views.profile_details'),
+	(r'^profile/(?P<user_id>\d+)/$',
+		'trinitee.accounts.views.profile_details'),
 	#(r'$', '___.views.homepage'),
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

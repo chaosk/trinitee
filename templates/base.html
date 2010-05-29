@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <a href="/">home</a> | <a href="{% url forums.views.index %}">forum</a> {% if user.is_staff %}| <a href="/admin/">admin</a>{% endif %}
 <hr>
 {% if messages %}
@@ -10,4 +11,4 @@
 {% block content %}
 {% endblock content %}
 <hr>
-user: {{ user.username|default:"Guest" }} - {% if user.is_authenticated %}<a href="{% url accounts.views.logout_ %}">Logout</a>{% else %}<a href="{% url accounts.views.login_ %}">Login</a> (test:test){% endif %}
+user: {{ user.username|default:"Guest" }} - {% if user.is_authenticated %}<a href="{% url accounts.views.logout_ %}">logout</a>{% else %}<a href="{% url accounts.views.login_ %}">login</a> (test:test) - <a href="{% url accounts.views.register %}">sign up</a>{% endif %}

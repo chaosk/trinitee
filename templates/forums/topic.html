@@ -2,8 +2,8 @@
 {% block content %}
 	<h4>forum >> <a href="{% url forum_view topic.forum.id %}">{{ topic.forum.name }}</a> >> <a href="{% url forums.views.topic_view topic.id %}">{{ topic.title }}</a></h4>
 	<h2>{{ topic.title }}</h2>
-	<a href="{% url forums.views.post_new topic.id %}">+ reply</a> 
+	{% if perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
 	{% for p in posts %}
-	<p><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a> said "{{ p.content }}"</p>
+	<p><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a> said "{{ p.content }}" <a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a></p>
 	{% endfor %}
 {% endblock content %}

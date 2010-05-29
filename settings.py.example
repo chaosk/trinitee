@@ -5,6 +5,7 @@ PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+ENABLE_CAPTCHA = not DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -104,3 +105,13 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )
+
+SITE_NAME = 'Trinitee'
+MAILER_ADDRESS = ''
+
+# You have to set this in order to use reCAPTCHA
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+
+# Days to activation keys expation
+ACTIVATION_KEY_EXPIRY_TIME = 7
