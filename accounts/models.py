@@ -20,7 +20,7 @@ class UserProfile(models.Model):
 		verbose_name_plural = ('Profiles')
 
 	def __unicode__(self):
-		return u"Profile of %s" % self.user.username
+		return u"%s's profile" % self.user.username
 	
 	def get_absolute_url(self):
 		return "/profile/%s" % self.id

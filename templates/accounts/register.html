@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb "Sign up" %}
+{% endblock %}
 {% block content %}
 	<form action="{% url accounts.views.register %}" method="post">
 	    {% include "snippets/form.html" %}

@@ -1,5 +1,13 @@
+{% load breadcrumbs %}
 <!DOCTYPE html>
+<style type="text/css">
+	table{width:80%;}
+</style>
 <a href="/">home</a> | <a href="{% url forums.views.index %}">forum</a> {% if user.is_staff %}| <a href="/admin/">admin</a>{% endif %}
+<hr>
+{% block breadcrumbs %}
+{% breadcrumb_url "Trinitee" home %}
+{% endblock %}
 <hr>
 {% if messages %}
 <ul class="messages">

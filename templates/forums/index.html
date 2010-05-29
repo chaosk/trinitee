@@ -1,19 +1,35 @@
-{% extends "base.html" %}
+{% extends "forums/base.html" %}
 {% block content %}
 	<h2>Categories</h2>
-	<ul>
-	{% for c in categories %}
-		<li>{{ c.name }} - {{ c.description|default:"nodesc" }}
-			<ul>
-			{% for f in c.forums %}
-				<li>
-					<a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> - {{ f.description|default:"nodesc" }} - {% if f.last_post %}- Last post: {{ f.last_post.created_at }} in <a href="{% url forums.views.topic_view f.last_post.topic.id %}">{{ f.last_post.topic }}</a> by {{ f.last_post.author }}{% endif %}
-				</li>
-			{% endfor %}
-			</ul>
-		</li>
-	{% empty %}
-		No categories. :-(
-	{% endfor %}
-	</ul>
+	<table cellspacing="5" cellpadding="5">
+		<tr>
+			<th>Forum name</th>
+			<th>Topic count</th>
+			<th>Post count</th>
+			<th>Last Post</th>
+		</tr>
+		{% for c in categories %}
+		<tr>
+			<td colspan="4">
+				<b>{{ c.name }}</b>
+				<p>{{ c.description }}</p>
+			</td>
+		</tr>
+		{% for f in c.forums %}
+		<tr>
+			<td>
+				<b><a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a></b>
+				<p>{{ f.description }}</p>
+			</td>
+			<td>{{ f.topic_count }}</td>
+			<td>{{ f.post_count }}</td>
+			<td>{% if f.last_post %}<a href="{% url forums.views.topic_view f.last_post.topic.id %}" title="Topic &quot;{{ f.last_post.topic }}&quot;">{{ f.last_post.created_at|date:"Y-m-d H:i:s" }}</a> by {{ f.last_post.author }}{% else %}-{% endif %}</td>
+		</tr>
+		{% empty %}
+			<td colspan="4">No forums. :-(</td>
+		{% endfor %}
+		{% empty %}
+			<td colspan="4">No categories. :-(</td>
+		{% endfor %}
+	</table>
 {% endblock content %}

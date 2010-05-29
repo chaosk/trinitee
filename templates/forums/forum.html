@@ -1,6 +1,10 @@
-{% extends "base.html" %}
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url forum.name forums.views.forum_view forum.id %}
+{% endblock %}
 {% block content %}
-	<h4>forum >> <a href="{% url forum_view forum.id %}">{{ forum.name }}</a></h4>
 	<h2>{{ forum.name }}</h2>
 	{% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a>{% endif %}
 	<table cellspacing="5" cellpadding="5">
@@ -15,7 +19,7 @@
 			{% url forums.views.topic_view t.id as topic_url %}
 			<td><a href="{{ topic_url }}">{{ t.title }}</a></td>
 			<td>{{ t.first_post.author }}</td>
-			<td>{{ t.post_count }}{# nice hack #}</td>
+			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
 			<td><a href="{{ topic_url }}">{{ t.last_post.created_at|date:"Y-m-d H:i:s" }}</a> by {{ t.last_post.author }}</td>
 		{% empty %}
 			<td colspan="4">No topics in this forum.</td>

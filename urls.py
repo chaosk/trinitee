@@ -9,8 +9,8 @@ handler404 = '___.views.404'
 handler500 = '___.views.500'
 
 urlpatterns = patterns('',
-	(r'^$', 'django.views.generic.simple.direct_to_template',
-		{'template': 'index.html'}),
+	url(r'^$', 'django.views.generic.simple.direct_to_template',
+		{'template': 'index.html'}, name='home'),
 	(r'^forum/', include('trinitee.forums.urls')),
 	(r'^user/', include('trinitee.accounts.urls')),
 	(r'^profile/(?P<user_id>\d+)/$',

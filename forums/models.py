@@ -63,6 +63,14 @@ class Forum(models.Model):
 		return Post.objects.filter(topic__forum__exact=self).latest('created_at')
 	last_post = property(_get_last_post)
 
+	def _get_post_count(self):
+		return Post.objects.filter(topic__forum__exact=self).count()
+	post_count = property(_get_post_count)
+
+	def _get_topic_count(self):
+		return Topic.objects.filter(forum__exact=self).count()
+	topic_count = property(_get_topic_count)
+
 	class Meta:
 		ordering = ['-ordering', 'name']
 		verbose_name_plural = ('Forums')

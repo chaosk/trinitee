@@ -1,4 +1,11 @@
-{% extends "base.html" %}
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %}
+{% breadcrumb_url topic.title forums.views.topic_view topic.id %}
+{% breadcrumb "New reply" %}
+{% endblock %}
 {% block content %}
 	<form action="{% url forums.views.post_new topic.id %}" method="post">
 	    {% include "snippets/form.html" %}

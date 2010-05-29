@@ -1,6 +1,7 @@
 import datetime
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -22,7 +23,7 @@ def login_(request):
 				if user.is_active:
 					login(request, user)
 					messages.success(request, "Logged in successfully.")
-					return redirect(reverse('accounts.views.profile_index'))
+					return redirect(reverse('trinitee.accounts.views.profile_index'))
 				else:
 					messages.error(request, "Your account is not active.")
 			else:

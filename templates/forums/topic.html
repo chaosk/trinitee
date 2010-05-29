@@ -1,6 +1,11 @@
-{% extends "base.html" %}
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %}
+{% breadcrumb_url topic.title forums.views.topic_view topic.id %}
+{% endblock %}
 {% block content %}
-	<h4>forum >> <a href="{% url forum_view topic.forum.id %}">{{ topic.forum.name }}</a> >> <a href="{% url forums.views.topic_view topic.id %}">{{ topic.title }}</a></h4>
 	<h2>{{ topic.title }}</h2>
 	{% if perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
 	{% for p in posts %}

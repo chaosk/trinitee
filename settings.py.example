@@ -69,6 +69,10 @@ ADMIN_MEDIA_PREFIX = '/admin_media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'foobar'
 
+LOGIN_REDIRECT_URL = '/user/profile/'
+LOGIN_URL = '/user/login/'
+LOGOUT_URL = '/user/logout/'
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',

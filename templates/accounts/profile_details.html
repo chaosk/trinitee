@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url user_details.get_profile accounts.views.profile_details user_details.id %}
+{% endblock %}
 {% block content %}
 	username - {{ user_details.username }}<br>
 	first_name - {{ user_details.first_name }}<br>
