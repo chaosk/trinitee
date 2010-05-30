@@ -2,7 +2,6 @@ import datetime
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,6 +9,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey
 from accounts.forms import LoginForm, RegistrationForm
+from utils.annoying.functions import get_config
 
 # collides with django.contrib.auth.login
 def login_(request):
@@ -68,8 +68,9 @@ def register(request):
 			ak = ActivationKey(user=user)
 			ak.save()
 			c = Context({'activation_key': ak.key})
-			send_mail("E-mail activation at %s" % settings.SITE_NAME,
-				t.render(c), settings.MAILER_ADDRESS,
+			send_mail("E-mail activation at %s" % get_config('SITE_NAME',
+				'Trinitee application'), t.render(c),
+				get_config('MAILER_ADDRESS', 'example@example.com'),
 				[email], fail_silently=False)
 			messages.success(request, "Thank you for registering. \
 			An email has been sent to the specified address with \

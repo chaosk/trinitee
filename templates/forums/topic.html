@@ -1,4 +1,5 @@
 {% extends "forums/base.html" %}
+{% load forums %}
 {% load breadcrumbs %}
 {% block breadcrumbs %}
 {{ block.super }}
@@ -8,7 +9,38 @@
 {% block content %}
 	<h2>{{ topic.title }}</h2>
 	{% if perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
+	<table cellspacing="5" cellpadding="5">
+		<tr>
+			<th width="70%">[]</th>
+			<th align="right">
+			{% if user.is_staff %}
+				{% if topic.is_sticky %}
+					<a href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
+				{% else %}
+					<a href="{% url forums.views.stick_topic topic.id %}">Stick topic</a>
+				{% endif %}
+				{% if topic.is_closed %}
+					<a href="{% url forums.views.open_topic topic.id %}">Open topic</a>
+				{% else %}
+					<a href="{% url forums.views.close_topic topic.id %}">Close topic</a>
+				{% endif %}
+				<a href="{% url forums.views.move_topic topic.id %}">Move topic</a>
+			{% endif %}
+			</th>
+		</tr>
 	{% for p in posts %}
-	<p><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a> said "{{ p.content }}" <a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a></p>
+		<tr>
+			<td><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a></td>
+			<td>
+				<tr>
+					<td>{{ p.created_at|date:"Y-m-d H:i:s" }}{% if p.modified_by %} (modified on {{ p.modified_at|date:"Y-m-d- H:i:s" }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
+					<td align="right"><a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == p.topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if forloop.first %} topic{% endif %})</a>{% endif %}</td>
+				</tr>
+				<tr>
+					<td>{{ p.content }}</td>
+				</tr>
+			</td>
+		</tr>
 	{% endfor %}
+	</table>
 {% endblock content %}

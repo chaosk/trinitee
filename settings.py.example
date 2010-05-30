@@ -119,3 +119,6 @@ RECAPTCHA_PRIVATE_KEY = ''
 
 # Days to activation keys expation
 ACTIVATION_KEY_EXPIRY_TIME = 7
+
+ENABLE_BBCODE = True
+ENABLE_SMILEYS = True

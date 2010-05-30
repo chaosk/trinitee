@@ -1,6 +1,6 @@
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
+from utils.annoying.functions import get_config
 from utils.django_recaptcha import ReCaptchaField
 
 class LoginForm(forms.Form):
@@ -16,7 +16,7 @@ class RegistrationForm(forms.Form):
 		label='Confirm password', widget=forms.PasswordInput(render_value=False))
 	email = forms.EmailField(label='E-mail')
 	email_confirmation = forms.EmailField(label='Confirm e-mail')
-	if settings.ENABLE_CAPTCHA:
+	if get_config('ENABLE_CAPTCHA', False):
 		recaptcha = ReCaptchaField()
 	
 	def clean_username(self):

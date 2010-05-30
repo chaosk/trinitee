@@ -1,0 +1,14 @@
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url post.topic.forum.name forums.views.forum_view post.topic.forum.id %}
+{% breadcrumb_url post.topic.title forums.views.topic_view post.topic.id %}
+{% breadcrumb "Post edit" %}
+{% endblock %}
+{% block content %}
+	<form action="{% url forums.views.post_edit post.id %}" method="post">
+	    {% include "snippets/form.html" %}
+	    <p><input type="submit" value="Save post" /></p>
+	</form>
+{% endblock content %}

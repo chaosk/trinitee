@@ -1,9 +1,9 @@
 import datetime
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from forums.models import Post
+from utils.annoying.functions import get_config
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, unique=True)
@@ -39,7 +39,7 @@ class ActivationKey(models.Model):
 	user = models.OneToOneField(User)
 	key = models.CharField(max_length=100)
 	expiration_date = models.DateTimeField(auto_now_add=datetime.datetime.now()
-		+datetime.timedelta(days=settings.ACTIVATION_KEY_EXPIRY_TIME))
+		+datetime.timedelta(days=get_config('ACTIVATION_KEY_EXPIRY_TIME', 7)))
 
 def post_save_signal_receiver(sender, **kwarg):
 	if kwarg['created']:
