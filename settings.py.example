@@ -24,6 +24,14 @@ DATABASES = {
     }
 }
 
+# Mailer configuration
+EMAIL_HOST = ''
+EMAIL_PORT = ''
+# SMTP authentication
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = False
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -112,6 +120,7 @@ INSTALLED_APPS = (
 
 SITE_NAME = 'Trinitee'
 MAILER_ADDRESS = ''
+WEBMASTER_EMAIL = ''
 
 # You have to set this in order to use reCAPTCHA
 RECAPTCHA_PUBLIC_KEY = ''

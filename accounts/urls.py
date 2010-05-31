@@ -6,7 +6,7 @@ urlpatterns = patterns('trinitee.accounts.views',
 	(r'^login/$', 'login_'),
 	(r'^logout/$', 'logout_'),
 	(r'^new/$', 'register'),
-	(r'^activation/(?P<user_id>)\d+/(?P<activation_key>)\w+/$', 'activation'),
+	(r'^activation/(?P<user_id>\d)+/(?P<activation_key>\w)+/$', 'activation'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',

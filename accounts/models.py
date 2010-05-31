@@ -39,7 +39,11 @@ class ActivationKey(models.Model):
 	user = models.OneToOneField(User)
 	key = models.CharField(max_length=100)
 	expiration_date = models.DateTimeField(auto_now_add=datetime.datetime.now()
-		+datetime.timedelta(days=get_config('ACTIVATION_KEY_EXPIRY_TIME', 7)))
+		+datetime.timedelta(days=get_config('ACTIVATION_KEY_EXPIRY_TIME', 7)))	
+
+	def save(self, *args, **kwargs):
+		self.key = User.objects.make_random_password()
+		super(ActivationKey, self).save(*args, **kwargs)
 
 def post_save_signal_receiver(sender, **kwarg):
 	if kwarg['created']:

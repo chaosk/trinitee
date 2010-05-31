@@ -67,17 +67,20 @@ def register(request):
 			t = loader.get_template('accounts/email/email_activation.html')
 			ak = ActivationKey(user=user)
 			ak.save()
-			c = Context({'activation_key': ak.key})
-			send_mail("E-mail activation at %s" % get_config('SITE_NAME',
-				'Trinitee application'), t.render(c),
+			webmaster_email = get_config('WEBMASTER_EMAIL', 'example@example.com')
+			site_name = get_config('SITE_NAME', 'Trinitee application')
+			c = Context({'new_user': user, 'activation_key': ak.key,
+				'webmaster_email': webmaster_email, 'site_name': site_name,
+				'server_name': request.META.SERVER_NAME })
+			send_mail("E-mail activation at %s" % site_name, t.render(c),
 				get_config('MAILER_ADDRESS', 'example@example.com'),
 				[email], fail_silently=False)
 			messages.success(request, "Thank you for registering. \
 			An email has been sent to the specified address with \
 			instructions on how to activate your new account. \
 			If it doesn't arrive you can contact the forum \
-			administrator at %s" % WEBMASTER_EMAIL)
-			return redirect('/')
+			administrator at %s" % webmaster_email)
+			return redirect(reverse('trinitee.accounts.views.login_'))
 	else:
 		form = RegistrationForm()
 	return render_to_response('accounts/register.html', {'form': form},

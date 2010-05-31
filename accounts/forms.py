@@ -20,15 +20,14 @@ class RegistrationForm(forms.Form):
 		recaptcha = ReCaptchaField()
 	
 	def clean_username(self):
-		cleaned_data = self.cleaned_data
-		username = cleaned_data.get('username')
+		username = self.cleaned_data.get('username')
 		try:
 			user = User.objects.get(username=username)
 		except User.DoesNotExist:
-			return
+			return username
 		self._errors['username'] = self.error_class(["This username is \
 			already taken."])
-		del cleaned_data['username']
+		return username
 	
 	def clean(self):
 		cleaned_data = self.cleaned_data
