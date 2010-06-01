@@ -5,7 +5,7 @@ Thank you for registering at the {{ site_name }}. Before we can activate your ac
 Please note - you must complete this last step to become a registered member. You will only need to visit this url once to activate your account.
 
 To complete your registration, please visit this url: 
-http://{{ server_name }}/{% url accounts.views.activation new_user.id activation_key %}
+http://{{ server_name }}{% url accounts.views.activate_account new_user.id activation_key %}
 
 If you are still having problems signing up please contact a member of our support staff at {{ webmaster_email }}
 

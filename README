@@ -10,6 +10,6 @@ PIL
 Installation:
 - clone this repository
 - move settings.py.example to settings.py
-- fill db data and change SECRET_CODE
+- edit settings.py, if you omit this part your application may run not properly
 - `python manage.py syncdb`, create a superuser
 - `python manage.py runserver`

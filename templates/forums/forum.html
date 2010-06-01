@@ -19,7 +19,7 @@
 		{% for t in topics %}
 		<tr>
 			{% url forums.views.topic_view t.id as topic_url %}
-			<td><a href="{{ topic_url }}">{% if t|has_unreads:user %}<b>unread</b> {% endif %}{{ t.title }}</a></td>
+			<td>{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{% if t|has_unreads:user %}<b>unread</b> {% endif %}{{ t.title }}</a></td>
 			<td>{{ t.first_post.author }}</td>
 			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
 			<td>{{ t.view_count }}</td>

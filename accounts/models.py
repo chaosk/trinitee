@@ -1,6 +1,6 @@
 import datetime
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from forums.models import Post
 from utils.annoying.functions import get_config
@@ -38,16 +38,25 @@ class Avatar(models.Model):
 class ActivationKey(models.Model):
 	user = models.OneToOneField(User)
 	key = models.CharField(max_length=100)
-	expiration_date = models.DateTimeField(auto_now_add=datetime.datetime.now()
-		+datetime.timedelta(days=get_config('ACTIVATION_KEY_EXPIRY_TIME', 7)))	
+	expires_at = models.DateTimeField()
 
 	def save(self, *args, **kwargs):
 		self.key = User.objects.make_random_password()
+		self.expires_at = datetime.datetime.now() + \
+			datetime.timedelta(days=get_config('ACTIVATION_KEY_EXPIRY_TIME', 7))
 		super(ActivationKey, self).save(*args, **kwargs)
 
 def post_save_signal_receiver(sender, **kwarg):
 	if kwarg['created']:
-		profile = UserProfile(user=kwarg['instance'])
+		user = kwarg['instance']
+		group, created = Group.objects.get_or_create(name='Users')
+		if created:
+			group.permissions.add(Permission.objects.get(codename='add_topic'))
+			group.permissions.add(Permission.objects.get(codename='add_post'))
+			group.save()
+		user.groups.add(group)
+		user.save()
+		profile = UserProfile(user=user)
 		profile.save()
 
 post_save.connect(post_save_signal_receiver, sender=User,

@@ -63,7 +63,7 @@ class Topic(models.Model):
 	post_count = property(_get_post_count)
 	
 	class Meta:
-		ordering = ['-created_at']
+		ordering = ['-is_sticky', '-created_at']
 		get_latest_by = 'created_at'
 		verbose_name_plural = ('Topics')
 

@@ -4,18 +4,18 @@ from utils.annoying.functions import get_config
 from utils.django_recaptcha import ReCaptchaField
 
 class LoginForm(forms.Form):
-	username = forms.CharField(min_length=2, max_length=30, label='Username')
-	password = forms.CharField(min_length=4, label='Password',
+	username = forms.CharField(min_length=2, max_length=30, label="Username")
+	password = forms.CharField(min_length=4, label="Password",
 		widget=forms.PasswordInput(render_value=False))		
 
 class RegistrationForm(forms.Form):
-	username = forms.CharField(min_length=2, max_length=30, label='Username')
-	password = forms.CharField(min_length=4, label='Password',
+	username = forms.CharField(min_length=2, max_length=30, label="Username")
+	password = forms.CharField(min_length=4, label="Password",
 		widget=forms.PasswordInput(render_value=False))
 	password_confirmation = forms.CharField(min_length=4,
-		label='Confirm password', widget=forms.PasswordInput(render_value=False))
-	email = forms.EmailField(label='E-mail')
-	email_confirmation = forms.EmailField(label='Confirm e-mail')
+		label="Confirm password", widget=forms.PasswordInput(render_value=False))
+	email = forms.EmailField(label="E-mail address")
+	email_confirmation = forms.EmailField(label="Confirm e-mail")
 	if get_config('ENABLE_CAPTCHA', False):
 		recaptcha = ReCaptchaField()
 	
@@ -57,3 +57,7 @@ class RegistrationForm(forms.Form):
 			del cleaned_data['password_confirmation']
 
 		return cleaned_data
+
+class ResendActivationKeyForm(forms.Form):
+	email = forms.EmailField(label="E-mail address you've used to \
+		register on this site")

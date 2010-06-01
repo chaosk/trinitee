@@ -31,7 +31,7 @@ def topic_view(request, topic_id, page=1, post_id=False):
 	return render_to_response('forums/topic.html', {'topic': topic,
 		'posts': posts}, context_instance=RequestContext(request))
 
-@login_required
+@has_perm_or_403('forums.add_topic')
 def topic_new(request, forum_id):
 	forum = get_object_or_404(Forum, pk=forum_id)
 	if request.method == 'POST':
@@ -56,7 +56,7 @@ def post_view(request, post_id):
 	return render_to_response('forums/post.html', {'post': post},
 		context_instance=RequestContext(request))
 
-@login_required
+@has_perm_or_403('forums.add_post')
 def post_new(request, topic_id, quoted_post_id=None):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if topic.is_closed and not request.user.is_staff:
