@@ -12,7 +12,7 @@ pygments (if BBCODE_USE_PYGMENTS is set to True)
 Installation:
 - clone this repository
 - move settings.py.example to settings.py
-- edit settings.py, if you omit this part your application may run not properly
+- edit settings.py, if you omit this part your application may not run properly
 - `python manage.py syncdb`, create a superuser
 - optional: `python manage.py loaddata defauts` - will put example category/forum/topic/posts into db
 - `python manage.py runserver`
