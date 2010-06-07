@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url "Profile" accounts.views.profile_settings %}
+{% endblock %}
+{% block content %}
+	Hello {{ user.username }}
+{% endblock %}

@@ -1,37 +1,40 @@
-from django.shortcuts import render_to_response, redirect, \
-	get_object_or_404, get_list_or_404
+from django.shortcuts import redirect, get_object_or_404, get_list_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 from django.template import RequestContext
 from forums.forms import PostForm, DeletePostForm, TopicForm, MoveTopicForm
 from forums.models import Category, Forum, Topic, Post
+from utils.annoying.decorators import render_to
+from utils.annoying.functions import get_config
 from utils.decorators import has_perm_or_403, user_passes_test_or_403
 from utils.templatetags.forums import editable_by
 
+@render_to('forums/index.html')
 def index(request):
 	categories = Category.objects.all()
 	for c in categories:
 		c.forums = list(Forum.objects.filter(category=c))
-	return render_to_response('forums/index.html', {'categories': categories},
-		context_instance=RequestContext(request))
+	return {'categories': categories}
 
+@render_to('forums/forum.html')
 def forum_view(request, forum_id, page=1):
 	forum = get_object_or_404(Forum, pk=forum_id)
-	topics = list(Topic.objects.filter(forum__pk=forum_id))
-	return render_to_response('forums/forum.html', {'forum': forum,
-		'topics': topics}, context_instance=RequestContext(request))
+	topics = Topic.objects.filter(forum__pk=forum_id)
+	return {'forum': forum, 'topics': topics}
 
-def topic_view(request, topic_id, page=1, post_id=False):
+@render_to('forums/topic.html')
+def topic_view(request, topic_id, page=1):
 	topic = get_object_or_404(Topic, pk=topic_id)
-	topic.view_count = topic.view_count + 1
+	topic.view_count = F('view_count') + 1
 	topic.save()
 	if request.user.is_authenticated():
 		topic.update_read(request.user)
-	posts = list(Post.objects.filter(topic__pk=topic_id))
-	return render_to_response('forums/topic.html', {'topic': topic,
-		'posts': posts}, context_instance=RequestContext(request))
+	posts = Post.objects.filter(topic__pk=topic_id)
+	return {'topic': topic, 'posts': posts}
 
 @has_perm_or_403('forums.add_topic')
+@render_to('forums/topic_new.html')
 def topic_new(request, forum_id):
 	forum = get_object_or_404(Forum, pk=forum_id)
 	if request.method == 'POST':
@@ -48,15 +51,10 @@ def topic_new(request, forum_id):
 			return redirect(topic.get_absolute_url())
 	else:
 		form = TopicForm()
-	return render_to_response('forums/topic_new.html', {'forum': forum,
-		'form': form}, context_instance=RequestContext(request))
-
-def post_view(request, post_id):
-	post = get_object_or_404(Post, pk=post_id)
-	return render_to_response('forums/post.html', {'post': post},
-		context_instance=RequestContext(request))
+	return {'forum': forum, 'form': form}
 
 @has_perm_or_403('forums.add_post')
+@render_to('forums/post_new.html')
 def post_new(request, topic_id, quoted_post_id=None):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if topic.is_closed and not request.user.is_staff:
@@ -80,10 +78,10 @@ def post_new(request, topic_id, quoted_post_id=None):
 			except Post.DoesNotExist:
 				messages.warning(request, "You tried to quote a post which doesn't exist or \
 					it doesn't belong to topic you are replying to.")
-	return render_to_response('forums/post_new.html', {'topic': topic,
-		'form': form}, context_instance=RequestContext(request))
+	return {'topic': topic, 'form': form}
 
 @login_required
+@render_to('forums/post_edit.html')
 def post_edit(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
 	if post.topic.is_closed and not request.user.is_staff:
@@ -104,10 +102,10 @@ def post_edit(request, post_id):
 	else:
 		form = PostForm()
 		form.initial = {'content': post.content}
-	return render_to_response('forums/post_edit.html', {'post': post,
-		'form': form}, context_instance=RequestContext(request))
+	return {'post': post, 'form': form}
 
 @has_perm_or_403('forums.delete_post')
+@render_to('forums/post_delete.html')
 def post_delete(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
 	if request.method == 'POST':
@@ -126,8 +124,7 @@ def post_delete(request, post_id):
 		messages.warning(request, "You are about to delete a post. \
 			Be ABSOLUTELY sure what you are doing, because this action \
 			cannot be reverted.")
-	return render_to_response('forums/post_delete.html', {'post': post,
-		'form': form}, context_instance=RequestContext(request))
+	return {'post': post, 'form': form}
 
 @user_passes_test_or_403(lambda u: u.is_staff)
 def close_topic(request, topic_id):
@@ -174,6 +171,7 @@ def unstick_topic(request, topic_id):
 	return redirect(topic.get_absolute_url())
 
 @user_passes_test_or_403(lambda u: u.is_staff)
+@render_to('forums/topic_move.html')
 def move_topic(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if request.method == 'POST':
@@ -189,5 +187,4 @@ def move_topic(request, topic_id):
 		return redirect(topic.get_absolute_url())
 	else:
 		form = MoveTopicForm()
-	return render_to_response('forums/topic_move.html', {'topic': topic,
-		'form': form}, context_instance=RequestContext(request))
+	return {'topic': topic, 'form': form}

@@ -1,4 +1,5 @@
 {% extends "forums/base.html" %}
+{% load utils %}
 {% block content %}
 	<h2>Categories</h2>
 	<table cellspacing="5" cellpadding="5">
@@ -23,7 +24,7 @@
 			</td>
 			<td>{{ f.topic_count }}</td>
 			<td>{{ f.post_count }}</td>
-			<td>{% if f.last_post %}<a href="{% url forums.views.topic_view f.last_post.topic.id %}" title="Topic &quot;{{ f.last_post.topic }}&quot;">{{ f.last_post.created_at|date:"Y-m-d H:i:s" }}</a> by {{ f.last_post.author }}{% else %}-{% endif %}</td>
+			<td>{% if f.last_post %}<a href="{% url forums.views.topic_view f.last_post.topic.id %}" title="Topic &quot;{{ f.last_post.topic }}&quot;">{{ f.last_post.created_at|user_date:user }}</a> by {{ f.last_post.author }}{% else %}-{% endif %}</td>
 		</tr>
 		{% empty %}
 			<td colspan="4">No forums. :-(</td>

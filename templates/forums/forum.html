@@ -1,6 +1,8 @@
 {% extends "forums/base.html" %}
+{% load utils %}
 {% load forums %}
 {% load breadcrumbs %}
+{% load pagination_tags %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb_url forum.name forums.views.forum_view forum.id %}
@@ -8,6 +10,8 @@
 {% block content %}
 	<h2>{{ forum.name }}</h2>
 	{% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a>{% endif %}
+	{% autopaginate topics settings.TOPICS_PER_PAGE %}
+	{% paginate %}
 	<table cellspacing="5" cellpadding="5">
 		<tr>
 			<th>Title</th>
@@ -19,14 +23,15 @@
 		{% for t in topics %}
 		<tr>
 			{% url forums.views.topic_view t.id as topic_url %}
-			<td>{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{% if t|has_unreads:user %}<b>unread</b> {% endif %}{{ t.title }}</a></td>
+			<td>{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{% if t|has_unreads:user %}<b>unread</b> {% endif %}{{ t.title }}</a> {{ t|topic_pagination:settings.POSTS_PER_PAGE }}</td>
 			<td>{{ t.first_post.author }}</td>
 			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
 			<td>{{ t.view_count }}</td>
-			<td><a href="{{ topic_url }}">{{ t.last_post.created_at|date:"Y-m-d H:i:s" }}</a> by {{ t.last_post.author }}</td>
+			<td><a href="{{ topic_url }}">{{ t.last_post.created_at|user_date:user }}</a> by {{ t.last_post.author }}</td>
 		{% empty %}
 			<td colspan="4">No topics in this forum.</td>
 		</tr>
 		{% endfor %}
 	</table>
+	{% paginate %}
 {% endblock content %}

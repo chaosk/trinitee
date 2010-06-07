@@ -1,5 +1,5 @@
 import datetime
-from django.shortcuts import render_to_response, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -8,13 +8,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey
-from accounts.forms import LoginForm, RegistrationForm
+from accounts.forms import LoginForm, RegistrationForm, ResendActivationKeyForm, \
+	SettingsAvatarForm, SettingsDisplayForm, SettingsIdentityForm, SettingsSignatureForm
 from utils.annoying.functions import get_config, get_object_or_None
+from utils.annoying.decorators import render_to
 from utils.decorators import user_passes_test_or_403
 
 # Checking if current user is active is correct, as AnonymousUser
 # is always not active and User with is_active=False cannot login.
 @user_passes_test_or_403(lambda u: not u.is_active)
+@render_to('accounts/login.html')
 # collides with django.contrib.auth.login
 def login_(request):
 	if request.method == 'POST':
@@ -27,7 +30,7 @@ def login_(request):
 				if user.is_active:
 					login(request, user)
 					messages.success(request, "Logged in successfully.")
-					return redirect(reverse('trinitee.accounts.views.profile_index'))
+					return redirect(reverse('trinitee.accounts.views.profile_settings'))
 				else:
 					messages.error(request, "Your account is not active.")
 			else:
@@ -35,8 +38,7 @@ def login_(request):
 					didn't match. Please try again.")
 	else:
 		form = LoginForm()
-	return render_to_response('accounts/login.html', {'form': form},
-		context_instance=RequestContext(request))
+	return {'form': form}
 
 # collides with django.contrib.auth.logout
 def logout_(request):
@@ -45,21 +47,66 @@ def logout_(request):
 	return redirect('/')
 
 @login_required
-def profile_index(request):
-	return render_to_response('accounts/profile_index.html',
-		context_instance=RequestContext(request))
+@render_to('accounts/profile_settings.html')
+def profile_settings(request):
+	return {}
 
 @login_required
-def profile_edit(request):
-	return render_to_response('accounts/profile_edit.html')
+@render_to('accounts/profile_settings_avatar.html')
+def profile_settings_avatar(request):
+	if request.method == 'POST':
+		form = SettingsAvatarForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, "Saved.")
+	else:
+		form = SettingsAvatarForm()
+	return {'form': form}
 
+@login_required
+@render_to('accounts/profile_settings_display.html')
+def profile_settings_display(request):
+	if request.method == 'POST':
+		form = SettingsDisplayForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, "Saved.")
+	else:
+		form = SettingsDisplayForm()
+	return {'form': form}
+
+@login_required
+@render_to('accounts/profile_settings_identity.html')
+def profile_settings_identity(request):
+	if request.method == 'POST':
+		form = SettingsIdentityForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, "Saved.")
+	else:
+		form = SettingsIdentityForm()
+	return {'form': form}
+
+@login_required
+@render_to('accounts/profile_settings_signature.html')
+def profile_settings_signature(request):
+	if request.method == 'POST':
+		form = SettingsSignatureForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, "Saved.")
+	else:
+		form = SettingsSignatureForm()
+	return {'form': form}
+
+@render_to('accounts/profile_details.html')
 def profile_details(request, user_id):
-	user_details = get_object_or_404(User, id=user_id)
-	return render_to_response('accounts/profile_details.html', {'user_details':
-		user_details}, context_instance=RequestContext(request))
+	user_details = get_object_or_404(User, pk=user_id)
+	return {'user_details': user_details}
 
 # ref: comment to accounts.views.login_
 @user_passes_test_or_403(lambda u: not u.is_active)
+@render_to('accounts/register.html')
 def register(request):
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
@@ -89,8 +136,7 @@ def register(request):
 			return redirect(reverse('trinitee.accounts.views.login_'))
 	else:
 		form = RegistrationForm()
-	return render_to_response('accounts/register.html', {'form': form},
-		context_instance=RequestContext(request))
+	return {'form': form}
 
 @user_passes_test_or_403(lambda u: not u.is_active)
 def activate_account(request, user_id, activation_key):
@@ -109,6 +155,7 @@ def activate_account(request, user_id, activation_key):
 	return redirect('/')
 
 @user_passes_test_or_403(lambda u: not u.is_active)
+@render_to('accounts/resend_activation_key.html')
 def resend_activation_key(request, user_id):
 	user = get_object_or_404(User, pk=user_id)
 	activation = get_object_or_None(ActivationKey, user=user)
@@ -140,5 +187,4 @@ def resend_activation_key(request, user_id):
 			return redirect('/')
 	else:
 		form = ResendActivationKeyForm()
-	return render_to_response('accounts/resend_activation_key.html', {'form': form},
-		context_instance=RequestContext(request))
+	return {'form': form}

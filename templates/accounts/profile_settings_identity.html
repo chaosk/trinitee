@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url "Profile" accounts.views.profile_settings %}
+{% breadcrumb "Identity" %}
+{% endblock %}
+{% block content %}
+	<form method="post" action="{% url accounts.views.profile_settings_identity %}">
+		{% include "snippets/form.html" %}
+		<input type="submit" value="Send" />
+	</form>
+{% endblock %}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
+{% load utils %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb_url user_details.get_profile accounts.views.profile_details user_details.id %}
@@ -11,8 +12,8 @@
 	is_staff - {{ user_details.is_staff }}<br>
 	is_active - {{ user_details.is_active }}<br>
 	is_superuser - {{ user_details.is_superuser }}<br>
-	last_login - {{ user_details.last_login }}<br>
-	date_joined - {{ user_details.date_joined }}<br>
+	last_login - {{ user_details.last_login|user_date:user }}<br>
+	date_joined - {{ user_details.date_joined|user_date:user }}<br>
 	<br><br>
 	avatar - {{ user_details.get_profile.avatar.get_absolute_url }}<br>
 	signature - {{ user_details.get_profile.signature }}<br>

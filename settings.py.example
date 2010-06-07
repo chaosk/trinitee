@@ -62,12 +62,12 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = os.path.join(PROJECT_DIR, 'media')
+MEDIA_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -95,6 +95,16 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.csrf.CsrfResponseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+	'utils.pagination.middleware.PaginationMiddleware',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+	'django.core.context_processors.auth',
+	'django.core.context_processors.debug',
+	'django.core.context_processors.i18n',
+	'django.core.context_processors.media',
+	'django.core.context_processors.request',
+	'utils.context_processors.settings',
 )
 
 ROOT_URLCONF = 'trinitee.urls'
@@ -114,6 +124,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 	'trinitee.accounts',
 	'trinitee.forums',
+	'trinitee.utils',
+	'trinitee.utils.pagination',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )
@@ -129,5 +141,13 @@ RECAPTCHA_PRIVATE_KEY = ''
 # Days to activation keys expation
 ACTIVATION_KEY_EXPIRY_TIME = 7
 
+DEFAULT_TIME_ZONE = 0
+
+# Paginator
+TOPICS_PER_PAGE = 25
+POSTS_PER_PAGE = 25
+
 ENABLE_BBCODE = True
-ENABLE_SMILEYS = True
+ENABLE_SMILEYS = False
+# If True [code] tags will be highlighted using pygments
+BBCODE_USE_PYGMENTS = False

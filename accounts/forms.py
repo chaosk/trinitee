@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from accounts.models import UserProfile
 from utils.annoying.functions import get_config
 from utils.django_recaptcha import ReCaptchaField
 
@@ -61,3 +62,23 @@ class RegistrationForm(forms.Form):
 class ResendActivationKeyForm(forms.Form):
 	email = forms.EmailField(label="E-mail address you've used to \
 		register on this site")
+
+class SettingsAvatarForm(forms.ModelForm):
+	class Meta:
+		model = UserProfile
+		fields = ['avatar']
+
+class SettingsDisplayForm(forms.ModelForm):
+	class Meta:
+		model = UserProfile
+		fields = ['show_avatars', 'show_smileys', 'show_signatures', 'timezone']
+
+class SettingsIdentityForm(forms.ModelForm):
+	class Meta:
+		model = UserProfile
+		fields = ['realname', 'location', 'icq', 'jabber', 'website']
+
+class SettingsSignatureForm(forms.ModelForm):
+	class Meta:
+		model = UserProfile
+		fields = ['signature']

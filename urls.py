@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -15,6 +16,8 @@ urlpatterns = patterns('',
 	(r'^user/', include('trinitee.accounts.urls')),
 	(r'^profile/(?P<user_id>\d+)/$',
 		'trinitee.accounts.views.profile_details'),
+	(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+		{'document_root': settings.MEDIA_ROOT}),
 	#(r'$', '___.views.homepage'),
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

@@ -1,6 +1,8 @@
 {% extends "forums/base.html" %}
-{% load forums %}
+{% load utils %}
+{% load smileys %}
 {% load breadcrumbs %}
+{% load pagination_tags %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %}
@@ -9,6 +11,8 @@
 {% block content %}
 	<h2>{{ topic.title }}</h2>
 	{% if perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
+	{% autopaginate posts settings.POSTS_PER_PAGE %}
+	{% paginate %}
 	<table cellspacing="5" cellpadding="5">
 		<tr>
 			<th width="70%">[]</th>
@@ -29,18 +33,20 @@
 			</th>
 		</tr>
 	{% for p in posts %}
-		<tr>
+		<tr id="{{ p.id }}">
 			<td><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a></td>
 			<td>
 				<tr>
-					<td>{{ p.created_at|date:"Y-m-d H:i:s" }}{% if p.modified_by %} (modified on {{ p.modified_at|date:"Y-m-d- H:i:s" }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
-					<td align="right"><a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == p.topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if forloop.first %} topic{% endif %})</a>{% endif %}</td>
+					<td><a href="{{ p.get_absolute_url }}">#{{ p.id }}</a> {{ p.created_at|user_date:user }}{% if p.modified_by %} (modified on {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
+					<td align="right"><a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == p.topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == p.topic.first_post.id %} topic{% endif %})</a>{% endif %}</td>
 				</tr>
 				<tr>
-					<td>{{ p.content }}</td>
+					<td>{{ p.content_html|safe|smileys }}</td>
 				</tr>
 			</td>
 		</tr>
 	{% endfor %}
 	</table>
+	{% paginate %}
+	{% if perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
 {% endblock content %}

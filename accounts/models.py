@@ -1,16 +1,27 @@
 import datetime
+from pytz import common_timezones
+from django.contrib.auth.models import User, Group, Permission
+from django.core.urlresolvers import reverse
 from django.db import models
-from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from forums.models import Post
 from utils.annoying.functions import get_config
+
+TIMEZONE_CHOICES = tuple([(tz, tz) for tz in common_timezones])
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, unique=True)
 	avatar = models.ForeignKey('Avatar', blank=True, null=True)
 	signature = models.CharField(blank=True, max_length=255)
-	location = models.TextField(blank=True)
+	icq = models.CharField(blank=True, max_length=30)
+	jabber = models.CharField(blank=True, max_length=60)
+	location = models.CharField(blank=True, max_length=60)
 	website = models.URLField(blank=True, verify_exists=False)
+	timezone = models.FloatField(choices=TIMEZONE_CHOICES, default=float(get_config('DEFAULT_TIME_ZONE', 0)))
+
+	show_avatars = models.BooleanField(blank=True, default=True)
+	show_smileys = models.BooleanField(blank=True, default=True)
+	show_signatures = models.BooleanField(blank=True, default=True)
 
 	def _get_post_count(self):
 		return Post.objects.filter(author__exact=self).count()
@@ -23,7 +34,7 @@ class UserProfile(models.Model):
 		return u"%s's profile" % self.user.username
 	
 	def get_absolute_url(self):
-		return "/profile/%s" % self.id
+		return reverse('trinitee.accounts.views.profile_details', {'user_id': self.id})
 
 class Avatar(models.Model):
 	profile = models.OneToOneField(User)

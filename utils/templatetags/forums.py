@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -44,3 +45,33 @@ def editable_by(post, user):
 	if user.has_perm('forums.edit_post') or post.user == user:
 		return True
 	return False
+
+@register.filter
+def topic_pagination(topic, posts_per_page):
+	"""
+	Creates topic listing page links for the given topic, with the given
+	number of posts per page.
+
+	Topics with between 2 and 5 pages will have page links displayed for
+	each page.
+
+	Topics with more than 5 pages will have page links displayed for the
+	first page and the last 3 pages.
+	"""
+	hits = (topic.post_count - 1)
+	if hits < 1:
+		hits = 0
+	pages = hits // posts_per_page + 1
+	if pages < 2:
+		html = u''
+	else:
+		page_link = u'<a class="pagelink" href="%s?page=%%s">%%s</a>' % \
+			topic.get_absolute_url()
+		if pages < 6:
+			html = u' '.join([page_link % (page, page) \
+				for page in xrange(1, pages + 1)])
+		else:
+			html = u' '.join([page_link % (1 ,1), u'&hellip;'] + \
+				[page_link % (page, page) \
+				for page in xrange(pages - 2, pages + 1)])
+	return mark_safe(html)

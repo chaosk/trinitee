@@ -1,8 +1,11 @@
 import datetime
-from django.db import models
+import math
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db import models
 from utils.annoying.fields import AutoOneToOneField, JSONField
 from utils.annoying.functions import get_config
+from utils import postmarkup
 
 class Post(models.Model):
 	topic = models.ForeignKey('Topic')
@@ -16,9 +19,10 @@ class Post(models.Model):
 
 	def save(self, *args, **kwargs):
 		if get_config('ENABLE_BBCODE', False):
-			self.content_html = utils.bbcode(self.content)
-		if get_config('ENABLE_SMILEYS', False):
-			self.content = utils.smileys(self.content_html)
+			markup = postmarkup.create(annotate_links=False, use_pygments=get_config('BBCODE_USE_PYGMENTS', False))
+			self.content_html = markup(self.content)
+		else:
+			self.content_html = self.content
 		super(Post, self).save(*args, **kwargs)
 
 	def delete(self, *args, **kwargs):
@@ -39,7 +43,11 @@ class Post(models.Model):
 		return "%s by %s" % (self.id, self.author)
 	
 	def get_absolute_url(self):
-		return "/forum/post/%s" % str(self.id)
+		older_posts = Post.objects.filter(topic__pk=self.topic.id,
+			created_at__lt=self.created_at).count()
+		page = int(math.ceil((float(older_posts)+1.0)/get_config('POSTS_PER_PAGE', 25)))
+		return reverse('trinitee.forums.views.topic_view',
+			kwargs={'topic_id': self.topic.id}) + '?page=%s#%s' % (page, self.id)
 
 class Topic(models.Model):
 	created_at = models.DateTimeField(auto_now_add=datetime.datetime.now)
@@ -62,6 +70,11 @@ class Topic(models.Model):
 		return Post.objects.filter(topic__exact=self).count()
 	post_count = property(_get_post_count)
 	
+	def delete(self):
+		# delete all posts belonging to this topic
+		Post.objects.filter(topic__id=self.id).delete()
+		super(Topic, self).delete(*args, **kwargs)
+	
 	class Meta:
 		ordering = ['-is_sticky', '-created_at']
 		get_latest_by = 'created_at'
@@ -71,7 +84,7 @@ class Topic(models.Model):
 		return self.title
 	
 	def get_absolute_url(self):
-		return "/forum/topic/%s" % str(self.id)
+		return reverse('trinitee.forums.views.topic_view', kwargs={'topic_id': self.id})
 
 	def update_read(self, user):
 		tracking = user.posttracking
@@ -114,7 +127,7 @@ class Forum(models.Model):
 		return self.name
 	
 	def get_absolute_url(self):
-		return "/forum/%s" % str(self.id)
+		return reverse('trinitee.forums.views.forum_view', kwargs={'forum_id': self.id})
 
 class Category(models.Model):
 	name = models.CharField(max_length=100)
