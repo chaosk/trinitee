@@ -148,6 +148,6 @@ TOPICS_PER_PAGE = 25
 POSTS_PER_PAGE = 25
 
 ENABLE_BBCODE = True
-ENABLE_SMILEYS = False
+ENABLE_SMILEYS = True
 # If True [code] tags will be highlighted using pygments
 BBCODE_USE_PYGMENTS = False
