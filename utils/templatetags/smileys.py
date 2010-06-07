@@ -31,14 +31,22 @@ SMILEYS_LIST = get_config('SMILEYS_LIST', smileys_default_list)
 RE_SMILEYS_LIST = [(re.compile(re.escape(smiley[0])), smiley[0], smiley[1])
 	for smiley in SMILEYS_LIST]
 
+RE_SMILEYS_SAFE = re.compile(r"(<.+?>)|(https?://[\w\.#$%]+)|(\S+?@(\S\+?.)+\S{2,3})")
+
 def replace_smileys(content, autoescape=None):
 	esc = autoescape and conditional_escape or (lambda x: x)
 
 	for smiley, name, image in RE_SMILEYS_LIST:
-		if smiley.search(content):
+		safe_things = re.findall(RE_SMILEYS_SAFE, content)
+		content_safe = re.sub(RE_SMILEYS_SAFE, '#~', content)
+		if smiley.search(content_safe):
 			smiley_html = '<img class="%s" src="%s" alt="%s" />' % (
 				'smiley', os.path.join(SMILEYS_URL, image), name)
-			content = smiley.sub(smiley_html, esc(content))
+			content = smiley.sub(smiley_html, esc(content_safe))
+			for item in safe_things:
+				l = list(item)
+				l.sort()
+				content = content.replace('#~', l[3], 1)
 	return mark_safe(content)
 replace_smileys.needs_autoescape = True
 
