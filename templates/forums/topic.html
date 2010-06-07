@@ -41,7 +41,13 @@
 					<td align="right"><a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == p.topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == p.topic.first_post.id %} topic{% endif %})</a>{% endif %}</td>
 				</tr>
 				<tr>
-					<td>{{ p.content_html|safe|smileys }}</td>
+					<td>
+						{% if settings.ENABLE_SMILEYS and user.get_profile.show_smileys %}
+							{{ p.content_html|safe|smileys }}
+						{% else %}
+							{{ p.content_html|safe }}
+						{% endif %}
+					</td>
 				</tr>
 			</td>
 		</tr>
