@@ -120,7 +120,7 @@ def post_delete(request, post_id):
 	else:
 		form = DeletePostForm()
 		if post == post.topic.first_post:
-			messages.warning(request, "This action with delete whole topic with all posts within.")
+			messages.warning(request, "This action will delete whole topic with all posts within.")
 		messages.warning(request, "You are about to delete a post. \
 			Be ABSOLUTELY sure what you are doing, because this action \
 			cannot be reverted.")
