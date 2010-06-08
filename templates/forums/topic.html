@@ -15,8 +15,7 @@
 	{% paginate %}
 	<table cellspacing="5" cellpadding="5">
 		<tr>
-			<th width="70%">[]</th>
-			<th align="right">
+			<th colspan="2" align="right">
 			{% if user.is_staff %}
 				{% if topic.is_sticky %}
 					<a href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
