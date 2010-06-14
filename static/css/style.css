@@ -1,0 +1,72 @@
+body {
+	background: #dcecff;
+	font-family: sans;
+}
+
+a {
+
+	text-decoration: none;
+}
+
+#user {
+	position: absolute;
+	top: 0;
+	right: 100px;
+
+	background: #fff;
+	padding: 10px;
+}
+
+#page {
+	background: #fff;
+	width: 700px;
+	margin: 50px auto;
+}
+
+#menu {
+	background: #e7e5be;
+	padding: 10px 20px;
+}
+
+#content {
+	padding: 20px;
+}
+
+ul.messages, .category ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+ul.messages li, .category li {
+	padding: 20px;
+	margin: 0;
+}
+
+ul.messages .success { background: #9dc547; }
+ul.messages .warning { background: #e7e5be; }
+ul.messages .error   { background: #c54d47; }
+
+
+.category {
+	border: thin solid #918f61;
+	margin-bottom: 20px;
+}
+
+.category .header {
+	background: #e7e5be;
+	border-bottom: thin solid #918f61;
+	padding: 10px;
+}
+
+.category li:not(:last-child) {
+	border-bottom: thin solid #918f61;
+}
+
+.category li {
+	padding: 10px;
+}
+
+table {
+	width: 100%;
+}

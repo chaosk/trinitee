@@ -7,16 +7,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
-from accounts.models import ActivationKey
-from accounts.forms import LoginForm, RegistrationForm, ResendActivationKeyForm, \
-	SettingsAvatarForm, SettingsDisplayForm, SettingsIdentityForm, SettingsSignatureForm
+from accounts.models import ActivationKey, UserProfile
+from accounts.forms import LoginForm, RegistrationForm, \
+	ResendActivationKeyForm, SettingsAvatarForm, SettingsDisplayForm, \
+	SettingsIdentityForm, SettingsSignatureForm, UserSearchForm
 from utils.annoying.functions import get_config, get_object_or_None
 from utils.annoying.decorators import render_to
-from utils.decorators import user_passes_test_or_403
+from utils.internal.decorators import user_passes_test_or_403
 
+
+@user_passes_test_or_403(lambda u: not u.is_active)
 # Checking if current user is active is correct, as AnonymousUser
 # is always not active and User with is_active=False cannot login.
-@user_passes_test_or_403(lambda u: not u.is_active)
 @render_to('accounts/login.html')
 # collides with django.contrib.auth.login
 def login_(request):
@@ -30,7 +32,7 @@ def login_(request):
 				if user.is_active:
 					login(request, user)
 					messages.success(request, "Logged in successfully.")
-					return redirect(reverse('trinitee.accounts.views.profile_settings'))
+					return redirect(reverse('accounts.views.profile_settings'))
 				else:
 					messages.error(request, "Your account is not active.")
 			else:
@@ -40,69 +42,97 @@ def login_(request):
 		form = LoginForm()
 	return {'form': form}
 
+
 # collides with django.contrib.auth.logout
 def logout_(request):
 	logout(request)
 	messages.success(request, "Logged out successfully.")
 	return redirect('/')
 
+
+@render_to('accounts/userlist.html')
+def userlist(request):
+	users = User.objects.all().order_by('username').select_related('profile')
+	form = UserSearchForm(request.GET)
+	users = form.filter(users)
+	return {'users': users, 'form': form}
+
+
 @login_required
 @render_to('accounts/profile_settings.html')
 def profile_settings(request):
 	return {}
 
+
 @login_required
 @render_to('accounts/profile_settings_avatar.html')
 def profile_settings_avatar(request):
+	profile = UserProfile.objects.get(pk=request.user.id)
 	if request.method == 'POST':
-		form = SettingsAvatarForm(request.POST)
+		form = SettingsAvatarForm(request.POST, request.FILES, instance=profile)
 		if form.is_valid():
-			form.save()
-			messages.success(request, "Saved.")
+			if form.cleaned_data['delete']:
+				profile.avatar.delete()
+				profile.save()
+				messages.success(request, "Successfully removed your avatar.")
+			else:
+				profile = form.save(commit=False)
+				profile.avatar.save('%s.png' % request.user.id, request.FILES['avatar'])
+				profile.save()
+				messages.success(request, "Saved.")
 	else:
-		form = SettingsAvatarForm()
+		form = SettingsAvatarForm(instance=profile)
 	return {'form': form}
+
 
 @login_required
 @render_to('accounts/profile_settings_display.html')
 def profile_settings_display(request):
+	profile = UserProfile.objects.get(pk=request.user.id)
 	if request.method == 'POST':
-		form = SettingsDisplayForm(request.POST)
+		form = SettingsDisplayForm(request.POST, instance=profile)
 		if form.is_valid():
 			form.save()
 			messages.success(request, "Saved.")
 	else:
-		form = SettingsDisplayForm()
+		form = SettingsDisplayForm(instance=profile)
 	return {'form': form}
+
 
 @login_required
 @render_to('accounts/profile_settings_identity.html')
 def profile_settings_identity(request):
+	profile = UserProfile.objects.get(pk=request.user.id)
 	if request.method == 'POST':
-		form = SettingsIdentityForm(request.POST)
+		form = SettingsIdentityForm(request.POST, instance=profile)
 		if form.is_valid():
 			form.save()
 			messages.success(request, "Saved.")
 	else:
-		form = SettingsIdentityForm()
+		form = SettingsIdentityForm(instance=profile)
 	return {'form': form}
+
 
 @login_required
 @render_to('accounts/profile_settings_signature.html')
 def profile_settings_signature(request):
+	profile = UserProfile.objects.get(pk=request.user.id)
 	if request.method == 'POST':
-		form = SettingsSignatureForm(request.POST)
+		form = SettingsSignatureForm(request.POST, instance=profile)
 		if form.is_valid():
 			form.save()
 			messages.success(request, "Saved.")
 	else:
-		form = SettingsSignatureForm()
+		form = SettingsSignatureForm(instance=profile)
 	return {'form': form}
+
 
 @render_to('accounts/profile_details.html')
 def profile_details(request, user_id):
-	user_details = get_object_or_404(User, pk=user_id)
+	user_details = get_object_or_404(User.objects.select_related('profile'),
+		pk=user_id)
 	return {'user_details': user_details}
+
 
 # ref: comment to accounts.views.login_
 @user_passes_test_or_403(lambda u: not u.is_active)
@@ -124,7 +154,7 @@ def register(request):
 			site_name = get_config('SITE_NAME', 'Trinitee application')
 			c = Context({'new_user': user, 'activation_key': ak.key,
 				'webmaster_email': webmaster_email, 'site_name': site_name,
-				'server_name': request.get_host() })
+				'server_name': request.get_host()})
 			send_mail("E-mail activation at %s" % site_name, t.render(c),
 				get_config('MAILER_ADDRESS', 'example@example.com'),
 				[email], fail_silently=False)
@@ -133,10 +163,11 @@ def register(request):
 			instructions on how to activate your new account. \
 			If it doesn't arrive you can contact the forum \
 			administrator at %s" % webmaster_email)
-			return redirect(reverse('trinitee.accounts.views.login_'))
+			return redirect(reverse('accounts.views.login_'))
 	else:
 		form = RegistrationForm()
 	return {'form': form}
+
 
 @user_passes_test_or_403(lambda u: not u.is_active)
 def activate_account(request, user_id, activation_key):
@@ -146,13 +177,14 @@ def activate_account(request, user_id, activation_key):
 	if activation.expires_at < datetime.datetime.now():
 		messages.error(request, "Activation key has expired. \
 			You can request a new key <a href=\"%s\">here</a>."
-			% reverse('trinitee.accounts.views.new_activation_key'))
+			% reverse('accounts.views.new_activation_key'))
 	else:
 		user.is_active = True
 		user.save()
 		messages.success(request, "Your account has been activated.")
 	activation.delete()
 	return redirect('/')
+
 
 @user_passes_test_or_403(lambda u: not u.is_active)
 @render_to('accounts/resend_activation_key.html')
@@ -176,7 +208,7 @@ def resend_activation_key(request, user_id):
 			site_name = get_config('SITE_NAME', 'Trinitee application')
 			c = Context({'new_user': user, 'activation_key': ak.key,
 				'webmaster_email': webmaster_email, 'site_name': site_name,
-				'server_name': request.get_host() })
+				'server_name': request.get_host()})
 			send_mail("E-mail activation at %s" % site_name, t.render(c),
 				get_config('MAILER_ADDRESS', 'example@example.com'),
 				[email], fail_silently=False)

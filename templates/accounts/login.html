@@ -8,6 +8,5 @@
 	<form method="post" action="{% url accounts.views.login_ %}">
 		{% include "snippets/form.html" %}
 		<input type="submit" value="login" />
-		<input type="hidden" name="next" value="{{ next }}" />
 	</form>
 {% endblock %}

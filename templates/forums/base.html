@@ -1,6 +1,3 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
-{% block breadcrumbs %}
-{{ block.super }}
-{% breadcrumb_url "Forum index" forums.views.index %}
-{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb_url "Forum index" forums.views.index %}{% endblock %}

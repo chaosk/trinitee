@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load breadcrumbs %}
+{% load utils %}
+{% load pagination_tags %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb "Userlist" %}
+{% endblock %}
+{% block content %}
+	{% autopaginate users settings.GENERIC_ITEMS_PER_PAGE %}
+	<form action="{% url accounts.views.userlist %}" method="get">
+	    {% include "snippets/form.html" %}
+	    <p><input type="submit" value="Search" /></p>
+	</form>
+	{% paginate %}
+	<table cellspacing="5" cellpadding="5">
+		<tr>
+			<th>Username</th>
+			<th>Date joined</th>
+			<th>Post count</th>
+		</tr>
+	{% for u in users %}
+		<tr>
+			<td><a href="{{ u.get_absolute_url }}">{{ u.username }}</a></td>
+			<td>{{ u.date_joined|user_date:user }}</td>
+			<td>{{ u.profile.post_count }}</td>
+		</tr>
+	{% empty %}
+		<tr>
+			<td colspan="3" align="center">Your search returned no hits.</tr>
+		</tr>
+	{% endfor %}
+	</table>
+	{% paginate %}
+{% endblock content %}

@@ -3,7 +3,7 @@
 {% load utils %}
 {% block breadcrumbs %}
 {{ block.super }}
-{% breadcrumb_url user_details.get_profile accounts.views.profile_details user_details.id %}
+{% breadcrumb_url user_details.profile accounts.views.profile_details user_details.id %}
 {% endblock %}
 {% block content %}
 	username - {{ user_details.username }}<br>
@@ -15,9 +15,11 @@
 	last_login - {{ user_details.last_login|user_date:user }}<br>
 	date_joined - {{ user_details.date_joined|user_date:user }}<br>
 	<br><br>
-	avatar - {{ user_details.get_profile.avatar.get_absolute_url }}<br>
-	signature - {{ user_details.get_profile.signature }}<br>
-	location - {{ user_details.get_profile.location }}<br>
-	website - {{ user_details.get_profile.website }}<br>
-	post_count - {{ user_details.get_profile.post_count }}<br>
+	{% if user_details.profile.avatar %}
+	avatar - <img src="{{ user_details.profile.avatar.url }}" /><br>
+	{% endif %}
+	signature - {{ user_details.profile.signature }}<br>
+	location - {{ user_details.profile.location }}<br>
+	website - {{ user_details.profile.website }}<br>
+	post_count - {{ user_details.profile.post_count }}<br>
 {% endblock content %}

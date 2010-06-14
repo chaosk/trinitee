@@ -2,8 +2,12 @@
 {% load breadcrumbs %}
 {% block breadcrumbs %}
 {{ block.super }}
-{% breadcrumb_url "Profile" accounts.views.profile_settings %}
+{% breadcrumb_url "Settings" accounts.views.profile_settings %}
 {% endblock %}
 {% block content %}
 	Hello {{ user.username }}
+	<a href="{% url accounts.views.profile_settings_display %}">Change display settings</a>
+	<a href="{% url accounts.views.profile_settings_identity %}">Change your identity</a>
+	<a href="{% url accounts.views.profile_settings_signature %}">Set up signature</a>
+	<a href="{% url accounts.views.profile_settings_avatar %}">Upload avatar</a>
 {% endblock %}

@@ -6,7 +6,10 @@
 {% breadcrumb "Avatar" %}
 {% endblock %}
 {% block content %}
-	<form method="post" action="{% url accounts.views.profile_settings_avatar %}">
+	<form enctype="multipart/form-data" method="post" action="{% url accounts.views.profile_settings_avatar %}">
+		{% if user.profile.avatar %}
+			Current avatar: <img src="{{ user.profile.avatar.url }}" />
+		{% endif %}
 		{% include "snippets/form.html" %}
 		<input type="submit" value="Send" />
 	</form>

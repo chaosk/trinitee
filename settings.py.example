@@ -39,7 +39,7 @@ EMAIL_USE_TLS = False
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -81,6 +81,10 @@ LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/user/login/'
 LOGOUT_URL = '/user/logout/'
 
+ABSOLUTE_URL_OVERRIDES = {
+	'auth.user': lambda u: "/profile/%s/" % u.id,
+}
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -104,10 +108,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.i18n',
 	'django.core.context_processors.media',
 	'django.core.context_processors.request',
-	'utils.context_processors.settings',
+	'utils.internal.context_processors.settings',
 )
 
-ROOT_URLCONF = 'trinitee.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
 	os.path.join(PROJECT_DIR, 'templates'),
@@ -117,17 +121,17 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-	'trinitee.accounts',
-	'trinitee.forums',
-	'trinitee.utils',
-	'trinitee.utils.pagination',
-    # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.sites',
+	'django.contrib.messages',
+	'accounts',
+	'forums',
+	'utils.internal',
+	'utils.pagination',
+	'grappelli',
+	'django.contrib.admin',
 )
 
 SITE_NAME = 'Trinitee'
@@ -141,11 +145,10 @@ RECAPTCHA_PRIVATE_KEY = ''
 # Days to activation keys expation
 ACTIVATION_KEY_EXPIRY_TIME = 7
 
-DEFAULT_TIME_ZONE = 0
-
 # Paginator
 TOPICS_PER_PAGE = 25
 POSTS_PER_PAGE = 25
+GENERIC_ITEMS_PER_PAGE = 25
 
 ENABLE_BBCODE = True
 ENABLE_SMILEYS = True
