@@ -3,10 +3,11 @@
 {% load forums %}
 {% load breadcrumbs %}
 {% load pagination_tags %}
+{% block title %}{{ forum.name }} (Page {{ request.page }}) - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url forum.name forums.views.forum_view forum.id %}{% endblock %}
 {% block content %}
 	<h2>{{ forum.name }}</h2>
-	{% if perms.forums.add_topic %}<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a>{% endif %}
+	{% if forum.can_regular_user_post or user.is_staff and perms.forums.add_topic %}<a href="{% url forums.views.topic_new forum.id %}">+ new topic</a>{% endif %}
 	{% autopaginate topics settings.TOPICS_PER_PAGE %}
 	{% paginate %}
 	<table cellspacing="5" cellpadding="5">

@@ -1,12 +1,12 @@
 import datetime
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save
+from utils import postmarkup
 from utils.annoying.fields import AutoOneToOneField, JSONField
 from utils.annoying.functions import get_config
-from utils import postmarkup
+from utils.ordering.models import OrderedModel
 
 
 class Post(models.Model):
@@ -53,11 +53,11 @@ class Post(models.Model):
 		verbose_name_plural = ('Posts')
 
 	def __unicode__(self):
-		return "%s by %s" % (self.id, self.author)
+		return "Post #%s by %s" % (self.id, self.author)
 
+	@models.permalink
 	def get_absolute_url(self):
-		return reverse('forums.views.post_permalink',
-			kwargs={'post_id': self.id})
+		return ('forums.views.post_permalink', (), {'post_id': self.id})
 
 
 class Topic(models.Model):
@@ -70,13 +70,10 @@ class Topic(models.Model):
 	is_sticky = models.BooleanField(default=False)
 	is_closed = models.BooleanField(default=False)
 
+	first_post = models.ForeignKey('Post', related_name='first_topic_post',
+		blank=True, null=True)
 	last_post = models.ForeignKey('Post', related_name='last_topic_post',
 		blank=True, null=True)
-
-	def _get_first_post(self):
-		return Post.objects.filter(topic__exact=self). \
-			order_by('created_at')[0]
-	first_post = property(_get_first_post)
 
 	def get_post_count(self):
 		return Post.objects.filter(topic__exact=self).count()
@@ -92,18 +89,6 @@ class Topic(models.Model):
 		forum.post_count -= count
 		forum.topic_count -= 1
 		forum.save()
-
-	class Meta:
-		ordering = ['-is_sticky', '-created_at']
-		get_latest_by = 'created_at'
-		verbose_name_plural = ('Topics')
-
-	def __unicode__(self):
-		return self.title
-
-	def get_absolute_url(self):
-		return reverse('forums.views.topic_view',
-			kwargs={'topic_id': self.id})
 
 	def update_read(self, user):
 		tracking = user.posttracking
@@ -126,12 +111,24 @@ class Topic(models.Model):
 		except Post.DoesNotExist:
 			return None
 
+	class Meta:
+		ordering = ['-is_sticky', '-created_at']
+		get_latest_by = 'created_at'
+		verbose_name_plural = ('Topics')
 
-class Forum(models.Model):
-	name = models.CharField(max_length=100)
-	ordering = models.PositiveIntegerField(default=1)
+	def __unicode__(self):
+		return self.title
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.topic_view', (), {'topic_id': self.id})
+
+
+class Forum(OrderedModel):
+	name = models.CharField(max_length=100, unique=True)
 	description = models.TextField(blank=True)
 	category = models.ForeignKey('Category')
+	can_regular_user_post = models.BooleanField(default=True)
 
 	last_post = models.ForeignKey('Post', related_name='last_forum_post',
 		blank=True, null=True)
@@ -144,31 +141,30 @@ class Forum(models.Model):
 		return Topic.objects.filter(forum__exact=self).count()
 	topic_count = models.PositiveIntegerField(default=0)
 
-	class Meta:
-		ordering = ['-ordering', 'name']
-		verbose_name_plural = ('Forums')
-
-	def __unicode__(self):
-		return self.name
-
-	def get_absolute_url(self):
-		return reverse('forums.views.forum_view',
-			kwargs={'forum_id': self.id})
-
 	def get_last_post(self):
 		try:
 			return Post.objects.filter(topic__forum=self).latest()
 		except Post.DoesNotExist:
 			return None
 
+	class Meta:
+		ordering = ['order', 'name']
+		verbose_name_plural = ('Forums')
 
-class Category(models.Model):
+	def __unicode__(self):
+		return self.name
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.forum_view', (), {'forum_id': self.id})
+
+
+class Category(OrderedModel):
 	name = models.CharField(max_length=100)
-	ordering = models.PositiveIntegerField(default=0)
 	description = models.TextField(blank=True)
 
 	class Meta:
-		ordering = ['-ordering', 'name']
+		ordering = ['order', 'name']
 		verbose_name_plural = ('Categories')
 
 	def __unicode__(self):
@@ -189,6 +185,8 @@ def post_saved(instance, **kwargs):
 	if kwargs['created']:
 		post = instance
 		topic = post.topic
+		if topic.post_count == 0:
+			topic.first_post = post
 		topic.last_post = post
 		topic.post_count = topic.get_post_count()
 		forum = topic.forum

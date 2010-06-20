@@ -8,9 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
-from accounts.forms import LoginForm, RegistrationForm, \
-	ResendActivationKeyForm, SettingsAvatarForm, SettingsDisplayForm, \
-	SettingsIdentityForm, SettingsSignatureForm, UserSearchForm
+from accounts.forms import (LoginForm, RegistrationForm,
+	ResendActivationKeyForm, SettingsAvatarForm, SettingsDisplayForm,
+	SettingsIdentityForm, SettingsIdentityUserForm, SettingsSignatureForm,
+	UserSearchForm)
 from utils.annoying.functions import get_config, get_object_or_None
 from utils.annoying.decorators import render_to
 from utils.internal.decorators import user_passes_test_or_403
@@ -47,7 +48,7 @@ def login_(request):
 def logout_(request):
 	logout(request)
 	messages.success(request, "Logged out successfully.")
-	return redirect('/')
+	return redirect(reverse('home'))
 
 
 @render_to('accounts/userlist.html')
@@ -102,15 +103,17 @@ def profile_settings_display(request):
 @login_required
 @render_to('accounts/profile_settings_identity.html')
 def profile_settings_identity(request):
-	profile = UserProfile.objects.get(pk=request.user.id)
 	if request.method == 'POST':
-		form = SettingsIdentityForm(request.POST, instance=profile)
-		if form.is_valid():
-			form.save()
+		user_form = SettingsIdentityUserForm(request.POST, instance=request.user)
+		profile_form = SettingsIdentityForm(request.POST, instance=request.user.profile)
+		if user_form.is_valid() and profile_form.is_valid():
+			user_form.save()
+			profile_form.save()
 			messages.success(request, "Saved.")
 	else:
-		form = SettingsIdentityForm(instance=profile)
-	return {'form': form}
+		user_form = SettingsIdentityUserForm(instance=request.user)
+		profile_form = SettingsIdentityForm(instance=request.user.profile)
+	return {'user_form': user_form, 'profile_form': profile_form}
 
 
 @login_required
@@ -183,7 +186,7 @@ def activate_account(request, user_id, activation_key):
 		user.save()
 		messages.success(request, "Your account has been activated.")
 	activation.delete()
-	return redirect('/')
+	return redirect(reverse('home'))
 
 
 @user_passes_test_or_403(lambda u: not u.is_active)
@@ -199,7 +202,7 @@ def resend_activation_key(request, user_id):
 		if not form.cleaned_data['email'] == user.email:
 			messages.error(request, "E-mail address sent by you doesn't match \
 			with address used to register this account.")
-			return redirect('/')
+			return redirect(reverse('home'))
 		if form.is_valid():
 			t = loader.get_template('accounts/email/email_activation.html')
 			ak = ActivationKey(user=user)
@@ -216,7 +219,7 @@ def resend_activation_key(request, user_id):
 			to the specified address with instructions on how to activate \
 			your new account. If it doesn't arrive you can contact the forum \
 			administrator at %s" % webmaster_email)
-			return redirect('/')
+			return redirect(reverse('home'))
 	else:
 		form = ResendActivationKeyForm()
 	return {'form': form}

@@ -1,0 +1,14 @@
+[
+ {
+   "model": "auth.user",
+   "pk": 0,
+   "fields": {
+     "username": "trinitee",
+     "first_name": "Default",
+     "last_name": "User",
+     "is_active": false,
+     "password": "-",
+     "email": "example@example.com"
+    }
+ }
+]

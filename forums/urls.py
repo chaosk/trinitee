@@ -16,4 +16,5 @@ urlpatterns = patterns('forums.views',
 	(r'^topic/stick/(?P<topic_id>\d+)/$', 'stick_topic'),
 	(r'^topic/unstick/(?P<topic_id>\d+)/$', 'unstick_topic'),
 	(r'^topic/move/(?P<topic_id>\d+)/$', 'move_topic'),
+	(r'^search/$', 'search'),
 )

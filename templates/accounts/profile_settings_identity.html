@@ -7,7 +7,12 @@
 {% endblock %}
 {% block content %}
 	<form method="post" action="{% url accounts.views.profile_settings_identity %}">
+		{% with user_form as form %}
 		{% include "snippets/form.html" %}
+		{% endwith %}
+		{% with profile_form as form %}
+		{% include "snippets/form.html" %}
+		{% endwith %}
 		<input type="submit" value="Send" />
 	</form>
 {% endblock %}

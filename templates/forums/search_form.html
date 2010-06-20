@@ -1,0 +1,12 @@
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb "Search" %}
+{% endblock %}
+{% block content %}
+	<form action="{% url forums.views.search %}" method="post">
+	    {% include "snippets/form.html" %}
+	    <p><input type="submit" value="Search" /></p>
+	</form>
+{% endblock content %}

@@ -4,9 +4,10 @@ from django.shortcuts import redirect, get_object_or_404, get_list_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.db.models import F
+from django.db.models import F, Q
 from django.template import RequestContext
-from forums.forms import PostForm, DeletePostForm, TopicForm, MoveTopicForm
+from forums.forms import (PostForm, DeletePostForm, TopicForm,
+	MoveTopicForm, PostSearchForm)
 from forums.models import Category, Forum, Topic, Post
 from utils.annoying.decorators import render_to
 from utils.annoying.functions import get_config
@@ -24,7 +25,7 @@ def index(request):
 			{'id': forum.category.id, 'category': forum.category, 'forums': []})
 		cat['forums'].append(forum)
 
-	cmpdef = lambda a, b: cmp(a['category'].ordering, b['category'].ordering)
+	cmpdef = lambda a, b: cmp(a['category'].order, b['category'].order)
 	categories = sorted(categories.values(), cmpdef)
 	return {'categories': categories}
 
@@ -61,6 +62,11 @@ def post_permalink(request, post_id):
 @render_to('forums/topic_new.html')
 def topic_new(request, forum_id):
 	forum = get_object_or_404(Forum, pk=forum_id)
+	if not forum.can_regular_user_post and not request.user.is_staff:
+		messages.error(request, "You are not allowed to post new topics \
+			on this forum.")
+		return redirect(reverse('forums.views.forum_view', 
+			kwargs={'forum_id': forum.id}))
 	if request.method == 'POST':
 		form = TopicForm(request.POST)
 		if form.is_valid():
@@ -153,6 +159,25 @@ def post_delete(request, post_id):
 			Be ABSOLUTELY sure what you are doing, because this action \
 			cannot be reverted.")
 	return {'post': post, 'form': form}
+
+@render_to('forums/search_form.html')
+def search(request):
+	if request.method == 'POST':
+		form = PostSearchForm(request.POST)
+		if form.is_valid():
+			if form.cleaned_data['show_as'] == 'posts':
+				queryset = Post.objects.filter(
+					content__contains=form.cleaned_data['keywords'])
+			else:
+				queryset = Topic.objects.filter(
+					Q(posts__content__contains=form.cleaned_data['keywords']) |
+					Q(title__contains=form.cleaned_data['keywords'])
+				)
+			return {'TEMPLATE': 'forums/search_results.html',
+				'queryset': queryset, 'form': form}
+	else:
+		form = PostSearchForm()
+	return {'form': form}
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)

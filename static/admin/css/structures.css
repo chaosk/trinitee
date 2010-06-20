@@ -61,11 +61,10 @@ body.filebrowser.popup #header {
     padding: 8px 10px;
 }
 .branding {
-    display: none;
     position: relative;
     float: right;
-    width: 10px;
-    background: url('../img/grappelli-icon.png') 50% 50% no-repeat;
+    width: 30px;
+    background: url('../img/grappelli-icon.png') 0 50% no-repeat;
 }
 .admin-title {
     position: relative;

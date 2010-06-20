@@ -1,3 +1,4 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
+{% block title %}{{ block.super }} Forum{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url "Forum index" forums.views.index %}{% endblock %}

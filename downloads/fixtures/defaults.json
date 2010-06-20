@@ -1,0 +1,42 @@
+[
+  {
+    "model": "downloads.platform",
+    "pk": 1,
+    "fields": {
+      "name": "win32",
+      "displayed_name": "Windows 32bit"
+    }
+  },
+  {
+    "model": "downloads.platform",
+    "pk": 2,
+    "fields": {
+      "name": "osx",
+      "displayed_name": "Mac OS X (Universal)"
+    }
+  },
+  {
+    "model": "downloads.platform",
+    "pk": 3,
+    "fields": {
+      "name": "linux_x86",
+      "displayed_name": "Linux x86"
+    }
+  },
+  {
+    "model": "downloads.platform",
+    "pk": 4,
+    "fields": {
+      "name": "linux_x86_64",
+      "displayed_name": "Linux x86_64"
+    }
+  },
+  {
+    "model": "downloads.platform",
+    "pk": 5,
+    "fields": {
+      "name": "src",
+      "displayed_name": "Source"
+    }
+  }
+]

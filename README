@@ -3,7 +3,7 @@ Trinitee.
 Author: Krzysztof Socha <ksocha.com>
 
 System requirements:
-Python 2.4-2.x
+Python 2.5-2.x
 Django 1.2
 PIL
 pytz

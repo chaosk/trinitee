@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load utils %}
+{% load smileys %}
+{% block content %}
+	<div id="info">
+		Teeworlds. What is it and what should I eat it with.
+	</div>
+{% for n in news %}
+	<h2><a href="{{ n.topic.get_absolute_url }}">{{ n.topic.title }}</a></h2>
+	<div class="article-details">
+		{{ n.created_at|user_date:user }} by <a href="{{ n.author.get_absolute_url }}">{{ n.author }}</a>
+	</div>
+	<div class="article">
+		{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+			{{ n.content_html|safe|smileys }}
+		{% else %}
+			{{ n.content_html|safe }}
+		{% endif %}
+	</div>
+	<div class="article-bar">
+		{% with n.topic.post_count|add:"-1" as replies %}
+			<a href="{{ n.get_absolute_url }}">{{ replies }} comment{{ replies|pluralize }}</a>
+		{% endwith %}
+	</div>
+{% endfor %}
+	<div id="news-archive"><a href="{% url forums.views.forum_view forum_id %}">News archive</a></div>
+{% endblock content %}

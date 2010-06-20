@@ -3,7 +3,6 @@ from pytz import common_timezones
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.hashcompat import sha_constructor
@@ -40,9 +39,9 @@ class UserProfile(models.Model):
 	def __unicode__(self):
 		return u"%s's profile" % self.user.username
 
+	@models.permalink
 	def get_absolute_url(self):
-		return reverse('accounts.views.profile_details',
-			{'user_id': self.id})
+		return ('accounts.views.profile_details', (), {'user_id': self.id})
 
 
 class ActivationKey(models.Model):

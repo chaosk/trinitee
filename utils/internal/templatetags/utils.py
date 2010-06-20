@@ -1,7 +1,7 @@
 import re
 from django import template
 from django.utils.safestring import mark_safe
-from trinitee.utils.dates import format_datetime
+from ..dates import format_datetime
 
 register = template.Library()
 

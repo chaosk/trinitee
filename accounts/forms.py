@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.files.images import get_image_dimensions
 from accounts.models import UserProfile
 from forums.models import Forum
 from utils.annoying.functions import get_config
@@ -11,27 +12,9 @@ SORT_USER_BY_CHOICES = (
 	('post_count', "No. of posts"),
 )
 
-SORT_POST_BY_CHOICES = (
-	('posted_at', "Post time"),
-	('author', "Author"),
-	('title', "Subject"),
-	('forum', "Forum"),
-)
-
 SORT_DIR_CHOICES = (
 	('ASC', "Ascending"),
 	('DESC', "Descending"),
-)
-
-SHOW_AS_CHOICES = (
-	('topics', "Topics"),
-	('posts', "Posts"),
-)
-
-SEARCH_IN_CHOICES = (
-	('all', "Message text and topic subject"),
-	('message', "Message text only"),
-	('topic', "Topic subject only"),
 )
 
 
@@ -56,11 +39,15 @@ class RegistrationForm(forms.Form):
 		username = self.cleaned_data.get('username')
 		try:
 			user = User.objects.get(username=username)
+			raise forms.ValidationError("This username is already taken.")
 		except User.DoesNotExist:
 			return username
-		self._errors['username'] = self.error_class(["This username is \
-			already taken."])
-		return username
+
+	def clean_email(self):
+		email = self.cleaned_data.get('email')
+		if email and User.objects.filter(email=email).count():
+			raise forms.ValidationError("Email addresses must be unique.")
+		return email
 
 	def clean(self):
 		cleaned_data = self.cleaned_data
@@ -104,6 +91,21 @@ class SettingsAvatarForm(forms.ModelForm):
 		model = UserProfile
 		fields = ['avatar']
 
+	def clean_avatar(self):
+		avatar = self.cleaned_data.get('avatar')
+		delete = self.cleaned_data.get('delete')
+		if not avatar or delete:
+			return avatar
+		else:
+			w, h = get_image_dimensions(avatar)
+			max_w = get_config('AVATAR_MAX_WIDTH', 60)
+			max_h = get_config('AVATAR_MAX_HEIGTH', 60)
+			if w > max_w:
+				raise forms.ValidationError("The image is %i pixel wide. It's supposed to be %ipx" % (w, max_h))
+			if h > max_h:
+				raise forms.ValidationError("The image is %i pixel high. It's supposed to be %ipx" % (h, max_h))
+		return avatar
+
 
 class SettingsDisplayForm(forms.ModelForm):
 
@@ -116,7 +118,14 @@ class SettingsIdentityForm(forms.ModelForm):
 
 	class Meta:
 		model = UserProfile
-		fields = ['realname', 'location', 'icq', 'jabber', 'website']
+		fields = ['location', 'icq', 'jabber', 'website']
+
+
+class SettingsIdentityUserForm(forms.ModelForm):
+
+	class Meta:
+		model = User
+		fields = ['first_name', 'last_name']
 
 
 class SettingsSignatureForm(forms.ModelForm):
@@ -124,6 +133,9 @@ class SettingsSignatureForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
 		fields = ['signature']
+		widgets = {
+			'signature': forms.Textarea(attrs={'cols': 60, 'rows': 10}),
+		}
 
 
 class UserSearchForm(forms.Form):
@@ -157,19 +169,3 @@ class UserSearchForm(forms.Form):
 				if sort_dir == 'DESC':
 					return queryset.all().order_by('-username')
 		return queryset.all()
-
-
-class PostSearchForm(forms.Form):
-	keywords = forms.CharField(required=False, label="Keyword search",
-		max_length=100)
-	author = forms.CharField(required=False, label="Author search", max_length=25)
-	#forum = forms.ModelChoiceField(choices=Forum.objects.all(), required=False, \
-	# label="Forum")
-	search_in = forms.ChoiceField(choices=SEARCH_IN_CHOICES, label="Search in")
-	sort_by = forms.ChoiceField(choices=SORT_POST_BY_CHOICES, label="Sort by")
-	sort_dir = forms.ChoiceField(choices=SORT_DIR_CHOICES, label="Sort order")
-	show_as = forms.ChoiceField(choices=SHOW_AS_CHOICES, label="Show results as")
-
-	def filter(self, queryset):
-		# TODO add filtering
-		return queryset

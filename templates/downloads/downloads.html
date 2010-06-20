@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load utils %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb "Downloads" %}{% endblock %}
+{% block content %}
+{% for v in versions %}
+	<h2 name="version-{{ v.version_number }}">{{ v.version_number }}</h2>
+	<p class="description">{{ v.release_notes }}</p>
+	{% for r in v.releases.all %}
+		<a href="{{ r.get_absolute_url }}">{{ r.platform.displayed_name }}</a>
+	{% endfor %}
+{% empty %}
+	Nothing was released yet!
+{% endfor %}
+{% endblock content %}

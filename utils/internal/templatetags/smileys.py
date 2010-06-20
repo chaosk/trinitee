@@ -5,7 +5,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.html import conditional_escape
-from trinitee.utils.annoying.functions import get_config
+from ...annoying.functions import get_config
 register = template.Library()
 
 smileys_default_list = (

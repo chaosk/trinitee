@@ -1,0 +1,16 @@
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% load pagination_tags %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb "Search results" %}
+{% endblock %}
+{% block content %}
+	{% paginate %}
+	<ul>
+	{% for result in queryset %}
+		<li><a href="{{ result.get_absolute_url }}">{{ result }}</a></li>
+	{% endfor %}
+	<ul>
+	{% paginate %}
+{% endblock content %}
