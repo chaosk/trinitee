@@ -1,5 +1,5 @@
-import datetime
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save
@@ -11,13 +11,21 @@ from utils.ordering.models import OrderedModel
 
 class Post(models.Model):
 	topic = models.ForeignKey('Topic', related_name='posts')
-	created_at = models.DateTimeField(auto_now_add=datetime.datetime.now)
+	created_at = models.DateTimeField(auto_now_add=True)
 	author = models.ForeignKey(User, related_name='posts')
-	modified_at = models.DateTimeField(auto_now=datetime.datetime.now)
+	modified_at = models.DateTimeField(auto_now=True)
 	modified_by = models.ForeignKey(User, blank=True, null=True,
 		related_name='modified_by')
 	content = models.TextField()
 	content_html = models.TextField()
+
+	class Meta:
+		ordering = ['created_at']
+		get_latest_by = 'created_at'
+		verbose_name_plural = ('Posts')
+
+	def __unicode__(self):
+		return "Post #%s by %s" % (self.id, self.author)
 
 	def save(self, *args, **kwargs):
 		if get_config('ENABLE_BBCODE', False):
@@ -46,14 +54,7 @@ class Post(models.Model):
 		forum.last_post = forum.get_last_post()
 		forum.post_count -= 1
 		forum.save()
-
-	class Meta:
-		ordering = ['created_at']
-		get_latest_by = 'created_at'
-		verbose_name_plural = ('Posts')
-
-	def __unicode__(self):
-		return "Post #%s by %s" % (self.id, self.author)
+		cache.delete('forums_count_posts')
 
 	@models.permalink
 	def get_absolute_url(self):
@@ -61,7 +62,7 @@ class Post(models.Model):
 
 
 class Topic(models.Model):
-	created_at = models.DateTimeField(auto_now_add=datetime.datetime.now)
+	created_at = models.DateTimeField(auto_now_add=True)
 	author = models.ForeignKey(User, related_name='topics')
 	title = models.CharField(max_length=100)
 	forum = models.ForeignKey('Forum', related_name='topics')
@@ -74,10 +75,15 @@ class Topic(models.Model):
 		blank=True, null=True)
 	last_post = models.ForeignKey('Post', related_name='last_topic_post',
 		blank=True, null=True)
-
-	def get_post_count(self):
-		return Post.objects.filter(topic__exact=self).count()
 	post_count = models.PositiveIntegerField(default=0)
+
+	class Meta:
+		ordering = ['-is_sticky', '-created_at']
+		get_latest_by = 'created_at'
+		verbose_name_plural = ('Topics')
+
+	def __unicode__(self):
+		return self.title
 
 	def delete(self, *args, **kwargs):
 		forum = self.forum
@@ -89,6 +95,21 @@ class Topic(models.Model):
 		forum.post_count -= count
 		forum.topic_count -= 1
 		forum.save()
+		cache.delete('forums_count_posts')
+		cache.delete('forums_count_topics')
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.topic_view', (), {'topic_id': self.id})
+
+	def get_post_count(self):
+		return Post.objects.filter(topic__exact=self).count()
+
+	def get_last_post(self):
+		try:
+			return Post.objects.filter(topic__exact=self).latest()
+		except Post.DoesNotExist:
+			return None
 
 	def update_read(self, user):
 		tracking = user.posttracking
@@ -105,24 +126,6 @@ class Topic(models.Model):
 			tracking.topics = {self.id: self.last_post.id}
 			tracking.save()
 
-	def get_last_post(self):
-		try:
-			return Post.objects.filter(topic__exact=self).latest()
-		except Post.DoesNotExist:
-			return None
-
-	class Meta:
-		ordering = ['-is_sticky', '-created_at']
-		get_latest_by = 'created_at'
-		verbose_name_plural = ('Topics')
-
-	def __unicode__(self):
-		return self.title
-
-	@models.permalink
-	def get_absolute_url(self):
-		return ('forums.views.topic_view', (), {'topic_id': self.id})
-
 
 class Forum(OrderedModel):
 	name = models.CharField(max_length=100, unique=True)
@@ -132,6 +135,17 @@ class Forum(OrderedModel):
 
 	last_post = models.ForeignKey('Post', related_name='last_forum_post',
 		blank=True, null=True)
+
+	class Meta:
+		ordering = ['order', 'name']
+		verbose_name_plural = ('Forums')
+
+	def __unicode__(self):
+		return self.name
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.forum_view', (), {'forum_id': self.id})
 
 	def get_post_count(self):
 		return Post.objects.filter(topic__forum__exact=self).count()
@@ -146,17 +160,6 @@ class Forum(OrderedModel):
 			return Post.objects.filter(topic__forum=self).latest()
 		except Post.DoesNotExist:
 			return None
-
-	class Meta:
-		ordering = ['order', 'name']
-		verbose_name_plural = ('Forums')
-
-	def __unicode__(self):
-		return self.name
-
-	@models.permalink
-	def get_absolute_url(self):
-		return ('forums.views.forum_view', (), {'forum_id': self.id})
 
 
 class Category(OrderedModel):
@@ -174,7 +177,7 @@ class Category(OrderedModel):
 class PostTracking(models.Model):
 	user = AutoOneToOneField(User, primary_key=True)
 	topics = JSONField(null=True)
-	last_read = models.DateTimeField(auto_now=datetime.datetime.now)
+	last_read = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		verbose_name = 'Post tracking'
@@ -182,14 +185,14 @@ class PostTracking(models.Model):
 
 
 def post_saved(instance, **kwargs):
+	post = instance
+	topic = post.topic
+	forum = topic.forum
 	if kwargs['created']:
-		post = instance
-		topic = post.topic
 		if topic.post_count == 0:
 			topic.first_post = post
 		topic.last_post = post
 		topic.post_count = topic.get_post_count()
-		forum = topic.forum
 		forum.last_post = post
 		forum.post_count = forum.get_post_count()
 		profile = post.author.profile
@@ -197,14 +200,20 @@ def post_saved(instance, **kwargs):
 		profile.save(force_update=True)
 		topic.save(force_update=True)
 		forum.save(force_update=True)
+		cache.delete('forums_count_posts')
+	cache.delete('forums_topics_%s' % forum)
+	cache.delete('forums_posts_%s' % topic)
 
 
 def topic_saved(instance, **kwargs):
+	topic = instance
+	forum = topic.forum
 	if kwargs['created']:
-		topic = instance
-		forum = topic.forum
 		forum.topic_count = forum.get_topic_count()
 		forum.save(force_update=True)
+		cache.delete('forums_count_topics')
+	cache.delete('forums_topics_%s' % forum)
+	cache.delete('forums_posts_%s' % topic)
 
 post_save.connect(post_saved, sender=Post)
 post_save.connect(topic_saved, sender=Topic)

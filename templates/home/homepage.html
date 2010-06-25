@@ -1,10 +1,19 @@
 {% extends "base.html" %}
 {% load utils %}
 {% load smileys %}
+{% block header %}
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_news %}" title="{{ settings.SITE_NAME }} News" />
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
+{% endblock header %}
 {% block content %}
 	<div id="info">
 		Teeworlds. What is it and what should I eat it with.
 	</div>
+	{% if latest_download %}
+	<div id="download">
+		Download Teeworlds <a href="{{ latest_download.get_absolute_url }}">{{ latest_download.version }} for {{ latest_download.platform }}</a>!
+	</div>
+	{% endif %}
 {% for n in news %}
 	<h2><a href="{{ n.topic.get_absolute_url }}">{{ n.topic.title }}</a></h2>
 	<div class="article-details">

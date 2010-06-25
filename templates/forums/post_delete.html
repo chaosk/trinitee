@@ -1,5 +1,6 @@
 {% extends "forums/base.html" %}
 {% load breadcrumbs %}
+{% block title %}Post delete confirmation - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url post.topic.forum.name forums.views.forum_view post.topic.forum.id %} {% breadcrumb_url post.topic.title forums.views.topic_view post.topic.id %} {% breadcrumb "Post delete confirmation" %}{% endblock %}
 {% block content %}
 	<form action="{% url forums.views.post_delete post.id %}" method="post">

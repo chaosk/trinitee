@@ -1,5 +1,6 @@
 {% extends "forums/base.html" %}
 {% load breadcrumbs %}
+{% block title %}Search - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb "Search" %}

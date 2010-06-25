@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
 {% load utils %}
+{% block title %}{{ user_details.profile }} - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb_url user_details.profile accounts.views.profile_details user_details.id %}
 {% endblock %}
 {% block content %}
+	{% if user_details|is_online %}ONLINE{% endif %}
 	username - {{ user_details.username }}<br>
 	first_name - {{ user_details.first_name }}<br>
 	last_name - {{ user_details.last_name }}<br>

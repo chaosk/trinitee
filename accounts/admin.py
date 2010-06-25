@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from accounts.models import UserProfile
+from accounts.models import Badge, UserProfile
 
 
 class UserProfileInline(admin.StackedInline):
@@ -15,3 +15,4 @@ class UserProfileAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
+admin.site.register(Badge)

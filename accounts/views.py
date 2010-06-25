@@ -1,5 +1,6 @@
 import datetime
 from django.shortcuts import redirect, get_object_or_404
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -8,12 +9,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
-from accounts.forms import (LoginForm, RegistrationForm,
-	ResendActivationKeyForm, SettingsAvatarForm, SettingsDisplayForm,
-	SettingsIdentityForm, SettingsIdentityUserForm, SettingsSignatureForm,
-	UserSearchForm)
+from accounts.forms import *
 from utils.annoying.functions import get_config, get_object_or_None
 from utils.annoying.decorators import render_to
+from utils.annoying.utils import HttpResponseReload
 from utils.internal.decorators import user_passes_test_or_403
 
 
@@ -33,6 +32,9 @@ def login_(request):
 				if user.is_active:
 					login(request, user)
 					messages.success(request, "Logged in successfully.")
+					next = request.POST.get('next', '').strip()
+					if next:
+						return redirect(next)
 					return redirect(reverse('accounts.views.profile_settings'))
 				else:
 					messages.error(request, "Your account is not active.")
@@ -41,7 +43,7 @@ def login_(request):
 					didn't match. Please try again.")
 	else:
 		form = LoginForm()
-	return {'form': form}
+	return {'form': form, 'next': request.GET.get('next', '').strip()}
 
 
 # collides with django.contrib.auth.logout
@@ -53,7 +55,10 @@ def logout_(request):
 
 @render_to('accounts/userlist.html')
 def userlist(request):
-	users = User.objects.all().order_by('username').select_related('profile')
+	users = cache.get('accounts_userlist')
+	if users == None:
+		users = User.objects.all().order_by('username').select_related('profile')
+		cache.set('accounts_userlist', users)
 	form = UserSearchForm(request.GET)
 	users = form.filter(users)
 	return {'users': users, 'form': form}
@@ -76,11 +81,12 @@ def profile_settings_avatar(request):
 				profile.avatar.delete()
 				profile.save()
 				messages.success(request, "Successfully removed your avatar.")
-			else:
+			elif 'avatar' in request.FILES:
 				profile = form.save(commit=False)
 				profile.avatar.save('%s.png' % request.user.id, request.FILES['avatar'])
 				profile.save()
 				messages.success(request, "Saved.")
+			return HttpResponseReload(request)
 	else:
 		form = SettingsAvatarForm(instance=profile)
 	return {'form': form}
@@ -103,16 +109,20 @@ def profile_settings_display(request):
 @login_required
 @render_to('accounts/profile_settings_identity.html')
 def profile_settings_identity(request):
+	if request.user.is_staff:
+		profile_form_class = SettingsIdentityStaffForm
+	else:
+		profile_form_class = SettingsIdentityForm
 	if request.method == 'POST':
 		user_form = SettingsIdentityUserForm(request.POST, instance=request.user)
-		profile_form = SettingsIdentityForm(request.POST, instance=request.user.profile)
+		profile_form = profile_form_class(request.POST, instance=request.user.profile)
 		if user_form.is_valid() and profile_form.is_valid():
 			user_form.save()
 			profile_form.save()
 			messages.success(request, "Saved.")
 	else:
 		user_form = SettingsIdentityUserForm(instance=request.user)
-		profile_form = SettingsIdentityForm(instance=request.user.profile)
+		profile_form = profile_form_class(instance=request.user.profile)
 	return {'user_form': user_form, 'profile_form': profile_form}
 
 
@@ -132,8 +142,11 @@ def profile_settings_signature(request):
 
 @render_to('accounts/profile_details.html')
 def profile_details(request, user_id):
-	user_details = get_object_or_404(User.objects.select_related('profile'),
-		pk=user_id)
+	user_details = cache.get('accounts_profile_%s' % user_id)
+	if user_details == None:
+		user_details = get_object_or_404(
+			User.objects.select_related('profile'), pk=user_id)
+		cache.set('accounts_profile_%s' % user_id, user_details)
 	return {'user_details': user_details}
 
 

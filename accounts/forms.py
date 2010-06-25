@@ -85,7 +85,7 @@ class ResendActivationKeyForm(forms.Form):
 
 
 class SettingsAvatarForm(forms.ModelForm):
-	delete = forms.BooleanField(initial=False, label="Delete avatar?")
+	delete = forms.BooleanField(required=False, initial=False, label="Delete avatar?")
 
 	class Meta:
 		model = UserProfile
@@ -120,6 +120,11 @@ class SettingsIdentityForm(forms.ModelForm):
 		model = UserProfile
 		fields = ['location', 'icq', 'jabber', 'website']
 
+class SettingsIdentityStaffForm(SettingsIdentityForm):
+
+	class Meta:
+		model = UserProfile
+		fields = ['badge', 'location', 'icq', 'jabber', 'website']
 
 class SettingsIdentityUserForm(forms.ModelForm):
 

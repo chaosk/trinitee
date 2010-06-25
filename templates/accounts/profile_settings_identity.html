@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
+{% block title %}Identity - User settings - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}
 {{ block.super }}
-{% breadcrumb_url "Profile" accounts.views.profile_settings %}
+{% breadcrumb_url "User settings" accounts.views.profile_settings %}
 {% breadcrumb "Identity" %}
 {% endblock %}
 {% block content %}

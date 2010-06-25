@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
+{% block title %}Sign in - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb "Sign in" %}
@@ -7,6 +8,7 @@
 {% block content %}
 	<form method="post" action="{% url accounts.views.login_ %}">
 		{% include "snippets/form.html" %}
+		<input type="hidden" name="next" value="{{ next }}" />
 		<input type="submit" value="login" />
 	</form>
 {% endblock %}

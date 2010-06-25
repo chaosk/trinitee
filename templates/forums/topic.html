@@ -5,6 +5,10 @@
 {% load breadcrumbs %}
 {% load pagination_tags %}
 {% block title %}{{ topic.title }} (Page {{ request.page }}) - {{ block.super }}{% endblock %}
+{% block header %}
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_topic topic.id %}" title="Topic &quot;{{ topic.title }}&quot; - {{ settings.SITE_NAME }} Forum" />
+{% endblock header %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}
 	<h2>{{ topic.title }}</h2>

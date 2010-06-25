@@ -15,8 +15,11 @@ TIMEZONE_CHOICES = tuple([(tz, tz) for tz in common_timezones])
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, unique=True, related_name='profile')
-	avatar = models.ImageField(blank=True, default='', storage=OverwriteStorage(),
-		upload_to='uploads/avatars/')
+	last_activity_at = models.DateTimeField(auto_now_add=True)
+	last_activity_ip = models.IPAddressField(blank=True, null=True)
+	badge = models.ForeignKey('Badge', default=1, blank=True, null=True)
+	avatar = models.ImageField(blank=True, default='',
+		storage=OverwriteStorage(), upload_to='uploads/avatars/')
 	signature = models.CharField(blank=True, max_length=255)
 	icq = models.CharField(blank=True, max_length=30)
 	jabber = models.CharField(blank=True, max_length=60)
@@ -29,8 +32,6 @@ class UserProfile(models.Model):
 	show_smileys = models.BooleanField(blank=True, default=True)
 	show_signatures = models.BooleanField(blank=True, default=True)
 
-	def get_post_count(self):
-		return Post.objects.filter(author__exact=self).count()
 	post_count = models.PositiveIntegerField(default=0)
 
 	class Meta:
@@ -43,6 +44,25 @@ class UserProfile(models.Model):
 	def get_absolute_url(self):
 		return ('accounts.views.profile_details', (), {'user_id': self.id})
 
+	def get_post_count(self):
+		return Post.objects.filter(author__exact=self).count()
+
+
+class Badge(models.Model):
+	title = models.CharField(max_length=20)
+
+	def badge_filename(self, filename):
+		fname, dot, extension = filename.rpartition('.')
+		return 'uploads/badges/%s.%s' % (self.title, extension)
+
+	badge = models.ImageField(blank=True, default='',
+		storage=OverwriteStorage(), upload_to=badge_filename)
+
+	def __unicode__(self):
+		return self.title
+
+	def get_absolute_url(self):
+		return self.badge.url
 
 class ActivationKey(models.Model):
 	user = models.OneToOneField(User)

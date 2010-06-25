@@ -1,6 +1,9 @@
 {% extends "forums/base.html" %}
 {% load utils %}
 {% block title %}{{ block.super }}{% endblock %}
+{% block header %}
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
+{% endblock header %}
 {% block content %}
 	<h2>Categories</h2>
 	<table cellspacing="5" cellpadding="5">
@@ -34,4 +37,14 @@
 			<td colspan="4">No categories. :-(</td>
 		{% endfor %}
 	</table>
+	<div id="forum_stats">
+			<div id="users_online">
+				<span id="users_online_info">Currently there {{ users_online|length|pluralize:"is,are" }} {{ users_online|length }} user{{ users_online|length|pluralize }} online</span>
+				<span id="users_online_data">{{ users_online|join:", " }}</span>
+			</div>
+			<div id="random_numbers">
+				Users: {{ users }} | Topics: {{ topics }} | Posts: {{ posts }}
+			</div>
+		</div>
+	</div>
 {% endblock content %}

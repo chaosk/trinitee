@@ -1,5 +1,6 @@
 {% extends "forums/base.html" %}
 {% load breadcrumbs %}
+{% block title %}New topic - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url forum.name forums.views.forum_view forum.id %} {% breadcrumb "New topic" %}{% endblock %}
 {% block content %}
 	<form action="{% url forums.views.topic_new forum.id %}" method="post">

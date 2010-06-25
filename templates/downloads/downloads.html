@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load utils %}
 {% load breadcrumbs %}
+{% block title %}Downloads - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb "Downloads" %}{% endblock %}
 {% block content %}
 {% for v in versions %}

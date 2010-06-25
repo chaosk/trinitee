@@ -4,6 +4,10 @@
 {% load breadcrumbs %}
 {% load pagination_tags %}
 {% block title %}{{ forum.name }} (Page {{ request.page }}) - {{ block.super }}{% endblock %}
+{% block header %}
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_forum forum.id %}" title="Forum &quot;{{ forum.name }}&quot; - {{ settings.SITE_NAME }} Forum" />
+{% endblock header %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url forum.name forums.views.forum_view forum.id %}{% endblock %}
 {% block content %}
 	<h2>{{ forum.name }}</h2>

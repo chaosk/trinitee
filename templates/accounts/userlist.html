@@ -2,6 +2,7 @@
 {% load breadcrumbs %}
 {% load utils %}
 {% load pagination_tags %}
+{% block title %}Userlist - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}
 {{ block.super }}
 {% breadcrumb "Userlist" %}

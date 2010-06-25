@@ -1,8 +1,10 @@
-import datetime
 import math
+from datetime import datetime, timedelta
 from django.shortcuts import redirect, get_object_or_404, get_list_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import F, Q
 from django.template import RequestContext
@@ -17,35 +19,73 @@ from utils.internal.templatetags.forums import editable_by
 
 @render_to('forums/index.html')
 def index(request):
-	forums = list(Forum.objects.all(). \
-		select_related('category', 'last_post__topic', 'last_post__author'))
-	categories = {}
-	for forum in forums:
-		cat = categories.setdefault(forum.category.id,
-			{'id': forum.category.id, 'category': forum.category, 'forums': []})
-		cat['forums'].append(forum)
+	users_online = cache.get('forums_users_online')
+	if users_online == None:		
+		users_online = list(User.objects.filter(profile__last_activity_at__gte=
+			(datetime.now()-timedelta(minutes=15))))
+		cache.set('forums_users_online', users_online)
+	
+	categories = cache.get('forums_categories')
+	if categories == None:
+		forums = list(Forum.objects.all(). \
+			select_related('category', 'last_post__topic', 'last_post__author'))
+		categories = {}
+		for forum in forums:
+			cat = categories.setdefault(forum.category.id,
+				{'id': forum.category.id, 'category': forum.category, 'forums': []})
+			cat['forums'].append(forum)
+		cmpdef = lambda a, b: cmp(a['category'].order, b['category'].order)
+		categories = sorted(categories.values(), cmpdef)
+		cache.set('forums_categories', categories)
 
-	cmpdef = lambda a, b: cmp(a['category'].order, b['category'].order)
-	categories = sorted(categories.values(), cmpdef)
-	return {'categories': categories}
+	posts = cache.get('forums_count_posts')
+	if posts == None:
+		posts = Post.objects.count()
+		cache.set('forums_count_posts', posts)
+
+	topics = cache.get('forums_count_topics')
+	if topics == None:
+		topics = Topic.objects.count()
+		cache.set('forums_count_topics', topics)
+
+	users = cache.get('forums_count_users')
+	if users == None:
+		users = User.objects.count()
+		cache.set('forums_count_users', users)
+
+
+	return {'categories': categories, 'users_online': users_online,
+			'posts': posts, 'topics': topics, 'users': users}
 
 
 @render_to('forums/forum.html')
 def forum_view(request, forum_id):
-	forum = get_object_or_404(Forum, pk=forum_id)
-	topics = list(Topic.objects.filter(forum__pk=forum_id). \
-		select_related('author', 'last_post__author'))
+	forum = cache.get('forums_forum_%s' % forum_id)
+	if forum == None:
+		forum = get_object_or_404(Forum, pk=forum_id)
+		cache.set('forums_forum_%s' % forum_id, forum)
+	topics = cache.get('forum_topics_%s' % forum_id)
+	if topics == None:
+		topics = list(Topic.objects.filter(forum__pk=forum_id). \
+			select_related('author', 'last_post__author'))
+		cache.set('forum_topics_%s' % forum_id, topics)
 	return {'forum': forum, 'topics': topics}
 
 
 @render_to('forums/topic.html')
 def topic_view(request, topic_id):
-	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	topic = cache.get('forums_topic_%s' % topic_id)
+	if topic == None:
+		topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+		cache.set('forums_topic_%s' % topic_id, topic)
 	if request.user.is_authenticated():
 		topic.update_read(request.user)
-	Topic.objects.filter(pk=topic_id).update(view_count=F('view_count') + 1)
-	posts = list(Post.objects.filter(topic__pk=topic_id).select_related())
-	return {'topic': topic, 'posts': posts, 'first_post_id': topic.first_post.id}
+	Topic.objects.filter(pk=topic_id).update(view_count=F('view_count') + 1) # FIXME ++ with cache
+	posts = cache.get('forums_posts_%s' % topic_id)
+	if posts == None:
+		posts = list(Post.objects.filter(topic__pk=topic_id).select_related())
+		cache.set('forums_posts_%s' % topic_id, posts)
+	return {'topic': topic, 'posts': posts, 'first_post_id': posts[0].id}
 
 
 def post_permalink(request, post_id):

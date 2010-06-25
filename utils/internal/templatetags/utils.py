@@ -1,5 +1,7 @@
 import re
+from datetime import datetime, timedelta
 from django import template
+from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from ..dates import format_datetime
 
@@ -12,6 +14,13 @@ def user_date(st, user=None):
 	Formats a general datetime.
 	"""
 	return mark_safe(format_datetime(st, user, 'Y-m-d', 'H:i:s', ' '))
+
+@register.filter
+def is_online(user):
+	"""
+	Checks if user is online.
+	"""
+	return True if user.profile.last_activity_at >= datetime.now()-timedelta(minutes=15) else False
 
 
 @register.tag
