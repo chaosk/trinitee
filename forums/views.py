@@ -9,12 +9,12 @@ from django.core.urlresolvers import reverse
 from django.db.models import F, Q
 from django.template import RequestContext
 from forums.forms import (PostForm, DeletePostForm, TopicForm,
-	MoveTopicForm, PostSearchForm)
-from forums.models import Category, Forum, Topic, Post
-from utils.annoying.decorators import render_to
-from utils.annoying.functions import get_config
-from utils.internal.decorators import has_perm_or_403, user_passes_test_or_403
-from utils.internal.templatetags.forums import editable_by
+	MoveTopicForm, PostSearchForm, ReportPostForm)
+from forums.models import Category, Forum, Topic, Post, PostKarma, Report
+from utilities.annoying.decorators import render_to
+from utilities.annoying.functions import get_config, get_object_or_None
+from utilities.internal.decorators import has_perm_or_403, user_passes_test_or_403
+from utilities.internal.templatetags.forums import editable_by
 
 
 @render_to('forums/index.html')
@@ -83,7 +83,7 @@ def topic_view(request, topic_id):
 	Topic.objects.filter(pk=topic_id).update(view_count=F('view_count') + 1) # FIXME ++ with cache
 	posts = cache.get('forums_posts_%s' % topic_id)
 	if posts == None:
-		posts = list(Post.objects.filter(topic__pk=topic_id).select_related())
+		posts = list(Post.objects.filter(topic__pk=topic_id).select_related('author__profile__badge'))
 		cache.set('forums_posts_%s' % topic_id, posts)
 	return {'topic': topic, 'posts': posts, 'first_post_id': posts[0].id}
 
@@ -200,6 +200,7 @@ def post_delete(request, post_id):
 			cannot be reverted.")
 	return {'post': post, 'form': form}
 
+
 @render_to('forums/search_form.html')
 def search(request):
 	if request.method == 'POST':
@@ -220,11 +221,29 @@ def search(request):
 	return {'form': form}
 
 
+@login_required
+@render_to('forums/report_form.html')
+def post_report(request, post_id):
+	post = get_object_or_404(Post, pk=post_id)
+	if request.method == 'POST':
+		form = ReportPostForm(request.POST)
+		if form.is_valid():
+			report = Report(post=post, reported_by=request.user,
+				content=form.cleaned_data['content'])
+			report.save()
+			messages.success(request, "Your report has been saved. \
+				One our staff members will review it shortly.")
+			return redirect(post.get_absolute_url())
+	else:
+		form = ReportPostForm()
+	return {'post': post, 'form': form}
+
+
 @user_passes_test_or_403(lambda u: u.is_staff)
 def close_topic(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if topic.is_closed:
-		message.info(request, "Topic is already closed!")
+		messages.info(request, "Topic is already closed!")
 	else:
 		topic.is_closed = True
 		topic.save()
@@ -236,7 +255,7 @@ def close_topic(request, topic_id):
 def open_topic(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if not topic.is_closed:
-		message.info(request, "Topic is already open!")
+		messages.info(request, "Topic is already open!")
 	else:
 		topic.is_closed = False
 		topic.save()
@@ -248,7 +267,7 @@ def open_topic(request, topic_id):
 def stick_topic(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if topic.is_sticky:
-		message.info(request, "Topic is already sticked!")
+		messages.info(request, "Topic is already sticked!")
 	else:
 		topic.is_sticky = True
 		topic.save()
@@ -260,7 +279,7 @@ def stick_topic(request, topic_id):
 def unstick_topic(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if not topic.is_sticky:
-		message.info(request, "Topic is already unsticked!")
+		messages.info(request, "Topic is already unsticked!")
 	else:
 		topic.is_sticky = False
 		topic.save()
@@ -286,3 +305,36 @@ def move_topic(request, topic_id):
 	else:
 		form = MoveTopicForm()
 	return {'topic': topic, 'form': form}
+
+def post_vote(request, post_id, value):
+	post = get_object_or_None(Post, pk=post_id)
+	if post == None:
+		return ("You tried to vote for unexisting post.", True)
+	if post.author == request.user:
+		return ("You tried to vote for your own post.", False)
+	karma, created = PostKarma.objects.get_or_create(post=post,
+		user=request.user, defaults={'karma': value})
+	post.get_karma(force_refresh=True) # refresh cache before incrementing karma counter
+	if not created and not karma.karma == value:
+		cache.incr('forums_karma_%s' % post_id, -karma.karma + value)
+		karma.karma = value
+		karma.save()
+	return post
+
+@login_required
+def post_voteup(request, post_id):
+	result = post_vote(request, post_id, 1)
+	if not isinstance(result, Post):
+		messages.error(request, result[0])
+		if result[1]:
+			return redirect(reverse('forums.views.index'))
+	return post_permalink(request, post_id)
+
+@login_required
+def post_votedown(request, post_id):
+	result = post_vote(request, post_id, -1)
+	if not isinstance(result, Post):
+		messages.error(request, result[0])
+		if result[1]:
+			return redirect(reverse('forums.views.index'))
+	return post_permalink(request, post_id)

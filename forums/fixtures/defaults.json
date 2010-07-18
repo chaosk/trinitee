@@ -39,7 +39,7 @@
     "pk": 2,
     "fields": {
 	  "category": 1,
-	  "name": "Developer Journal",
+	  "name": "Developer Journals",
 	  "description": "An inside look into the development process",
 	  "can_regular_user_post": false,
       "order": 2

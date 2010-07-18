@@ -3,10 +3,10 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save
-from utils import postmarkup
-from utils.annoying.fields import AutoOneToOneField, JSONField
-from utils.annoying.functions import get_config
-from utils.ordering.models import OrderedModel
+from utilities import postmarkup
+from utilities.annoying.fields import AutoOneToOneField, JSONField
+from utilities.annoying.functions import get_config
+from utilities.ordering.models import OrderedModel
 
 
 class Post(models.Model):
@@ -60,6 +60,16 @@ class Post(models.Model):
 	def get_absolute_url(self):
 		return ('forums.views.post_permalink', (), {'post_id': self.id})
 
+	def get_karma(self, force_refresh=False):
+		karma = cache.get('forums_karma_%s' % self.id)
+		if force_refresh or karma == None:
+			try:
+				karma = sum(PostKarma.objects.filter(post__exact=self). \
+					values('karma')[0].values())
+			except IndexError:
+				karma = 0
+			cache.set('forums_karma_%s' % self.id, karma)
+		return karma
 
 class Topic(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
@@ -184,6 +194,40 @@ class PostTracking(models.Model):
 		verbose_name_plural = 'Post tracking'
 
 
+class PostKarma(models.Model):
+	user = models.ForeignKey(User, related_name='karma')
+	post = models.ForeignKey('Post', related_name='karma')
+	KARMA_CHOICES = (
+		(1, 'PLUS'),
+		(-1, 'MINUS'),
+	)
+	karma = models.IntegerField(choices=KARMA_CHOICES, default=0)
+	
+	class Meta:
+		unique_together = ('user', 'post')
+
+	def __unicode__(self):
+		return "%s" % self.karma
+
+
+class Report(models.Model):
+	post = models.ForeignKey(Post)
+	reported_by = models.ForeignKey(User, related_name='reports')
+	reported_at = models.DateTimeField(auto_now_add=True)
+	content = models.CharField(max_length=255)
+	reviewed_by = models.ForeignKey(User, blank=True, null=True,
+		related_name='reviewed_reports')
+	reviewed_at = models.DateTimeField(auto_now=True)
+	status = models.NullBooleanField(default=None)
+
+	def __unicode__(self):
+		return "Report %d" % self.id
+
+	def change_list_status(self):
+		""" Workaround for http://code.djangoproject.com/ticket/11058 """
+		pass
+
+
 def post_saved(instance, **kwargs):
 	post = instance
 	topic = post.topic
@@ -201,8 +245,8 @@ def post_saved(instance, **kwargs):
 		topic.save(force_update=True)
 		forum.save(force_update=True)
 		cache.delete('forums_count_posts')
-	cache.delete('forums_topics_%s' % forum)
-	cache.delete('forums_posts_%s' % topic)
+	cache.delete('forums_topics_%s' % forum.id)
+	cache.delete('forums_posts_%s' % topic.id)
 
 
 def topic_saved(instance, **kwargs):
@@ -211,6 +255,7 @@ def topic_saved(instance, **kwargs):
 	if kwargs['created']:
 		forum.topic_count = forum.get_topic_count()
 		forum.save(force_update=True)
+		cache.delete('homepage_news')
 		cache.delete('forums_count_topics')
 	cache.delete('forums_topics_%s' % forum)
 	cache.delete('forums_posts_%s' % topic)

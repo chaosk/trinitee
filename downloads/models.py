@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.db import models
 from django.db.models.signals import post_save
-from utils.internal.file_storage import OverwriteStorage
+from utilities.internal.file_storage import OverwriteStorage
 
 
 class Version(models.Model):

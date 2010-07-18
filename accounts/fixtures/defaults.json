@@ -1,47 +1,5 @@
 [
  {
-   "model": "accounts.badge",
-   "pk": 1,
-   "fields": {
-     "title": "User"
-   }
- },
- {
-   "model": "accounts.badge",
-   "pk": 2,
-   "fields": {
-     "title": "Donor"
-   }
- },
- {
-   "model": "accounts.badge",
-   "pk": 3,
-   "fields": {
-     "title": "Support staff"
-   }
- },
- {
-   "model": "accounts.badge",
-   "pk": 4,
-   "fields": {
-     "title": "Moderator"
-   }
- },
- {
-   "model": "accounts.badge",
-   "pk": 5,
-   "fields": {
-     "title": "Developer"
-   }
- },
- {
-   "model": "accounts.badge",
-   "pk": 6,
-   "fields": {
-     "title": "Administrator"
-   }
- },
- {
    "model": "auth.user",
    "pk": 0,
    "fields": {
@@ -52,5 +10,14 @@
      "password": "-",
      "email": "example@example.com"
     }
+ },
+ {
+   "model": "accounts.userprofile",
+   "pk": 0,
+   "fields": {
+     "user": 0,
+     "avatar": "uploads/avatars/0.png",
+     "signature": "I'm a lonesome loner, a lonely man, walking down a lonely road... Alone."
+   }
  }
 ]

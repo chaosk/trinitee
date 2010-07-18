@@ -10,10 +10,10 @@ from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
 from accounts.forms import *
-from utils.annoying.functions import get_config, get_object_or_None
-from utils.annoying.decorators import render_to
-from utils.annoying.utils import HttpResponseReload
-from utils.internal.decorators import user_passes_test_or_403
+from utilities.annoying.functions import get_config, get_object_or_None
+from utilities.annoying.decorators import render_to
+from utilities.annoying.utils import HttpResponseReload
+from utilities.internal.decorators import user_passes_test_or_403
 
 
 @user_passes_test_or_403(lambda u: not u.is_active)

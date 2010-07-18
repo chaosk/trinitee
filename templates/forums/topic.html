@@ -8,6 +8,11 @@
 {% block header %}
 	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
 	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_topic topic.id %}" title="Topic &quot;{{ topic.title }}&quot; - {{ settings.SITE_NAME }} Forum" />
+	<script src="http://www.google.com/jsapi" type="text/javascript" charset="utf-8"></script>
+	<script>
+		google.load("prototype", "1.6.0.3");
+	</script>
+	<script src="{{ settings.MEDIA_URL }}js/prototype.dajax.core.js" type="text/javascript"></script>
 {% endblock header %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}
@@ -35,21 +40,51 @@
 		</tr>
 	{% for p in posts %}
 		<tr id="post-{{ p.id }}">
-			<td><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a></td>
 			<td>
-				<tr>
-					<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
-					<td align="right"><a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == first_post_id %} topic{% endif %})</a>{% endif %}</td>
-				</tr>
-				<tr>
-					<td>
-						{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
-							{{ p.content_html|safe|smileys }}
-						{% else %}
-							{{ p.content_html|safe }}
-						{% endif %}
-					</td>
-				</tr>
+				<a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a><br />
+				{% if p.author.profile.avatar %}
+					<img src="{{ p.author.profile.avatar.url }}" /><br />
+				{% endif %}
+				{{ p.author.profile.title|default:p.author.profile.badge }}
+
+				{% if p.author.profile.badge.badge %}
+					<img src="{{ p.author.profile.badge.get_absolute_url }}" />
+				{% endif %}
+			</td>
+			<td>
+				<table>
+					<tr>
+						<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
+						<td align="right">
+							<a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == first_post_id %} topic{% endif %})</a>{% endif %} <a href="{% url forums.views.post_report p.id %}">(report)</a>
+							{% if user.is_authenticated %}
+							<span class="karma-box">
+								<a href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});">+</a>
+								<span class="karma-count">{{ p.get_karma }}</span>
+								<a href="{% url forums.views.post_votedown p.id %}" onclick="return votedown({{ p.id }});">-</a>
+								<span class="karma-voted"></span>
+							</span>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td>
+							{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+								{{ p.content_html|safe|smileys }}
+							{% else %}
+								{{ p.content_html|safe }}
+							{% endif %}
+							{% if p.author.profile.signature %}
+								<br />---<br />
+							{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+								{{ p.author.profile.signature_html|safe|smileys }}
+							{% else %}
+								{{ p.author.profile.signature_html|safe }}
+							{% endif %}
+							{% endif %}
+						</td>
+					</tr>
+				</table>
 			</td>
 		</tr>
 	{% endfor %}

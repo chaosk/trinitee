@@ -4,11 +4,13 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.utils.hashcompat import sha_constructor
 from forums.models import Post
-from utils.annoying.functions import get_config
-from utils.internal.file_storage import OverwriteStorage
+from utilities import postmarkup
+from utilities.annoying.functions import get_config
+from utilities.internal.file_storage import OverwriteStorage
 
 TIMEZONE_CHOICES = tuple([(tz, tz) for tz in common_timezones])
 
@@ -18,9 +20,11 @@ class UserProfile(models.Model):
 	last_activity_at = models.DateTimeField(auto_now_add=True)
 	last_activity_ip = models.IPAddressField(blank=True, null=True)
 	badge = models.ForeignKey('Badge', default=1, blank=True, null=True)
+	title = models.CharField(blank=True, max_length=30)
 	avatar = models.ImageField(blank=True, default='',
 		storage=OverwriteStorage(), upload_to='uploads/avatars/')
 	signature = models.CharField(blank=True, max_length=255)
+	signature_html = models.CharField(blank=True, max_length=500)
 	icq = models.CharField(blank=True, max_length=30)
 	jabber = models.CharField(blank=True, max_length=60)
 	location = models.CharField(blank=True, max_length=60)
@@ -40,6 +44,15 @@ class UserProfile(models.Model):
 	def __unicode__(self):
 		return u"%s's profile" % self.user.username
 
+	def save(self, *args, **kwargs):
+		if get_config('ENABLE_BBCODE', False):
+			markup = postmarkup.create(annotate_links=False,
+				use_pygments=get_config('BBCODE_USE_PYGMENTS', False))
+			self.signature_html = markup(self.signature)
+		else:
+			self.signature_html = self.signature
+		super(UserProfile, self).save(*args, **kwargs)
+
 	@models.permalink
 	def get_absolute_url(self):
 		return ('accounts.views.profile_details', (), {'user_id': self.id})
@@ -50,6 +63,8 @@ class UserProfile(models.Model):
 
 class Badge(models.Model):
 	title = models.CharField(max_length=20)
+	is_for_superuser = models.BooleanField(default=False)
+	is_for_staff = models.BooleanField(default=False)
 
 	def badge_filename(self, filename):
 		fname, dot, extension = filename.rpartition('.')
@@ -76,18 +91,24 @@ class ActivationKey(models.Model):
 		super(ActivationKey, self).save(*args, **kwargs)
 
 
-def post_save_signal_receiver(sender, **kwargs):
+def post_save_user(sender, **kwargs):
+	user = kwargs['instance']
 	if kwargs['created']:
-		user = kwargs['instance']
-		group, created = Group.objects.get_or_create(name='Users')
-		if created:
-			group.permissions.add(Permission.objects.get(codename='add_topic'))
-			group.permissions.add(Permission.objects.get(codename='add_post'))
-			group.save()
-		user.groups.add(group)
-		user.save()
+		if user.id == 0:
+			# really special case
+			return
 		profile = UserProfile(user=user)
 		profile.save()
+	profile = user.profile
+	if not user.is_superuser and not user.is_staff and profile.badge.id in \
+		list(Badge.objects.filter(Q(is_for_staff=True) | Q(is_for_superuser=True))):
+		# whenever user loses credentials, he should go back to default badge
+		profile.badge = Badge.objects.get(pk= \
+			UserProfile._meta.get_field('badge').default)
+	elif not user.is_superuser and user.is_staff and profile.badge.id in \
+		list(Badge.objects.filter(is_for_superuser=True)):
+		profile.badge = Badge.objects.get(title="Moderator")
+	profile.save()
 
-post_save.connect(post_save_signal_receiver, sender=User,
+post_save.connect(post_save_user, sender=User,
 	dispatch_uid="accounts.models")

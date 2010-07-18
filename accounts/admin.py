@@ -13,6 +13,10 @@ class UserProfileAdmin(UserAdmin):
 	inlines = UserAdmin.inlines + [UserProfileInline]
 
 
+class BadgeAdmin(admin.ModelAdmin):
+	list_display = ('title', 'is_for_staff', 'is_for_superuser', 'badge')
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
-admin.site.register(Badge)
+admin.site.register(Badge, BadgeAdmin)

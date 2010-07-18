@@ -1,0 +1,48 @@
+[
+  {
+   "model": "accounts.badge",
+   "pk": 1,
+   "fields": {
+     "title": "User"
+   }
+ },
+ {
+   "model": "accounts.badge",
+   "pk": 2,
+   "fields": {
+     "title": "Donor"
+   }
+ },
+ {
+   "model": "accounts.badge",
+   "pk": 3,
+   "fields": {
+     "title": "Support staff"
+   }
+ },
+ {
+   "model": "accounts.badge",
+   "pk": 4,
+   "fields": {
+     "title": "Developer",
+     "is_for_staff": true,
+     "is_for_superuser": true
+   }
+ },
+ {
+   "model": "accounts.badge",
+   "pk": 5,
+   "fields": {
+     "title": "Moderator",
+     "is_for_staff": true
+   }
+ },
+ {
+   "model": "accounts.badge",
+   "pk": 6,
+   "fields": {
+     "title": "Administrator",
+     "is_for_superuser": true
+   }
+ }
+]

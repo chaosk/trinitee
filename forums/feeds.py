@@ -1,9 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
+from django.contrib.syndication.views import feed as unauthenticated_feed
+from django.contrib.syndication.feeds import Feed as DeprecatedFeed
 from django.contrib.syndication.views import Feed
 from django.db.models import F
-from forums.models import Forum, Topic, Post
-from utils.annoying.functions import get_config
+from forums.models import Forum, Topic, Post, Report
+from utilities.annoying.functions import get_config
+from utilities.internal.decorators import user_passes_test_or_basicauth
 
 
 class ForumIndexFeed(Feed):
@@ -121,3 +124,41 @@ class UserPostsFeed(Feed):
 
 	def item_pubdate(self, item):
 		return item.created_at
+
+
+class AdminReportFeed(DeprecatedFeed):
+	title = "Latest user reports - %s Forum" % get_config('SITE_NAME', "Trinitee")
+	link = '/admin/forums/report/'
+
+	def items(self):
+		reports = cache.get('admin_forums_feed_reports')
+		if reports == None:
+			reports = list(Report.objects.all()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+			cache.set('admin_forums_feed_reports', reports)
+		return reports
+
+	def item_link(self, item):
+		return "/admin/forums/report/%s" % item.id
+
+	def item_title(self, item):
+		title = "Report %d from %s" % (item.id, item.reported_by)
+		if not item.status is None:
+			title += " ("
+			if item.status:
+				title += "approved by"
+			else:
+				title += "ignored by"
+			title += " %s)" % item.reviewed_by
+		return title
+
+	def item_description(self, item):
+		return "%s<br /><br /><a href=\"%s\">Reported post</a> (by %s):<br />%s" % \
+			(item.content, item.post.get_absolute_url(), item.post.author, item.post.content)
+
+	def item_pubdate(self, item):
+		return item.reported_at
+
+
+@user_passes_test_or_basicauth(lambda u: u.is_staff or u.is_superuser, 'Trinitee')
+def feed(request, url, feed_dict=None):
+    return unauthenticated_feed(request, url, feed_dict)

@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
-from utils.annoying.functions import get_config
+from utilities.admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
+from utilities.annoying.functions import get_config
 
 # to activate your index dashboard add the following to your settings.py:
 #
@@ -17,7 +17,7 @@ class CustomIndexDashboard(Dashboard):
         
         self.children.append(modules.AppList(
             title=_('Users'),
-            include_list=('django.contrib.auth',),
+            include_list=('django.contrib.auth','accounts'),
             css_classes=['collapse', 'open'],
         ))
         

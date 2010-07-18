@@ -56,3 +56,8 @@ class PostSearchForm(forms.Form):
 	def filter(self, queryset):
 		# TODO add filtering
 		return queryset
+
+
+class ReportPostForm(forms.Form):
+	content = forms.CharField(label="Reason", max_length=255,
+		widget=forms.Textarea())

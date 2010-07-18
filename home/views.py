@@ -2,9 +2,9 @@ from django.core.cache import cache
 from django.db.models import F
 from downloads.models import Release
 from forums.models import Post
-from utils.annoying.functions import get_config, get_object_or_None
-from utils.annoying.decorators import render_to
-from utils.httpagentparser import os_detect
+from utilities.annoying.functions import get_config, get_object_or_None
+from utilities.annoying.decorators import render_to
+from utilities.httpagentparser import os_detect
 
 @render_to('home/homepage.html')
 def homepage(request):

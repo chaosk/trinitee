@@ -1,0 +1,10 @@
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block title %}Report - {{ block.super }}{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb_url post.topic.forum.name forums.views.forum_view post.topic.forum.id %} {% breadcrumb_url post.topic.title forums.views.topic_view post.topic.id %} {% breadcrumb "Reporting post" %}{% endblock %}
+{% block content %}
+	<form action="{% url forums.views.post_report post.id %}" method="post">
+	    {% include "snippets/form.html" %}
+	    <p><input type="submit" value="Send" /></p>
+	</form>
+{% endblock content %}

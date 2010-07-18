@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.syndication.views import Feed
 from django.db.models import F
 from forums.models import Topic, Post
-from utils.annoying.functions import get_config
+from utilities.annoying.functions import get_config
 
 
 class NewsFeed(Feed):

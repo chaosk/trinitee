@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.core.files.images import get_image_dimensions
 from accounts.models import UserProfile
 from forums.models import Forum
-from utils.annoying.functions import get_config
-from utils.django_recaptcha import ReCaptchaField
+from utilities.annoying.functions import get_config
+from utilities.django_recaptcha import ReCaptchaField
 
 SORT_USER_BY_CHOICES = (
 	('username', "Username"),
@@ -120,11 +120,11 @@ class SettingsIdentityForm(forms.ModelForm):
 		model = UserProfile
 		fields = ['location', 'icq', 'jabber', 'website']
 
-class SettingsIdentityStaffForm(SettingsIdentityForm):
+class SettingsIdentityStaffForm(forms.ModelForm):
 
 	class Meta:
 		model = UserProfile
-		fields = ['badge', 'location', 'icq', 'jabber', 'website']
+		fields = ['badge', 'title', 'location', 'icq', 'jabber', 'website']
 
 class SettingsIdentityUserForm(forms.ModelForm):
 
