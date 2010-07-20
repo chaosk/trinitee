@@ -4,15 +4,15 @@
 {% load smileys %}
 {% load breadcrumbs %}
 {% load pagination_tags %}
+{% load dajaxice_templatetags %}
 {% block title %}{{ topic.title }} (Page {{ request.page }}) - {{ block.super }}{% endblock %}
 {% block header %}
 	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
 	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_topic topic.id %}" title="Topic &quot;{{ topic.title }}&quot; - {{ settings.SITE_NAME }} Forum" />
-	<script src="http://www.google.com/jsapi" type="text/javascript" charset="utf-8"></script>
-	<script>
-		google.load("prototype", "1.6.0.3");
-	</script>
+	<script src="{{ settings.MEDIA_URL }}js/prototype.min.js" type="text/javascript"></script>
 	<script src="{{ settings.MEDIA_URL }}js/prototype.dajax.core.js" type="text/javascript"></script>
+	{% dajaxice_js_import %}
+	<script src="{{ settings.MEDIA_URL }}js/forums.karma.js" type="text/javascript"></script>
 {% endblock header %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}

@@ -1,34 +1,10 @@
-{% load breadcrumbs %}{% load utils %}{% load dajaxice_templatetags %}{% smartspaceless %}
+{% load breadcrumbs %}{% load utils %}{% smartspaceless %}
 <!DOCTYPE html>
 <head>
 	<meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="{{ settings.MEDIA_URL }}css/style.css" />
 	<title>{% block title %}{{ settings.SITE_NAME }}{% endblock %}{% if settings.DEBUG %} [DEBUG]{% endif %}</title>
 	{% block header %}{% endblock header %}
-	{% dajaxice_js_import %}
-	<script type="text/javascript" charset="utf-8">
-		function voteup(post_id)
-		{
-			$('post-' + post_id).down('span.karma-voted').update('<img src="{{ settings.MEDIA_URL }}images/throbber.gif" />');
-			Dajaxice.forums.voteup('Dajax.process', {'post_id': post_id});
-			return false;
-		}
-		function votedown(post_id)
-		{
-			$('post-' + post_id).down('span.karma-voted').update('<img src="{{ settings.MEDIA_URL }}images/throbber.gif" />');
-			Dajaxice.forums.votedown('Dajax.process', {'post_id': post_id});
-			return false;
-		}
-		function vote_saved(post_id, karma)
-		{
-			$('post-' + post_id).down('span.karma-voted').update('Saved.');
-			$('post-' + post_id).down('span.karma-count').update(karma);
-		}
-		function vote_error(post_id, message)
-		{
-			$('post-' + post_id).down('span.karma-voted').update(message);
-		}
-	</script>
 </head>
 <body>
 	<div id="user">

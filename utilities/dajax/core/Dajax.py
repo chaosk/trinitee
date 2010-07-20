@@ -46,7 +46,10 @@ class Dajax(object):
             
     def assign(self,id,attribute,value):
         self.calls.append({'cmd':'as','id':id,'prop':attribute,'val':self._clean(value)})
-        
+
+    def assign_lesser(self,id,attribute,value):
+        self.calls.append({'cmd':'as','id':id,'prop':attribute,'val':self._clean_lesser(value)})
+
     def add_css_class(self,id,value):
         if not hasattr(value,'__iter__'):
             value = [value]
@@ -77,7 +80,13 @@ class Dajax(object):
         
     def add_data(self,data,function):
         self.calls.append({'cmd':'data','val':data,'fun':function})
-    
+
+    def _clean_lesser(self, data):
+        if hasattr(data,'__iter__'):
+            return map(self._clean,data)
+        else:
+            return unicode(data)
+
     def _clean(self, data):
         if hasattr(data,'__iter__'):
             return map(self._clean,data)
