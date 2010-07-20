@@ -45,6 +45,7 @@ class PostInline(admin.TabularInline):
 class TopicAdmin(admin.ModelAdmin):
 	list_display = ('id', 'title', 'first_post_author', 'created_at',
 		'post_count', 'is_closed', 'is_sticky')
+	list_display_links = ('id', 'title')
 	exclude = ('first_post', 'last_post', 'view_count', 'post_count')
 	inlines = [PostInline]
 
