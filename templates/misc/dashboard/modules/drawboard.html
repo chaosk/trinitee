@@ -1,0 +1,28 @@
+{% extends "admin_tools/dashboard/module.html" %}
+{% load dajaxice_templatetags %}
+{% block module_content %}
+<script src="http://www.google.com/jsapi" type="text/javascript" charset="utf-8"></script>
+<script>
+	google.load("prototype", "1.6.0.3");
+</script>
+<script src="{{ settings.MEDIA_URL }}js/prototype.dajax.core.js" type="text/javascript"></script>
+{% dajaxice_js_import %}
+<script type="text/javascript" src="{{ settings.MEDIA_URL }}js/admin.drawboard.js"></script>
+<div class="group module drawboard {{ module.css_classes|join:" " }}" id="drawboard-module">
+    <h2>{{ module.title }}</h2>
+    <ul>
+        {% spaceless %}
+        {% for child in module.children %}
+        <li>
+			<textarea id="drawboard" rows="8" cols="40" style="display:none;">{{ child.content }}</textarea>
+			<div id="drawboard-div" style="max-height:150px;overflow:hidden;" onclick="toggle_editor();">{{ child.content_html|safe }}</div>
+			<div id="drawboard-tools" style="display:none">
+				<input id="save" value="SAVE" tabindex="12" type="submit" onclick="save();"><input value="Cancel" onclick="cancel_edit();" tabindex="13" type="button">
+				<span><em> ~~~~</em> -  your signature. You can use BBCode.</span>
+			</div>
+        </li>
+        {% endfor %}
+        {% endspaceless %}
+    </ul>
+</div>
+{% endblock %}
