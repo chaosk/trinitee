@@ -26,7 +26,7 @@ def user_timezone(dt, user):
 	return result
 
 
-def format_datetime(dt, user, date_format, time_format, separator=' '):
+def format_datetime(dt, user, date_format, time_format, separator=' ', human_days=True):
 	"""
 	Formats a datetime, using ``'Today'`` or ``'Yesterday'`` instead of
 	the given date format when appropriate.
@@ -41,9 +41,9 @@ def format_datetime(dt, user, date_format, time_format, separator=' '):
 		today = datetime.date.today()
 	date_part = dt.date()
 	delta = date_part - today
-	if delta.days == 0:
+	if human_days and delta.days == 0:
 		date = u'Today'
-	elif delta.days == -1:
+	elif human_days and delta.days == -1:
 		date = u'Yesterday'
 	else:
 		date = dateformat.format(dt, date_format)

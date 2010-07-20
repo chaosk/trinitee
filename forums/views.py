@@ -67,6 +67,7 @@ def forum_view(request, forum_id):
 	topics = cache.get('forum_topics_%s' % forum_id)
 	if topics == None:
 		topics = list(Topic.objects.filter(forum__pk=forum_id). \
+			order_by('-is_sticky', '-created_at'). \
 			select_related('author', 'last_post__author'))
 		cache.set('forum_topics_%s' % forum_id, topics)
 	return {'forum': forum, 'topics': topics}
@@ -314,9 +315,18 @@ def post_vote(request, post_id, value):
 		return ("You tried to vote for your own post.", False)
 	karma, created = PostKarma.objects.get_or_create(post=post,
 		user=request.user, defaults={'karma': value})
-	post.get_karma(force_refresh=True) # refresh cache before incrementing karma counter
+	""" refresh cache before incrementing karma counter """
+	post.get_karma(force_refresh=True)
 	if not created and not karma.karma == value:
-		cache.incr('forums_karma_%s' % post_id, -karma.karma + value)
+		"""
+			This actually works, so don't try to fix it.
+
+			No really, don't.
+			
+			If you still don't believe me, the line below
+			subtracts current karma value and adds new one.
+		"""
+		cache.incr('forums_karma_%s' % post_id, - karma.karma + value)
 		karma.karma = value
 		karma.save()
 	return post

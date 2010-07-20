@@ -144,18 +144,8 @@ def detect(agent):
 
 def os_detect(agent):
 	result = detect(agent)
-	if 'os' in result:
-		os = result['os']['name']
-	else:
-		os = 'unknown'
-	if 'flavor' in result:
-		flavor = result['flavor']['name']
-	else:
-		flavor = None
+	os = result['os']['name'] if 'os' in result else 'unknown'
+	flavor = result['flavor']['name'] if 'flavor' in result else None
 	if os == 'win':
-		if flavor == None:
-			os = 'win32'
-		else:
-			os = 'win64'
-		
+		os = 'win32' if flavor is None else 'win64'		
 	return (os, flavor)

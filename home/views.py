@@ -9,10 +9,7 @@ from utilities.httpagentparser import os_detect
 @render_to('home/homepage.html')
 def homepage(request):
 	os, flavor = os_detect(request.META['HTTP_USER_AGENT'])
-	if flavor:
-		flavor = '_' + flavor
-	else:
-		flavor = ''
+	flavor = '_' + flavor if flavor else ''
 	latest_download = cache.get('homepage_latest_download_%s%s' % (os, flavor))
 	if latest_download == None:
 		latest_download = get_object_or_None(Release.objects.select_related(), platform__name='%s%s' % (os, flavor))

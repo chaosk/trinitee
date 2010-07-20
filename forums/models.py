@@ -88,23 +88,19 @@ class Topic(models.Model):
 	post_count = models.PositiveIntegerField(default=0)
 
 	class Meta:
-		ordering = ['-is_sticky', '-created_at']
+		ordering = ['-created_at']
 		get_latest_by = 'created_at'
-		verbose_name_plural = ('Topics')
 
 	def __unicode__(self):
 		return self.title
 
 	def delete(self, *args, **kwargs):
-		forum = self.forum
-		# delete all posts belonging to this topic
+		""" delete all posts belonging to this topic """
 		posts = Post.objects.filter(topic__id=self.id)
-		count = posts.count()
+		self.forum.update(post_count=F('post_count') - posts.count(),
+			topic_count=F('topic_count') - 1)
 		posts.delete()
 		super(Topic, self).delete(*args, **kwargs)
-		forum.post_count -= count
-		forum.topic_count -= 1
-		forum.save()
 		cache.delete('forums_count_posts')
 		cache.delete('forums_count_topics')
 
@@ -147,7 +143,7 @@ class Forum(OrderedModel):
 		blank=True, null=True)
 
 	class Meta:
-		ordering = ['order', 'name']
+		ordering = ['category', 'order', 'name']
 		verbose_name_plural = ('Forums')
 
 	def __unicode__(self):

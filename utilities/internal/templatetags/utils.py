@@ -9,11 +9,11 @@ register = template.Library()
 
 
 @register.filter
-def user_date(st, user=None):
+def user_date(st, user=None, human_days=True):
 	"""
 	Formats a general datetime.
 	"""
-	return mark_safe(format_datetime(st, user, 'Y-m-d', 'H:i:s', ' '))
+	return mark_safe(format_datetime(st, user, 'Y-m-d', 'H:i:s', ' ', human_days))
 
 
 @register.filter
