@@ -128,12 +128,13 @@ INSTALLED_APPS = (
 	'accounts',
 	'forums',
 	'downloads',
+	'misc',
 	'utilities.internal',
 	'utilities.pagination',
 	'utilities.ordering',
 	'utilities.dajaxice',
-	'admin_tools.dashboard',
-	'grappelli',
+	'utilities.admin_tools.dashboard',
+	'utilities.grappelli',
 	'django.contrib.admin',
 )
 
