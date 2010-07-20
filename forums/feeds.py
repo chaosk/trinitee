@@ -127,13 +127,13 @@ class UserPostsFeed(Feed):
 
 
 class AdminReportFeed(DeprecatedFeed):
-	title = "Latest user reports - %s Forum" % get_config('SITE_NAME', "Trinitee")
+	title = "Unreviewed user reports - %s Forum" % get_config('SITE_NAME', "Trinitee")
 	link = '/admin/forums/report/'
 
 	def items(self):
 		reports = cache.get('admin_forums_feed_reports')
 		if reports == None:
-			reports = list(Report.objects.all()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+			reports = list(Report.objects.filter(status=None)[:get_config('FEED_ITEMS_PER_PAGE', 10)])
 			cache.set('admin_forums_feed_reports', reports)
 		return reports
 
@@ -142,17 +142,10 @@ class AdminReportFeed(DeprecatedFeed):
 
 	def item_title(self, item):
 		title = "Report %d from %s" % (item.id, item.reported_by)
-		if not item.status is None:
-			title += " ("
-			if item.status:
-				title += "approved by"
-			else:
-				title += "ignored by"
-			title += " %s)" % item.reviewed_by
 		return title
 
 	def item_description(self, item):
-		return "%s<br /><br /><a href=\"%s\">Reported post</a> (by %s):<br />%s" % \
+		return "%s<br /><br /><a href=\"%s\">Reported post</a> (by %s):<br />%s<br />" % \
 			(item.content, item.post.get_absolute_url(), item.post.author, item.post.content)
 
 	def item_pubdate(self, item):
