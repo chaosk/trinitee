@@ -542,5 +542,3 @@ class Feed(DashboardModule):
                 # no date for certain feeds
                 pass
             self.children.append(entry)
-
-

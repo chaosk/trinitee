@@ -401,10 +401,10 @@ a.ui-gFacelist-item-remove {
     background: transparent 100% 3px no-repeat;
 }
 a.ui-gFacelist-item-remove:link, a.ui-gFacelist-item-remove:visited {
-    background-image: url('/media/grappelli/img/icons/icon-tools-delete-handler.png');
+    background-image: url('../img/icons/icon-tools-delete-handler.png');
 }
 a.ui-gFacelist-item-remove:hover, a.ui-gFacelist-item-remove:active {
-    background-image: url('/media/grappelli/img/icons/icon-tools-delete-handler-hover.png');
+    background-image: url('../img/icons/icon-tools-delete-handler-hover.png');
 }
 
 
