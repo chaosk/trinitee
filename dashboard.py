@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from misc.dashboard.modules import DrawboardModule
 from utilities.admin_tools.dashboard import modules, Dashboard, AppIndexDashboard
 from utilities.annoying.functions import get_config
 
@@ -14,7 +15,12 @@ class CustomIndexDashboard(Dashboard):
     def __init__(self, **kwargs):
         self.columns = 3
         Dashboard.__init__(self, **kwargs)
-        
+
+        self.children.append(DrawboardModule(
+            title='Drawboard',
+            css_classes=['collapse', 'open'],
+        ))
+
         self.children.append(modules.AppList(
             title=_('Users'),
             include_list=('django.contrib.auth','accounts'),
