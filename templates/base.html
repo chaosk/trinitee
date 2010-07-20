@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div id="user">
-		Hello, {{ user.username|default:"Guest" }}! - {% if user.is_authenticated %}<a href="{% url accounts.views.profile_settings %}">Settings</a> - <a href="{% url accounts.views.profile_details user.id %}">Your profile</a> - <a href="{% url accounts.views.logout_ %}">Logout</a>{% else %}<a href="{% url accounts.views.login_ %}">Login</a> (test:test) - <a href="{% url accounts.views.register %}">Sign up</a>{% endif %}
+		Hello, {{ user.username|default:"Guest" }}! - {% if user.is_authenticated %}<a href="{% url accounts.views.profile_settings %}">Settings</a> - <a href="{% url accounts.views.profile_details user.id %}">Your profile</a> - <a href="{% url accounts.views.logout %}">Logout</a>{% else %}<a href="{% url accounts.views.login %}">Login</a> (test:test) - <a href="{% url accounts.views.register %}">Sign up</a>{% endif %}
 	</div>
 
 	<div id="page">

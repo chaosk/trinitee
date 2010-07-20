@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login as login_, logout as logout_
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
@@ -20,8 +20,7 @@ from utilities.internal.decorators import user_passes_test_or_403
 # Checking if current user is active is correct, as AnonymousUser
 # is always not active and User with is_active=False cannot login.
 @render_to('accounts/login.html')
-# collides with django.contrib.auth.login
-def login_(request):
+def login(request):
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
 		if form.is_valid():
@@ -30,7 +29,7 @@ def login_(request):
 			user = authenticate(username=username, password=password)
 			if user is not None:
 				if user.is_active:
-					login(request, user)
+					login_(request, user)
 					messages.success(request, "Logged in successfully.")
 					next = request.POST.get('next', '').strip()
 					if next:
@@ -46,9 +45,8 @@ def login_(request):
 	return {'form': form, 'next': request.GET.get('next', '').strip()}
 
 
-# collides with django.contrib.auth.logout
-def logout_(request):
-	logout(request)
+def logout(request):
+	logout_(request)
 	messages.success(request, "Logged out successfully.")
 	return redirect(reverse('home'))
 
@@ -179,7 +177,7 @@ def register(request):
 			instructions on how to activate your new account. \
 			If it doesn't arrive you can contact the forum \
 			administrator at %s" % webmaster_email)
-			return redirect(reverse('accounts.views.login_'))
+			return redirect(reverse('accounts.views.login'))
 	else:
 		form = RegistrationForm()
 	return {'form': form}
