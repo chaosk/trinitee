@@ -109,7 +109,7 @@ def post_permalink(request, post_id):
 		created_at__lt=post.created_at).count()
 	page = int(math.ceil((float(older_posts) + 1.0) /
 		get_config('POSTS_PER_PAGE', 25)))
-	return redirect(post.topic.get_abolute_url() + '?page=%s#post-%s' % (page, post.id))
+	return redirect(post.topic.get_absolute_url() + '?page=%s#post-%s' % (page, post.id))
 
 
 @login_required
@@ -119,7 +119,7 @@ def topic_new(request, forum_id):
 	if not can_post_topic(request.user, forum):
 		messages.error(request, "You are not allowed to to post new topics \
 			on this forum.")
-		return redirect(forum.get_abolute_url())
+		return redirect(forum.get_absolute_url())
 	if request.method == 'POST':
 		form = TopicForm(request.POST)
 		if form.is_valid():
