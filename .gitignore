@@ -2,4 +2,4 @@
 *.pyc
 *.sqlite
 *.svn*
-settings.py
+/settings.py
