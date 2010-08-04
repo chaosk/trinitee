@@ -1,11 +1,35 @@
 body {
-	background: #dcecff;
-	font-family: sans;
+	font-family: "Droid Sans", "Myriad", "Myriad Pro", "Tahoma", "Helvetica", "Liberation Sans", "Bitstream Vera Sans", "Sans";
+	font-size: 13px;
+}
+
+html {
+	background: #91c5ff;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ddedff), to(#91c5ff));
+	background: -moz-linear-gradient(top,  #ddedff,  #91c5ff);
+	min-height: 100%;
 }
 
 a {
-
+	color: #970;
 	text-decoration: none;
+}
+
+a:hover {
+	color: #fa3;
+}
+
+#admin_url {
+	padding: 5px;
+	margin-right: 5px;
+	background-color: #000;
+	color: #fff;
+}
+
+#admin_url:hover {
+	background-color: #fff;
+	color: #000;
+	border-bottom: 3px double #999;
 }
 
 #user {
@@ -26,11 +50,30 @@ a {
 #menu {
 	background: #e7e5be;
 	padding: 10px 20px;
+	text-transform: uppercase;
 }
 
-#content {
+#menu a {
+	color: #970;
+}
+
+#content, #forum_stats {
 	padding: 20px;
 }
+
+#forum_stats {
+	background: #f5f3d0;
+	color: #111;
+}
+
+#footer {
+	padding: 10px;
+	color: #888;
+	float: right;
+}
+
+#footer:hover { color: #444 }
+#footer:hover #heart { color: #f06 }
 
 ul.messages, .category ul {
 	list-style-type: none;
@@ -67,6 +110,245 @@ ul.messages .error   { background: #c54d47; }
 	padding: 10px;
 }
 
-table {
+#forum_view {
 	width: 100%;
+	border-collapse: collapse;
+}
+
+#forum_view td:not(:first-child) {
+	text-align: center;
+}
+
+#forum_view td p {
+	color: #4f4f4f;
+	margin: 0;
+}
+
+/****************
+ * Profile
+ ****************/
+
+.box .user_right {
+	padding: 10px;
+	float: right;
+}
+
+.user_image {
+	position: relative;
+}
+
+.avatar {
+	width: 60px;
+	height: 60px;
+}
+
+.badge {
+	position: absolute;
+	right: -10px;
+	bottom: -10px;
+}
+
+.box .label {
+	font-weight: bold;
+	margin: 10px 0;
+}
+
+.box dt {
+	margin-left: 20px;
+	display: inline;
+}
+
+.box dd {
+	color: #4f4f4f;
+}
+
+/****************
+ * Forum
+ ****************/
+
+#topic_view * {
+	margin: 0;
+	padding: 0;
+}
+
+#topic_view, #topic_view .content {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+	padding: 0;
+}
+
+#topic_view .content {
+	height: 110px;
+}
+
+#topic_view td {
+	border: 0;
+}
+
+#topic_view .content td {
+	padding: 10px;
+}
+
+#topic_view .user_info {
+	background: #f6f6eb;
+	border-right: thin solid #e7e5be;
+	color: #666;
+	font-weight: bold;
+	vertical-align: top;
+	padding: 10px 10px 0;
+	width: 120px;
+}
+
+#topic_view .user_image {
+	width: 60px;
+	height: 60px;
+	margin: 2px 0 10px 0;
+}
+
+#topic_view .rank {
+	font-size: 80%;
+}
+
+#topic_view .post {
+	border-bottom: thin solid #e7e5be;
+}
+
+#topic_view .post .signature {
+	font-size: 85%;
+	color: #222;
+	margin-top: 20px;
+}
+
+#topic_view .post .content tr:first-child {
+	color: #333;
+	font-size: 80%;
+	border-bottom: thin dashed #ccc;
+	height: 42px;
+	width: 50%;
+}
+
+#topic_view .post:first-child .content {
+	background: #edf9d4;
+}
+
+#topic_view .post:first-child .content tr:first-child {
+	border-bottom: thin dashed #b9ca94;
+}
+
+#topic_view .post .content {
+	padding: 10px;
+}
+
+#topic_view .post:nth-child(even) .content {
+	background: #f9f9f9;
+}
+
+/*#topic_view .post .content tr:not(:first-child) td:first-child {
+	width: 50%;
+}*/
+
+#topic_view .post .buttons {
+	opacity: 0.3;
+}
+
+#topic_view .post:hover .buttons {
+	opacity: 1;
+}
+
+#topic_view p {
+	margin-bottom: 10px;
+	line-height: 20px;
+	text-align: justify;
+}
+
+/****************
+ * Error
+ ****************/
+
+#error_page {
+	background: #fff;
+	margin: 15% auto 0;
+	width: 680px;
+	position: relative;
+	padding: 20px;
+	clear: both;
+	overflow: hidden;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-moz-box-shadow: 0 0 5px #888;
+	-webkit-box-shadow: 0 0 5px #888;
+}
+
+#error_page img {
+	float: left;
+}
+
+#error_page h1 {
+	font-size: 4em;
+	color: #333;
+}
+
+#error_page .content {
+	margin: 10% 0 0;
+	text-align: center;
+}
+
+#error_page .home {
+	position: absolute;
+	padding: 10px;
+	background: #e7e5be;
+	top: 0;
+	right: 70px;
+	border-radius: 0 0 6px 6px;
+	-moz-border-radius: 0 0 6px 6px;
+	-webkit-box-shadow: 0 0 3px #888;
+	-moz-box-shadow: 0 0 3px #888;
+}
+
+#error_page .number {
+	color: #777;
+	font-family: Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 15pt;
+	background: #fff;
+	position: absolute;
+	padding: 8px;
+	top: 10px;
+	left: 10px;
+}
+
+#error_page .user_bar {
+	position: absolute;
+	bottom: 3px;
+	right: 12px;
+}
+
+/****************
+ * Buttons
+ ****************/
+
+.buttons { text-align: right;}
+
+.quote, .report, .edit {
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+}
+
+.quote:hover, .report:hover, .edit:hover {
+	background-position: 0 -16px;
+}
+
+.edit {background: url(/static/images/post_edit.png) no-repeat scroll top right;}
+.quote {background: url(/static/images/quote.png) no-repeat scroll top right;}
+.report {background: url(/static/images/report.png) no-repeat scroll top right;}
+
+a.button {
+	color: #789d42;
+	background: url(/static/images/add.png) no-repeat center left;
+	display: inline-block;
+	padding: 5px 10px 5px 20px;
+	line-height: 20px;
+	vertical-align: bottom;
 }

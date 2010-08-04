@@ -34,6 +34,7 @@
 import os
 import sys
 import logging
+logging.basicConfig()
 import traceback
 
 from django.conf import settings

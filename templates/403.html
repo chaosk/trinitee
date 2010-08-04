@@ -1,1 +1,7 @@
-403 placeholder
+{% extends "misc/base_error.html" %}
+{% block error_title %}Forbidden{% endblock error_title %}
+{% block error_code %}403{% endblock error_code %}
+{% block content %}
+	<h1>Forbidden</h1>
+	<h2>Your hammer won't help you.</h2>
+{% endblock content %}

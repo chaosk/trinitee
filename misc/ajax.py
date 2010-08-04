@@ -4,6 +4,7 @@ from utilities.dajax.core import Dajax
 from utilities.dajaxice.core import dajaxice_functions
 from utilities.internal.templatetags.utils import user_date
 
+
 def drawboard_save(request, new_content):
 	drawboard, created = Drawboard.objects.get_or_create(pk=1)
 	drawboard.last_modified_by = request.user

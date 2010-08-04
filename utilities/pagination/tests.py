@@ -1,6 +1,6 @@
 """
 >>> from django.core.paginator import Paginator
->>> from pagination.templatetags.pagination_tags import paginate
+>>> from utilities.pagination.templatetags.pagination_tags import paginate
 >>> from django.template import Template, Context
 
 >>> p = Paginator(range(15), 2)

@@ -1,5 +1,5 @@
+from django import forms
 from django.contrib import admin
-from django.forms import ModelForm
 from django.forms.models import BaseInlineFormSet
 from forums.models import Category, Forum, Topic, Post, Report
 from utilities.internal.templatetags.truncate import truncate
@@ -7,6 +7,7 @@ from utilities.internal.widgets import NullBooleanROWidget, PostPreviewWidget
 
 
 class RequiredInlineFormSet(BaseInlineFormSet):
+# We don't use it anymore, it can be used later though.
 
 	def _construct_form(self, i, **kwargs):
 		"""
@@ -24,30 +25,56 @@ class ForumInline(admin.TabularInline):
 
 class CategoryAdmin(admin.ModelAdmin):
 	list_display = ('order_link', 'name')
-	list_display_links = ('name',)
+	list_display_links = ('name', )
 	inlines = [ForumInline]
 
 
 class ForumAdmin(admin.ModelAdmin):
 	list_display = ('category', 'order_link', 'name')
-	list_display_links = ('name',)
+	list_display_links = ('name', )
 	exclude = ('last_post', 'post_count', 'topic_count')
 
 
-class PostInline(admin.TabularInline):
-	model = Post
-	max_num = 1
-	extra = 1
-	exclude = ('content_html',)
-	formset = RequiredInlineFormSet
+class TopicAdminForm(forms.ModelForm):
+	content = forms.CharField(widget=forms.Textarea())
+
+	def __init__(self, *args, **kwargs):
+		super(TopicAdminForm, self).__init__(*args, **kwargs)
+		if kwargs.has_key('instance'):
+			instance = kwargs['instance']
+			content = instance.first_post.content
+			self.fields['content'].initial = content
+
+	class Meta:
+		model = Topic
 
 
 class TopicAdmin(admin.ModelAdmin):
-	list_display = ('id', 'title', 'first_post_author', 'created_at',
+	list_display = ('id', 'title', 'urlized_author', 'created_at',
 		'post_count', 'is_closed', 'is_sticky')
 	list_display_links = ('id', 'title')
-	exclude = ('first_post', 'last_post', 'view_count', 'post_count')
-	inlines = [PostInline]
+	form = TopicAdminForm
+	fieldsets = [
+		(None, {
+			"fields": ('title', 'forum', 'is_sticky', 'is_closed', 'content')
+		})
+	]
+
+	def save_model(self, request, obj, form, change):
+		if change:
+			obj.modified_by = request.user
+			obj.first_post.modified_by = request.user
+			obj.first_post.content = form.cleaned_data['content']
+			obj.first_post.save()
+			obj.save()
+		else:
+			obj.author = request.user
+			obj.author_ip = request.META['REMOTE_ADDR']
+			obj.save()
+			post = Post(topic=obj, author=request.user,
+				author_ip=request.META['REMOTE_ADDR'],
+				content=form.cleaned_data['content'])
+			post.save()
 
 	def close_topic(modeladmin, request, queryset):
 		queryset.update(is_closed=True)
@@ -67,14 +94,15 @@ class TopicAdmin(admin.ModelAdmin):
 
 	actions = [close_topic, open_topic, stick_topic, unstick_topic]
 
-	def first_post_author(self, obj):
+	def urlized_author(self, obj):
 		return '<a href="%s">%s</a>' % \
-			(obj.first_post.author.get_absolute_url(), obj.first_post.author)
-	first_post_author.allow_tags = True
-	first_post_author.short_description = 'Topic starter'
+			(obj.author.get_absolute_url(), obj.author)
+	urlized_author.allow_tags = True
+	urlized_author.short_description = 'Topic starter'
 
 
-class ReportAdminForm(ModelForm):
+class ReportAdminForm(forms.ModelForm):
+
 	class Meta:
 		model = Report
 		widgets = {
@@ -85,13 +113,14 @@ class ReportAdminForm(ModelForm):
 
 class ReportAdmin(admin.ModelAdmin):
 	list_display = ('id', 'change_list_status', 'status', 'urlized_post', \
-		'reported_by', 'format_reported_at', 'truncated_content')
+		'reported_by', 'reported_at', 'truncated_content')
 	list_display_links = ('id', 'change_list_status')
-	list_filter = ('status',)
+	list_filter = ('status', )
 	form = ReportAdminForm
 	fieldsets = (
 		(None, {
-			'fields': ('status', 'post', 'reported_by', 'reviewed_by', 'content')
+			'fields': ('status', 'post', 'reported_by', 'reviewed_by',
+				'content'),
 		}),
 	)
 	readonly_fields = ('reported_by', 'reviewed_by', 'content')
@@ -122,13 +151,9 @@ class ReportAdmin(admin.ModelAdmin):
 		return 'check'
 	change_list_status.short_description = 'Check'
 
-	def format_reported_at(self, obj):
-		return obj.reported_at.strftime('%Y-%m-%d %H:%M')
-	format_reported_at.short_description = 'Reported at'
-	format_reported_at.admin_order_field = 'reported_at'
-
 	def urlized_post(self, obj):
-		return '<a href="%s">#%d, %s</a>' % (obj.post.get_absolute_url(), obj.post.id, obj.post.author)
+		return '<a href="%s">#%d, %s</a>' % (obj.post.get_absolute_url(),
+			obj.post.id, obj.post.author)
 	urlized_post.allow_tags = True
 	urlized_post.short_description = 'Post'
 

@@ -5,7 +5,7 @@ from utilities.internal.file_storage import OverwriteStorage
 
 
 class Version(models.Model):
-	version_number = models.CharField(max_length=10)
+	version_number = models.CharField(max_length=10, unique=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	release_notes = models.TextField(blank=True)
 
@@ -31,6 +31,10 @@ class Release(models.Model):
 
 	def release_filename(self, filename):
 		fname, dot, extension = filename.rpartition('.')
+		# START HACK really dirty
+		if fname[-4:] == '.tar':
+			extension = 'tar.' + extension
+		# END HACK
 		return 'uploads/releases/teeworlds-%s-%s.%s' % (self.version.version_number, self.platform.name, extension)
 
 	uploaded_file = models.FileField(upload_to=release_filename,

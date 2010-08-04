@@ -1,48 +1,64 @@
 [
-  {
-   "model": "accounts.badge",
+ {
+   "model": "accounts.group",
    "pk": 1,
    "fields": {
-     "title": "User"
+     "name": "Members",
+     "user_title": "Member"
    }
  },
  {
-   "model": "accounts.badge",
+   "model": "accounts.group",
    "pk": 2,
    "fields": {
-     "title": "Donor"
+     "name": "Donors",
+     "user_title": "Donor",
+     "group_badge": "uploads/badges/group/2.png" 
    }
  },
  {
-   "model": "accounts.badge",
+   "model": "accounts.group",
    "pk": 3,
    "fields": {
-     "title": "Support staff"
+     "name": "Support staff",
+     "user_title": "Support staff"
    }
  },
  {
-   "model": "accounts.badge",
+   "model": "accounts.group",
    "pk": 4,
    "fields": {
-     "title": "Developer",
-     "is_for_staff": true,
-     "is_for_superuser": true
+     "name": "Artists",
+     "user_title": "Artist"
    }
  },
  {
-   "model": "accounts.badge",
+   "model": "accounts.group",
    "pk": 5,
    "fields": {
-     "title": "Moderator",
-     "is_for_staff": true
+     "name": "Moderators",
+     "user_title": "Moderator",
+     "group_badge": "uploads/badges/group/5.png",
+     "is_staff_group": true
    }
  },
  {
-   "model": "accounts.badge",
+   "model": "accounts.group",
    "pk": 6,
    "fields": {
-     "title": "Administrator",
-     "is_for_superuser": true
+     "name": "Developers",
+     "user_title": "Developer",
+     "group_badge": "uploads/badges/group/6.png",
+     "is_staff_group": true
+   }
+ },
+ {
+   "model": "accounts.group",
+   "pk": 7,
+   "fields": {
+     "name": "Administrators",
+     "user_title": "God :-)",
+     "is_staff_group": true
    }
  }
 ]

@@ -6,11 +6,13 @@ from forums.models import Forum
 from utilities.annoying.functions import get_config
 from utilities.django_recaptcha import ReCaptchaField
 
+
 SORT_USER_BY_CHOICES = (
 	('username', "Username"),
 	('registered', "Registered"),
 	('post_count', "No. of posts"),
 )
+
 
 SORT_DIR_CHOICES = (
 	('ASC', "Ascending"),
@@ -56,7 +58,6 @@ class RegistrationForm(forms.Form):
 		password = cleaned_data.get('password')
 		password_confirmation = cleaned_data.get('password_confirmation')
 
-		# FIXME this should be rewritten.
 		if email and email_confirmation and not email == email_confirmation:
 			msg = "E-mail addresses do not match."
 			self._errors['email'] = self.error_class([msg])
@@ -85,7 +86,8 @@ class ResendActivationKeyForm(forms.Form):
 
 
 class SettingsAvatarForm(forms.ModelForm):
-	delete = forms.BooleanField(required=False, initial=False, label="Delete avatar?")
+	delete = forms.BooleanField(required=False, initial=False,
+		label="Delete avatar?")
 
 	class Meta:
 		model = UserProfile
@@ -100,10 +102,13 @@ class SettingsAvatarForm(forms.ModelForm):
 			w, h = get_image_dimensions(avatar)
 			max_w = get_config('AVATAR_MAX_WIDTH', 60)
 			max_h = get_config('AVATAR_MAX_HEIGTH', 60)
+			# TODO add max file size
 			if w > max_w:
-				raise forms.ValidationError("The image is %i pixel wide. It's supposed to be %ipx" % (w, max_h))
+				raise forms.ValidationError("The image is %i pixel wide. "
+					"It's supposed to be %ipx" % (w, max_h))
 			if h > max_h:
-				raise forms.ValidationError("The image is %i pixel high. It's supposed to be %ipx" % (h, max_h))
+				raise forms.ValidationError("The image is %i pixel high. "
+					"It's supposed to be %ipx" % (h, max_h))
 		return avatar
 
 
@@ -114,17 +119,19 @@ class SettingsDisplayForm(forms.ModelForm):
 		fields = ['show_avatars', 'show_smileys', 'show_signatures', 'timezone']
 
 
-class SettingsIdentityForm(forms.ModelForm):
-
-	class Meta:
-		model = UserProfile
-		fields = ['location', 'icq', 'jabber', 'website']
-
 class SettingsIdentityStaffForm(forms.ModelForm):
 
 	class Meta:
 		model = UserProfile
-		fields = ['badge', 'title', 'location', 'icq', 'jabber', 'website']
+		fields = ['group', 'title', 'location', 'icq', 'jabber', 'website']
+
+
+class SettingsIdentityForm(SettingsIdentityStaffForm):
+
+	class Meta:
+		model = UserProfile
+		exclude = ['group', 'title']
+
 
 class SettingsIdentityUserForm(forms.ModelForm):
 
@@ -155,22 +162,18 @@ class UserSearchForm(forms.Form):
 			username = self.cleaned_data['username']
 			sort_by = self.cleaned_data['sort_by']
 			sort_dir = self.cleaned_data['sort_dir']
+			if username:
+				queryset = queryset.filter(username__icontains=username)
 			if sort_by == 'username':
-				if sort_dir == 'DESC':
-					return queryset.filter(username__contains=username).order_by('-username')
-				return queryset.filter(username__contains=username).order_by('username')
+				queryset = queryset.order_by('username')
 			elif sort_by == 'registered':
-				if sort_dir == 'DESC':
-					return queryset.filter(username__contains=username). \
-						order_by('-date_joined')
-				return queryset.filter(username__contains=username).order_by('date_joined')
+				queryset = queryset.order_by('date_joined')
 			elif sort_by == 'post_count':
 				if sort_dir == 'ASC':
-					return queryset.filter(username__contains=username). \
-						order_by('profile__post_count')
-				return queryset.filter(username__contains=username). \
-					order_by('-profile__post_count')
-			else:
-				if sort_dir == 'DESC':
-					return queryset.all().order_by('-username')
-		return queryset.all()
+					queryset = queryset.order_by('profile__post_count')
+				else:
+					queryset = queryset.order_by('-profile__post_count')
+				return queryset
+			if sort_dir == 'DESC':
+				queryset = queryset.reverse()
+		return queryset

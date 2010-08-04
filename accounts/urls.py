@@ -9,7 +9,6 @@ urlpatterns = patterns('accounts.views',
 	(r'^login/$', 'login'),
 	(r'^logout/$', 'logout'),
 	(r'^new/$', 'register'),
-	(r'^list/$', 'userlist'),
 	(r'^activate/(?P<user_id>\d+)/(?P<activation_key>\w+)/$', 'activate_account'),
 	(r'^activate/resend/(?P<user_id>\d+)/$', 'resend_activation_key'),
 )

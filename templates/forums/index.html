@@ -5,9 +5,8 @@
 	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
 {% endblock header %}
 {% block content %}
-	<h2>Categories</h2>
-	<table cellspacing="5" cellpadding="5">
-		<tr>
+	<table id="forum_view">
+		<tbody><tr>
 			<th>Forum name</th>
 			<th>Topic count</th>
 			<th>Post count</th>
@@ -36,15 +35,16 @@
 		{% empty %}
 			<td colspan="4">No categories. :-(</td>
 		{% endfor %}
-	</table>
+	</tbody></table>
+{% endblock content %}
+{% block after_content %}
 	<div id="forum_stats">
 			<div id="users_online">
-				<span id="users_online_info">Currently there {{ users_online|length|pluralize:"is,are" }} {{ users_online|length }} user{{ users_online|length|pluralize }} online</span>
-				<span id="users_online_data">{{ users_online|join:", " }}</span>
+				<span id="users_online_info">Currently there {{ users_online|length|pluralize:"is,are" }} {{ users_online|length|default:"no" }} user{{ users_online|length|pluralize }} online{% if users_online|length %}:{% endif %}</span>
+				<span id="users_online_data">{% for u in users_online %}<a href="{{ u.get_absolute_url }}">{{ u.username }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span>
 			</div>
 			<div id="random_numbers">
 				Users: {{ users }} | Topics: {{ topics }} | Posts: {{ posts }}
 			</div>
-		</div>
 	</div>
-{% endblock content %}
+{% endblock after_content %}

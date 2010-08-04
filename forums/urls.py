@@ -19,5 +19,4 @@ urlpatterns = patterns('forums.views',
 	(r'^post/report/(?P<post_id>\d+)/', 'post_report'),
 	(r'^post/vote/up/(?P<post_id>\d+)/$', 'post_voteup'),
 	(r'^post/vote/down/(?P<post_id>\d+)/$', 'post_votedown'),
-	(r'^search/$', 'search'),
 )

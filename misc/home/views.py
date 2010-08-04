@@ -6,14 +6,17 @@ from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.annoying.decorators import render_to
 from utilities.httpagentparser import os_detect
 
-@render_to('home/homepage.html')
+
+@render_to('misc/home/homepage.html')
 def homepage(request):
 	os, flavor = os_detect(request.META['HTTP_USER_AGENT'])
 	flavor = '_' + flavor if flavor else ''
 	latest_download = cache.get('homepage_latest_download_%s%s' % (os, flavor))
 	if latest_download == None:
-		latest_download = get_object_or_None(Release.objects.select_related(), platform__name='%s%s' % (os, flavor))
-		cache.set('homepage_latest_download_%s%s' % (os, flavor), latest_download, 86400)
+		latest_download = get_object_or_None(Release.objects.select_related(),
+			platform__name='%s%s' % (os, flavor))
+		cache.set('homepage_latest_download_%s%s' % (os, flavor),
+			latest_download, 86400)
 	news_forum_id = get_config('NEWS_FORUM', 1)
 	news = cache.get('homepage_news')
 	if news == None:
@@ -21,4 +24,5 @@ def homepage(request):
 			topic__first_post__id=F('id')).order_by('-created_at'). \
 				select_related()[:get_config('NEWS_ITEMS_ON_HOMEPAGE', 5)])
 		cache.set('homepage_news', news)
-	return {'news': news, 'forum_id': news_forum_id, 'latest_download': latest_download}
+	return {'news': news, 'forum_id': news_forum_id,
+		'latest_download': latest_download}

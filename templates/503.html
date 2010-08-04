@@ -1,0 +1,9 @@
+{% extends "misc/base_error_login.html" %}
+{% block error_title %}Service unavailable{% endblock error_title %}
+{% block error_code %}503{% endblock error_code %}
+{% block content %}
+	<h1>Repairing hammer</h1>
+	<h2>Site is currently under scheduled maintenance.</h2>
+	{{ message }}
+{% endblock content %}
+{% block return_to_home %}{% endblock return_to_home %}

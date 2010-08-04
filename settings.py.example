@@ -5,7 +5,11 @@ PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TEMPLATE_CACHING = TEMPLATE_DEBUG
 ENABLE_CAPTCHA = not DEBUG
+
+MAINTENANCE_MODE = False
+MAINTENANCE_MESSAGE = ""
 
 ADMINS = (
 	# ('Your Name', 'your_email@domain.com'),
@@ -32,6 +36,69 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
 
+MAILER_ADDRESS = ''
+WEBMASTER_EMAIL = ''
+
+if DEBUG:
+	CACHE_BACKEND = 'locmem://'
+else:
+	CACHE_BACKEND = ''
+	# CACHE_BACKEND = 'memcached://'
+
+SITE_NAME = 'Trinitee'
+
+# When you change this setting, you have to run
+# ./manage.py syncdb
+# to update Site instance.
+### You have to uncomment it!
+#SITE_DOMAIN = ''
+
+# Pretty shitty, but it's enough for now
+NEWS_FORUM = 1
+JOURNAL_FORUM = 2
+
+# You have to set this in order to use reCAPTCHA
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+
+# Days to activation keys expation
+ACTIVATION_KEY_EXPIRY_TIME = 7
+
+# Paginator
+TOPICS_PER_PAGE = 25
+POSTS_PER_PAGE = 25
+FEED_ITEMS = 50
+GENERIC_ITEMS_PER_PAGE = 25
+
+AVATAR_MAX_WIDTH = 60
+AVATAR_MAX_HEIGHT = 60
+
+ENABLE_BBCODE = True
+ENABLE_SMILEYS = True
+# If True [code] tags will be highlighted using pygments
+BBCODE_USE_PYGMENTS = False
+
+# Absolute path to the directory that holds media.
+# Example: "/home/media/media.lawrence.com/"
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'static')
+
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# trailing slash if there is a path component (optional in other cases).
+# Examples: "http://media.lawrence.com", "http://example.com/media/"
+MEDIA_URL = '/static/'
+
+# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
+# trailing slash.
+# Examples: "http://foo.com/media/", "/media/".
+ADMIN_MEDIA_PREFIX = '/admin_media/'
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'foobar'
+
+###                                                            ###
+### You probably won't need to change anything below this line ###
+###                                                            ###
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -55,29 +122,15 @@ USE_I18N = False
 # calendars according to the current locale
 USE_L10N = False
 
+# User profile model
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # Message storage backend
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'static')
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_media/'
+PAGINATION_INVALID_PAGE_RAISES_404 = True
 
 DAJAXICE_MEDIA_PREFIX = 'ajax'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'foobar'
 
 LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/user/login/'
@@ -87,12 +140,25 @@ ABSOLUTE_URL_OVERRIDES = {
 	'auth.user': lambda u: "/profile/%s/" % u.id,
 }
 
+ADMIN_TOOLS_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
+
+# Full-text search settings
+HAYSTACK_SITECONF = 'search_sites'
+HAYSTACK_SEARCH_ENGINE = 'whoosh'
+HAYSTACK_WHOOSH_PATH = os.path.join(PROJECT_DIR, 'search_index')
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
 	'django.template.loaders.filesystem.Loader',
 	'django.template.loaders.app_directories.Loader',
 	'django.template.loaders.eggs.Loader',
 )
+
+if not TEMPLATE_CACHING:
+	TEMPLATE_LOADERS = (
+		('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
+	)
 
 MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
@@ -101,6 +167,10 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.csrf.CsrfResponseMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
+	'utilities.internal.middleware.BanMiddleware',
+	'utilities.internal.middleware.MaintenanceModeMiddleware',
+	'utilities.internal.middleware.LastActivityMiddleware',
+	'utilities.internal.middleware.StoredNotificationsMiddleware',
 	'utilities.pagination.middleware.PaginationMiddleware',
 )
 
@@ -135,38 +205,6 @@ INSTALLED_APPS = (
 	'utilities.dajaxice',
 	'utilities.admin_tools.dashboard',
 	'utilities.grappelli',
+	'haystack',
 	'django.contrib.admin',
 )
-
-ADMIN_TOOLS_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
-ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
-
-SITE_NAME = 'Trinitee'
-MAILER_ADDRESS = ''
-WEBMASTER_EMAIL = ''
-
-# Pretty shitty, but it's enough for now
-NEWS_FORUM = 1
-JOURNAL_FORUM = 2
-
-# You have to set this in order to use reCAPTCHA
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
-
-# Days to activation keys expation
-ACTIVATION_KEY_EXPIRY_TIME = 7
-
-# Paginator
-TOPICS_PER_PAGE = 25
-POSTS_PER_PAGE = 25
-FEED_ITEMS_PER_PAGE = 10
-GENERIC_ITEMS_PER_PAGE = 25
-PAGINATION_INVALID_PAGE_RAISES_404 = True
-
-AVATAR_MAX_WIDTH = 60
-AVATAR_MAX_HEIGHT = 60
-
-ENABLE_BBCODE = True
-ENABLE_SMILEYS = True
-# If True [code] tags will be highlighted using pygments
-BBCODE_USE_PYGMENTS = False

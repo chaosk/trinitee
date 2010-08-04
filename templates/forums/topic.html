@@ -1,5 +1,6 @@
 {% extends "forums/base.html" %}
 {% load utils %}
+{% load forums %}
 {% load math %}
 {% load smileys %}
 {% load breadcrumbs %}
@@ -17,46 +18,51 @@
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}
 	<h2>{{ topic.title }}</h2>
-	{% if not topic.is_closed or user.is_staff and perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}<a class="button" href="{% url forums.views.post_new topic.id %}">Reply</a>{% endif %}
+	{% if user.is_superuser or user.is_staff %}
+		{% if topic.is_sticky %}
+			<a href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
+		{% else %}
+			<a href="{% url forums.views.stick_topic topic.id %}">Stick topic</a>
+		{% endif %}
+		{% if topic.is_closed %}
+			<a href="{% url forums.views.open_topic topic.id %}">Open topic</a>
+		{% else %}
+			<a href="{% url forums.views.close_topic topic.id %}">Close topic</a>
+		{% endif %}
+		<a href="{% url forums.views.move_topic topic.id %}">Move topic</a>
+	{% endif %}
 	{% autopaginate posts settings.POSTS_PER_PAGE %}
 	{% paginate %}
-	<table cellspacing="5" cellpadding="5">
-		<tr>
-			<th colspan="2" align="right">
-			{% if user.is_staff %}
-				{% if topic.is_sticky %}
-					<a href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
-				{% else %}
-					<a href="{% url forums.views.stick_topic topic.id %}">Stick topic</a>
-				{% endif %}
-				{% if topic.is_closed %}
-					<a href="{% url forums.views.open_topic topic.id %}">Open topic</a>
-				{% else %}
-					<a href="{% url forums.views.close_topic topic.id %}">Close topic</a>
-				{% endif %}
-				<a href="{% url forums.views.move_topic topic.id %}">Move topic</a>
-			{% endif %}
-			</th>
-		</tr>
+	
+	<table id="topic_view">
 	{% for p in posts %}
-		<tr id="post-{{ p.id }}">
-			<td>
-				<a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a><br />
-				{% if p.author.profile.avatar %}
-					<img src="{{ p.author.profile.avatar.url }}" /><br />
-				{% endif %}
-				{{ p.author.profile.title|default:p.author.profile.badge }}
-
-				{% if p.author.profile.badge.badge %}
-					<img src="{{ p.author.profile.badge.get_absolute_url }}" />
-				{% endif %}
+		<tr id="post-{{ p.id }}" class="post">
+			<td class="user_info">
+				<span class="username"><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a></span>
+				<div class="rank">{{ p.author.profile.title|default:p.author.profile.group.user_title }}</div>
+				<div class="user_image_p">
+					<div class="user_image">
+					{% if p.author.profile.avatar %}
+						<img class="avatar" src="{{ p.author.profile.avatar.url }}" />
+					{% endif %}
+					{% if p.author.profile.group.group_badge %}
+						<img class="badge" src="{{ p.author.profile.group.group_badge.url }}" />
+					{% endif %}
+					</div>
+				</div>
 			</td>
 			<td>
-				<table>
+				<table class="content">
 					<tr>
-						<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
-						<td align="right">
-							<a href="{% url forums.views.post_new topic.id p.id %}">(quote)</a>{% if perms.forums.edit_post or p == topic.last_post and p.author == user %} <a href="{% url forums.views.post_edit p.id %}">(edit)</a>{% endif %}{% if perms.forums.delete_post %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == first_post_id %} topic{% endif %})</a>{% endif %} <a href="{% url forums.views.post_report p.id %}">(report)</a>
+						<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }}{# best... line... EVER! #} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
+						<td class="buttons">
+							<a class="quote" title="Quote" href="{% url forums.views.post_new topic.id p.id %}"></a>
+							<a class="report" title="Report" href="{% url forums.views.post_report p.id %}"></a>
+							{% if user.is_staff or p == topic.last_post and p.author == user %}
+							<a class="edit" title="Edit" href="{% url forums.views.post_edit p.id %}"></a>
+							{% endif %}
+							{% if user.is_staff %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == first_post_id %} topic{% endif %})</a>{% endif %}
 							{% if user.is_authenticated %}
 							<span class="karma-box">
 								<a href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});">+</a>
@@ -68,27 +74,30 @@
 						</td>
 					</tr>
 					<tr>
-						<td>
+						<td colspan="2">
 							{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
-								{{ p.content_html|safe|smileys }}
+							{{ p.content_html|safe|smileys }}
 							{% else %}
-								{{ p.content_html|safe }}
-							{% endif %}
-							{% if p.author.profile.signature %}
-								<br />---<br />
-							{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
-								{{ p.author.profile.signature_html|safe|smileys }}
-							{% else %}
-								{{ p.author.profile.signature_html|safe }}
-							{% endif %}
+							{{ p.content_html|safe }}
 							{% endif %}
 						</td>
 					</tr>
+					{% if user.profile.show_signatures and p.author.profile.signature %}
+					<tr>
+						<td colspan="2" class="signature">
+							{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+							{{ p.author.profile.signature_html|safe|smileys }}
+							{% else %}
+							{{ p.author.profile.signature_html|safe }}
+							{% endif %}
+						</td>
+					</tr>
+					{% endif %}
 				</table>
 			</td>
 		</tr>
 	{% endfor %}
 	</table>
 	{% paginate %}
-	{% if not topic.is_closed or user.is_staff and perms.forums.add_post %}<a href="{% url forums.views.post_new topic.id %}">+ reply</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}<a class="button" href="{% url forums.views.post_new topic.id %}">Reply</a>{% endif %}
 {% endblock content %}

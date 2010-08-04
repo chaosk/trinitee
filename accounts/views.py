@@ -4,12 +4,14 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as login_, logout as logout_
+from django.contrib.auth import (authenticate, login as login_,
+	logout as logout_)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
 from accounts.forms import *
+from haystack.query import SearchQuerySet
 from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.annoying.decorators import render_to
 from utilities.annoying.utils import HttpResponseReload
@@ -47,7 +49,8 @@ def login(request):
 
 def logout(request):
 	logout_(request)
-	messages.success(request, "Logged out successfully.")
+	messages.success(request, "Logged out successfully. "
+		"It was a pleasure to travel through this site with you!")
 	return redirect(reverse('home'))
 
 
@@ -55,10 +58,10 @@ def logout(request):
 def userlist(request):
 	users = cache.get('accounts_userlist')
 	if users == None:
-		users = User.objects.all().order_by('username').select_related('profile')
+		users = User.objects.exclude(is_active=False).select_related('profile')
 		cache.set('accounts_userlist', users)
 	form = UserSearchForm(request.GET)
-	users = form.filter(users)
+	users = list(form.filter(users))
 	return {'users': users, 'form': form}
 
 
@@ -113,7 +116,8 @@ def profile_settings_identity(request):
 		profile_form_class = SettingsIdentityForm
 	if request.method == 'POST':
 		user_form = SettingsIdentityUserForm(request.POST, instance=request.user)
-		profile_form = profile_form_class(request.POST, instance=request.user.profile)
+		profile_form = profile_form_class(request.POST,
+			instance=request.user.profile)
 		if user_form.is_valid() and profile_form.is_valid():
 			user_form.save()
 			profile_form.save()
@@ -143,15 +147,15 @@ def profile_details(request, user_id):
 	user_details = cache.get('accounts_profile_%s' % user_id)
 	if user_details == None:
 		user_details = get_object_or_404(
-			User.objects.select_related('profile'), pk=user_id)
+			User.objects.select_related('profile', 'profile__group'), pk=user_id)
 		cache.set('accounts_profile_%s' % user_id, user_details)
 	return {'user_details': user_details}
 
 
-# ref: comment to accounts.views.login_
 @user_passes_test_or_403(lambda u: not u.is_active)
 @render_to('accounts/register.html')
 def register(request):
+# ref: comment to accounts.views.login_
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
 		if form.is_valid():

@@ -38,5 +38,5 @@ from utilities.dajaxice.core import dajaxice_autodiscover
 dajaxice_autodiscover()
 urlpatterns = patterns('',  
     #Dajaxice URLS
-    (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
+    (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('utilities.dajaxice.urls')),
 )

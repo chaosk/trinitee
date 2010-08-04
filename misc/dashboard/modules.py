@@ -2,7 +2,9 @@ from django.core.cache import cache
 from misc.models import Drawboard
 from utilities.admin_tools.dashboard.modules import DashboardModule
 
+
 class DrawboardModule(DashboardModule):
+
 	def __init__(self, **kwargs):
 		super(DrawboardModule, self).__init__(**kwargs)
 		self.title = kwargs.get('title', 'Drawboard')

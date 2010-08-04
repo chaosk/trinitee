@@ -15,7 +15,7 @@
     <div class="items">
         {% for inline_admin_form in inline_admin_formset %}
             <!-- element -->
-            <div class="module collapse closed{% if inline_admin_form.original or inline_admin_form.show_url %} has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
+            <div class="module collapse{% if inline_admin_form.original or inline_admin_form.show_url %} has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
                 id="{{ inline_admin_formset.formset.prefix }}{% if forloop.last %}-empty{% else %}{{ forloop.counter0 }}{% endif %}">
                     <h3>{{ inline_admin_formset.opts.verbose_name|title }} #{{ forloop.counter }}&nbsp;&nbsp;{% if inline_admin_form.original %}{{ inline_admin_form.original }}{% endif %}</h3>
                 <ul class="tools">

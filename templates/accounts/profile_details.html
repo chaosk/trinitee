@@ -2,28 +2,53 @@
 {% load breadcrumbs %}
 {% load utils %}
 {% block title %}{{ user_details.profile }} - {{ block.super }}{% endblock %}
-{% block breadcrumbs %}
-{{ block.super }}
-{% breadcrumb_url user_details.profile accounts.views.profile_details user_details.id %}
-{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb_url user_details.profile accounts.views.profile_details user_details.id %}{% endblock %}
 {% block content %}
-	{% if user_details|is_online %}ONLINE{% endif %}
-	username - {{ user_details.username }}<br>
-	first_name - {{ user_details.first_name }}<br>
-	last_name - {{ user_details.last_name }}<br>
-	is_staff - {{ user_details.is_staff }}<br>
-	is_active - {{ user_details.is_active }}<br>
-	is_superuser - {{ user_details.is_superuser }}<br>
-	last_login - {{ user_details.last_login|user_date:user }}<br>
-	date_joined - {{ user_details.date_joined|user_date:user }}<br>
-	<br><br>
-	{% if user_details.profile.avatar %}
-	avatar - <img src="{{ user_details.profile.avatar.url }}" /><br>
-	{% endif %}
-	signature - {{ user_details.profile.signature }}<br>
-	location - {{ user_details.profile.location }}<br>
-	website - {{ user_details.profile.website }}<br>
-	icq - {{ user_details.profile.icq }}<br>
-	jabber - {{ user_details.profile.jabber }}<br>
-	post_count - {{ user_details.profile.post_count }}<br>
+	<div class="box" id="identity">
+		{% if user_details|is_online %}ONLINE{% endif %}
+		<div class="label">Identity</div>
+
+		<div class="user_right">
+			<div class="user_image">
+			{% if user_details.profile.avatar %}
+				<img class="avatar" src="{{ user_details.profile.avatar.url }}" />
+			{% endif %}
+			{% if user_details.profile.group.group_badge %}
+				<img class="badge" src="{{ user_details.profile.group.group_badge.url }}" />
+			{% endif %}
+			</div>
+		</div>
+		<dt>Username</dt>
+			<dd>{{ user_details.username }}</dd>
+		<dt>Real name</dt>
+			<dd>{{ user_details.get_full_name|default:"Unknown" }}</dd>
+		<dt>Location</dt>
+			<dd>{{ user_details.profile.location|default:"Unknown" }}</dd>
+		<dt>Website</dt>
+			<dd>{{ user_details.profile.website|default:"Unknown" }}</dd>
+		{% if user_details.profile.signature_html %}
+		<dt>Signature</dt>
+			<dd>{{ user_details.profile.signature_html }}</dd>
+		{% endif %}
+	</div>
+
+	<div class="box" id="messaging">
+		<div class="label">Messaging</div>
+
+		<dt>ICQ</dt>
+			<dd>{{ user_details.profile.icq|default:"Unknown" }}</dd>
+		<dt>Jabber</dt>
+			<dd>{{ user_details.profile.jabber|default:"Unknown" }}</dd>
+	</div>
+
+	<div class="box" id="activity">
+		<div class="label">Activity</div>
+
+		<dt>Post count</dt>
+			<dd>{{ user_details.profile.post_count }}</dd>
+		<dt>Last activity</dt>
+			<dd>{{ user_details.profile.last_activity_at|user_date:user }}</dd>
+		<dt>Date joined</dt>
+			<dd>{{ user_details.date_joined|user_date:user }}</dd>
+	</div>
 {% endblock content %}

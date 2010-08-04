@@ -1,0 +1,10 @@
+{% extends "misc/base_error.html" %}
+{% block additional_code %}
+	<div class="user_bar">
+	{% if not user.is_authenticated %}
+		<a href="{% url accounts.views.login %}?next={{ request.path }}">Login</a>
+	{% else %}
+		Logged in as {{ user }}. <a href="{% url accounts.views.logout %}">Logout</a>
+	{% endif %}
+	</div>
+{% endblock additional_code %}

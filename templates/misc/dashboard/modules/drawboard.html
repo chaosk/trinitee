@@ -15,7 +15,7 @@
         {% for child in module.children %}
         <li>
 			<textarea id="drawboard" rows="8" cols="40" style="display:none;">{{ child.content }}</textarea>
-			<div id="drawboard-div" style="max-height:150px;overflow:hidden;" onclick="toggle_editor();">{{ child.content_html|safe }}</div>
+			<div id="drawboard-div" style="min-height: 50px;max-height:150px;overflow:hidden;" onclick="toggle_editor();">{{ child.content_html|safe }}</div>
 			<div id="drawboard-tools" style="display:none">
 				<input id="save" value="SAVE" tabindex="12" type="submit" onclick="save();"><input value="Cancel" onclick="cancel_edit();" tabindex="13" type="button">
 				<span><em> ~~~~</em> -  your signature. You can use BBCode.</span>

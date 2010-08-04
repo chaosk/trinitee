@@ -6,7 +6,7 @@
 {% block content %}
 {% for v in versions %}
 	<h2 name="version-{{ v.version_number }}">{{ v.version_number }}</h2>
-	<p class="description">{{ v.release_notes }}</p>
+	<p class="description">{{ v.release_notes|linebreaksbr }}</p>
 	{% for r in v.releases.all %}
 		<a href="{{ r.get_absolute_url }}">{{ r.platform.displayed_name }}</a>
 	{% endfor %}

@@ -30,7 +30,7 @@
 	  "category": 1,
 	  "name": "News",
 	  "description": "New releases and status updates",
-	  "can_regular_user_post": false,
+      "can_post_topic": [["Moderators"], ["Developers"], ["Administrators"]],
       "order": 1
     }
   },
@@ -41,7 +41,7 @@
 	  "category": 1,
 	  "name": "Developer Journals",
 	  "description": "An inside look into the development process",
-	  "can_regular_user_post": false,
+      "can_post_topic": [["Moderators"], ["Developers"], ["Administrators"]],
       "order": 2
     }
   },
@@ -142,6 +142,7 @@
     "fields": {
       "topic": 2,
       "author": 0,
+      "author_ip": "127.0.0.1",
       "created_at": "1970-01-01 00:00:01",
       "modified_at": "1970-01-01 00:00:01",
       "modified_by": null,
@@ -155,6 +156,7 @@
     "fields": {
       "topic": 2,
       "author": 0,
+      "author_ip": "127.0.0.1",
       "created_at": "1970-01-01 00:00:01",
       "modified_at": "1970-01-01 00:00:01",
       "modified_by": null,
@@ -168,6 +170,7 @@
 	"fields": {
       "topic": 0,
       "author": 0,
+      "author_ip": "127.0.0.1",
       "created_at": "1970-01-01 00:00:01",
       "content_html": "Hello."
 	}

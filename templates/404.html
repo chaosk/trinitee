@@ -1,2 +1,7 @@
-404 placeholder
-Request path: {{ request_path }}
+{% extends "misc/base_error.html" %}
+{% block error_title %}Page not found{% endblock error_title %}
+{% block error_code %}404{% endblock error_code %}
+{% block content %}
+	<h1>Link broken</h1>
+	<h2>You requested page which doesn't exist.</h2>
+{% endblock content %}

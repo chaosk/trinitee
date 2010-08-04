@@ -2,6 +2,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 
+"""
+http://djangosnippets.org/snippets/998/
+"""
+
 class OrderedModel(models.Model):
 	order = models.PositiveIntegerField(editable=False)
 

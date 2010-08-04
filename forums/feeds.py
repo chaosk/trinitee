@@ -19,7 +19,7 @@ class ForumIndexFeed(Feed):
 		if posts == None:
 			posts = list(Post.objects.filter(topic__first_post__id=F('id')) \
 				.order_by('-created_at') \
-				.select_related()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+				.select_related()[:get_config('FEED_ITEMS', 50)])
 			cache.set('forums_feed_topics', posts)
 		return posts
 
@@ -40,7 +40,8 @@ class ForumFeed(Feed):
 		return get_object_or_404(Forum, pk=forum_id)
 
 	def title(self, item):
-		return "Latest posts in forum \"%s\" - %s" % (item.name, get_config('SITE_NAME', "Trinitee"))
+		return "Latest posts in forum \"%s\" - %s" % (item.name,
+			get_config('SITE_NAME', "Trinitee"))
 
 	def link(self, item):
 		return item.get_absolute_url()
@@ -50,7 +51,7 @@ class ForumFeed(Feed):
 		if posts == None:
 			posts = list(Post.objects.filter(topic__forum=item) \
 				.order_by('-created_at') \
-				.select_related()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+				.select_related()[:get_config('FEED_ITEMS', 50)])
 			cache.set('forums_feed_forum_%s' % item, posts)
 		return posts
 
@@ -71,7 +72,8 @@ class TopicFeed(Feed):
 		return get_object_or_404(Topic, pk=topic_id)
 
 	def title(self, item):
-		return "Latest posts in topic \"%s\" - %s" % (item.title, get_config('SITE_NAME', "Trinitee"))
+		return "Latest posts in topic \"%s\" - %s" % (item.title,
+			get_config('SITE_NAME', "Trinitee"))
 
 	def link(self, item):
 		return item.get_absolute_url()
@@ -81,7 +83,7 @@ class TopicFeed(Feed):
 		if posts == None:
 			posts = list(Post.objects.filter(topic=item) \
 				.order_by('-created_at') \
-				.select_related()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+				.select_related()[:get_config('FEED_ITEMS', 50)])
 			cache.set('forums_feed_topic_%s' % item, posts)
 		return posts
 
@@ -102,7 +104,8 @@ class UserPostsFeed(Feed):
 		return get_object_or_404(User, pk=user_id)
 
 	def title(self, item):
-		return "Latest posts of user \"%s\" - %s" % (item.username, get_config('SITE_NAME', "Trinitee"))
+		return "Latest posts of user \"%s\" - %s" % (item.username,
+			get_config('SITE_NAME', "Trinitee"))
 
 	def link(self, item):
 		return item.get_absolute_url()
@@ -112,7 +115,7 @@ class UserPostsFeed(Feed):
 		if posts == None:
 			posts = list(Post.objects.filter(author=item) \
 				.order_by('-created_at') \
-				.select_related()[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+				.select_related()[:get_config('FEED_ITEMS', 50)])
 			cache.set('forums_feed_user_%s' % item, posts)
 		return posts
 
@@ -127,13 +130,15 @@ class UserPostsFeed(Feed):
 
 
 class AdminReportFeed(DeprecatedFeed):
-	title = "Unreviewed user reports - %s Forum" % get_config('SITE_NAME', "Trinitee")
+	title = "Unreviewed user reports - %s Forum" % \
+		get_config('SITE_NAME', "Trinitee")
 	link = '/admin/forums/report/'
 
 	def items(self):
 		reports = cache.get('admin_forums_feed_reports')
 		if reports == None:
-			reports = list(Report.objects.filter(status=None)[:get_config('FEED_ITEMS_PER_PAGE', 10)])
+			reports = list(Report.objects \
+				.filter(status=None)[:get_config('FEED_ITEMS', 50)])
 			cache.set('admin_forums_feed_reports', reports)
 		return reports
 
@@ -145,13 +150,16 @@ class AdminReportFeed(DeprecatedFeed):
 		return title
 
 	def item_description(self, item):
-		return "%s<br /><br /><a href=\"%s\">Reported post</a> (by %s):<br />%s<br />" % \
-			(item.content, item.post.get_absolute_url(), item.post.author, item.post.content)
+		return "%s<br /><br /><a href=\"%s\">Reported post</a> "
+		"(by %s):<br />%s<br />" % \
+			(item.content, item.post.get_absolute_url(), item.post.author,
+				item.post.content)
 
 	def item_pubdate(self, item):
 		return item.reported_at
 
 
-@user_passes_test_or_basicauth(lambda u: u.is_staff or u.is_superuser, 'Trinitee')
+@user_passes_test_or_basicauth(lambda u: u.is_staff or u.is_superuser,
+	'Trinitee')
 def feed(request, url, feed_dict=None):
-    return unauthenticated_feed(request, url, feed_dict)
+	return unauthenticated_feed(request, url, feed_dict)

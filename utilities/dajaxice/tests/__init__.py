@@ -45,53 +45,53 @@ from utilities.dajaxice.core import dajaxice_functions
 
 class DjangoIntegrationTest(TestCase):
     
-    urls = 'dajaxice.tests.urls'
+    urls = 'utilities.dajaxice.tests.urls'
     
     def setUp(self):
         settings.DAJAXICE_MEDIA_PREFIX = "dajaxice"
         settings.DAJAXICE_DEBUG = False
-        settings.INSTALLED_APPS += ('dajaxice.tests',)
+        settings.INSTALLED_APPS += ('utilities.dajaxice.tests',)
         os.environ['DJANGO_SETTINGS_MODULE'] = 'dajaxice'
         
     def test_calling_not_registered_function(self):
-        self.failUnlessRaises(FunctionNotCallableError,self.client.post, '/dajaxice/dajaxice.tests.this_function_not_exist/',{'callback':'my_callback'})
+        self.failUnlessRaises(FunctionNotCallableError,self.client.post, '/dajaxice/utilities.dajaxice.tests.this_function_not_exist/',{'callback':'my_callback'})
 
     def test_calling_registered_function(self):
-        response = self.client.post('/dajaxice/dajaxice.tests.test_foo/',{'callback':'my_callback'})
+        response = self.client.post('/dajaxice/utilities.dajaxice.tests.test_foo/',{'callback':'my_callback'})
 
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(response.content,'my_callback()')
 
     def test_calling_registered_function_with_params(self):
         
-        response = self.client.post('/dajaxice/dajaxice.tests.test_foo_with_params/',{'callback':'my_callback', 'argv': '{"param1":"value1"}'})
+        response = self.client.post('/dajaxice/utilities.dajaxice.tests.test_foo_with_params/',{'callback':'my_callback', 'argv': '{"param1":"value1"}'})
         
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(response.content,'my_callback("value1")')
         
     def test_bad_function(self):
         
-        response = self.client.post('/dajaxice/dajaxice.tests.test_ajax_exception/',{'callback':'my_callback'})
+        response = self.client.post('/dajaxice/utilities.dajaxice.tests.test_ajax_exception/',{'callback':'my_callback'})
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(response.content,"my_callback('DAJAXICE_EXCEPTION')")
     
     def test_is_callable(self):
         
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_registered_function')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_registered_function')
         self.failUnless(dr._is_callable())
         
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_ajax_not_registered')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_ajax_not_registered')
         self.failIf(dr._is_callable())
         
     def test_get_js_functions(self):
         
         js_functions = DajaxiceRequest.get_js_functions()
         
-        callables = ['dajaxice.tests.ajax.test_registered_function',
-                    'dajaxice.tests.ajax.test_string',
-                    'dajaxice.tests.ajax.test_ajax_exception',
-                    'dajaxice.tests.ajax.test_foo',
-                    'dajaxice.tests.ajax.test_foo_with_params']
+        callables = ['utilities.dajaxice.tests.ajax.test_registered_function',
+                    'utilities.dajaxice.tests.ajax.test_string',
+                    'utilities.dajaxice.tests.ajax.test_ajax_exception',
+                    'utilities.dajaxice.tests.ajax.test_foo',
+                    'utilities.dajaxice.tests.ajax.test_foo_with_params']
         
         functions = [f.rsplit('.',1)[1] for f in callables]
         
@@ -112,21 +112,21 @@ class DjangoIntegrationTest(TestCase):
     def test_get_ajax_function(self):
         
         # Test modern Import with a real ajax function
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_foo')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_foo')
         function = dr._modern_get_ajax_function()
         self.failUnless(hasattr(function, '__call__') )
         
         # Test old Import with a real ajax function
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_foo')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_foo')
         function = dr._old_get_ajax_function()
         self.failUnless(hasattr(function, '__call__') )
         
         # Test modern Import without a real ajax function
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_foo2')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_foo2')
         self.failUnlessRaises(DajaxiceImportError, dr._modern_get_ajax_function)
         
         # Test old Import without a real ajax function
-        dr = DajaxiceRequest(None, 'dajaxice.tests.test_foo2')
+        dr = DajaxiceRequest(None, 'utilities.dajaxice.tests.test_foo2')
         self.failUnlessRaises(DajaxiceImportError, dr._old_get_ajax_function)
 
 
