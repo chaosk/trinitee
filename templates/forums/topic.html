@@ -18,19 +18,23 @@
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}
 	<h2>{{ topic.title }}</h2>
-	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}<a class="button" href="{% url forums.views.post_new topic.id %}">Reply</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}
+	<a class="button reply" href="{% url forums.views.post_new topic.id %}">Reply</a>
+	{% else %}
+	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.post_new topic.id %}"{% endif %}>Reply</a>
+	{% endif %}
 	{% if user.is_superuser or user.is_staff %}
 		{% if topic.is_sticky %}
-			<a href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
+	<a class="button unstick" href="{% url forums.views.unstick_topic topic.id %}">Unstick topic</a>
 		{% else %}
-			<a href="{% url forums.views.stick_topic topic.id %}">Stick topic</a>
+	<a class="button stick" href="{% url forums.views.stick_topic topic.id %}">Stick topic</a>
 		{% endif %}
 		{% if topic.is_closed %}
-			<a href="{% url forums.views.open_topic topic.id %}">Open topic</a>
+	<a class="button open" href="{% url forums.views.open_topic topic.id %}">Open topic</a>
 		{% else %}
-			<a href="{% url forums.views.close_topic topic.id %}">Close topic</a>
+	<a class="button close" href="{% url forums.views.close_topic topic.id %}">Close topic</a>
 		{% endif %}
-		<a href="{% url forums.views.move_topic topic.id %}">Move topic</a>
+	<a class="button move" href="{% url forums.views.move_topic topic.id %}">Move topic</a>
 	{% endif %}
 	{% autopaginate posts settings.POSTS_PER_PAGE %}
 	{% paginate %}
@@ -54,23 +58,28 @@
 			</td>
 			<td>
 				<table class="content">
-					<tr>
+					<tr class="post_data">
 						<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }}{# best... line... EVER! #} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
 						<td class="buttons">
-							<a class="quote" title="Quote" href="{% url forums.views.post_new topic.id p.id %}"></a>
-							<a class="report" title="Report" href="{% url forums.views.post_report p.id %}"></a>
+							<a class="post_button quote" title="Quote" href="{% url forums.views.post_new topic.id p.id %}"></a>
+							<a class="post_button report" title="Report" href="{% url forums.views.post_report p.id %}"></a>
 							{% if user.is_staff or p == topic.last_post and p.author == user %}
-							<a class="edit" title="Edit" href="{% url forums.views.post_edit p.id %}"></a>
+							<a class="post_button edit" title="Edit" href="{% url forums.views.post_edit p.id %}"></a>
 							{% endif %}
-							{% if user.is_staff %} <a href="{% url forums.views.post_delete p.id %}">(delete{% if p.id == first_post_id %} topic{% endif %})</a>{% endif %}
-							{% if user.is_authenticated %}
+							{% if user.is_staff %}
+							<a class="post_button delete" title="Delete" href="{% url forums.views.post_delete p.id %}"></a>
+							{% endif %}
 							<span class="karma-box">
-								<a href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});">+</a>
+								{% with p|current_karma:user as post_current_karma %}
 								<span class="karma-count">{{ p.get_karma }}</span>
-								<a href="{% url forums.views.post_votedown p.id %}" onclick="return votedown({{ p.id }});">-</a>
+								{% if user.is_authenticated %}
+								<a class="post_button karma karma_positive{% if post_current_karma == 1 %} current{% endif %}" title="Vote up this post" href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});"></a>
+								<a class="post_button karma karma_neutral{% if post_current_karma == 0 %} current{% endif %}" title="Cancel your vote for this post" href="{% url forums.views.post_votecancel p.id %}" onclick="return votecancel({{ p.id }});"></a>
+								<a class="post_button karma karma_negative{% if post_current_karma == -1 %} current{% endif %}" title="Vote down this post" href="{% url forums.views.post_votedown p.id %}" onclick="return votedown({{ p.id }});"></a>
 								<span class="karma-voted"></span>
+								{% endif %}
+								{% endwith %}
 							</span>
-							{% endif %}
 						</td>
 					</tr>
 					<tr>
@@ -99,5 +108,9 @@
 	{% endfor %}
 	</table>
 	{% paginate %}
-	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}<a class="button" href="{% url forums.views.post_new topic.id %}">Reply</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or not topic.is_closed and user|can_post_reply:topic.forum %}
+	<a class="button reply" href="{% url forums.views.post_new topic.id %}">Reply</a>
+	{% else %}
+	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.post_new topic.id %}"{% endif %}>Reply</a>
+	{% endif %}
 {% endblock content %}

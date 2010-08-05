@@ -124,3 +124,13 @@ def can_post_reply(user, forum):
 		not user.is_superuser:
 		return False
 	return True
+
+
+@register.filter
+def current_karma(post, user):
+	if not hasattr(user, 'karma'):
+		return 0
+	try:
+		return user.karma.filter(post=post)[0].karma
+	except IndexError:
+		return 0

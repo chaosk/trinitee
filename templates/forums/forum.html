@@ -11,7 +11,11 @@
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url forum.name forums.views.forum_view forum.id %}{% endblock %}
 {% block content %}
 	<h2>{{ forum.name }}</h2>
-	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}<a class="button" href="{% url forums.views.topic_new forum.id %}">New topic</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}
+	<a class="button reply" href="{% url forums.views.topic_new forum.id %}">New topic</a>
+	{% else %}
+	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
+	{% endif %}
 	{% autopaginate topics settings.TOPICS_PER_PAGE %}
 	{% paginate %}
 	<table cellspacing="5" cellpadding="5">
@@ -36,5 +40,9 @@
 		{% endfor %}
 	</table>
 	{% paginate %}
-	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}<a class="button" href="{% url forums.views.topic_new forum.id %}">New topic</a>{% endif %}
+	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}
+	<a class="button reply" href="{% url forums.views.topic_new forum.id %}">New topic</a>
+	{% else %}
+	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
+	{% endif %}
 {% endblock content %}

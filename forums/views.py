@@ -339,6 +339,17 @@ def post_voteup(request, post_id):
 
 
 @login_required
+def post_votecancel(request, post_id):
+	result = post_vote(request, post_id, 0)
+	if not isinstance(result, Post):
+		messages.error(request, result[0])
+		if result[1]:
+			return redirect(reverse('forums.views.index'))
+	messages.info(request, "Saved.")
+	return post_permalink(request, post_id)
+
+
+@login_required
 def post_votedown(request, post_id):
 	result = post_vote(request, post_id, -1)
 	if not isinstance(result, Post):

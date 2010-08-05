@@ -330,25 +330,46 @@ ul.messages .error   { background: #c54d47; }
 
 .buttons { text-align: right;}
 
-.quote, .report, .edit {
+a.post_button {
 	display: inline-block;
+	padding: 7px 10px 5px 20px;
+	line-height: 20px;
+	vertical-align: bottom;
 	height: 16px;
 	width: 16px;
 }
 
-.quote:hover, .report:hover, .edit:hover {
+a.post_button:hover {
 	background-position: 0 -16px;
 }
 
-.edit {background: url(/static/images/post_edit.png) no-repeat scroll top right;}
-.quote {background: url(/static/images/quote.png) no-repeat scroll top right;}
-.report {background: url(/static/images/report.png) no-repeat scroll top right;}
+.post_button.edit { background: url(/static/images/post_edit.png) no-repeat scroll top right; }
+.post_button.quote { background: url(/static/images/quote.png) no-repeat scroll top right; }
+.post_button.report { background: url(/static/images/report.png) no-repeat scroll top right; }
+.post_button.delete { background: url(/static/images/post_delete.png) no-repeat scroll top right; }
+.karma-count { padding:20px;font-size: 12px; text-align: center; background: #f5f3d0; }
+.post_button.karma_negative { background: url(/static/images/karma_negative.png) no-repeat scroll top right; }
+.post_button.karma_neutral { background: url(/static/images/karma_neutral.png) no-repeat scroll top right; }
+.post_button.karma_positive { background: url(/static/images/karma_positive.png) no-repeat scroll top right; }
+.post_button.karma { opacity: 0.2; }
+.post_button.karma:hover { opacity: 0.7; }
+.post_button.karma.current { opacity: 1; }
 
 a.button {
 	color: #789d42;
-	background: url(/static/images/add.png) no-repeat center left;
 	display: inline-block;
-	padding: 5px 10px 5px 20px;
+	padding: 7px 10px 5px 20px;
 	line-height: 20px;
 	vertical-align: bottom;
 }
+
+a.button.disabled { color: #aaa; }
+
+.button.reply { background: url(/static/images/add.png) no-repeat center left; }
+.button.reply.disabled { background: url(/static/images/add_disabled.png) no-repeat center left; }
+.button.stick { background: url(/static/images/pin.png) no-repeat center left; }
+.button.unstick { background: url(/static/images/unpin.png) no-repeat center left; }
+.button.open { background: url(/static/images/unlock.png) no-repeat center left; }
+.button.close { background: url(/static/images/lock.png) no-repeat center left; }
+.button.move { background: url(/static/images/move.png) no-repeat center left; }
+.button.delete {background: url(/static/images/topic_delete.png) no-repeat scroll top right;}
