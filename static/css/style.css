@@ -262,6 +262,19 @@ ul.messages .error   { background: #c54d47; }
 	text-align: justify;
 }
 
+.selected_post td {
+	background: #f5f3d0;
+}
+
+.selected_post .buttons {
+	opacity: 1 !important;
+}
+
+.selected_post td.user_info {
+	background: #f7f5d4 !important;
+}
+
+
 /****************
  * Error
  ****************/
@@ -372,4 +385,4 @@ a.button.disabled { color: #aaa; }
 .button.open { background: url(/static/images/unlock.png) no-repeat center left; }
 .button.close { background: url(/static/images/lock.png) no-repeat center left; }
 .button.move { background: url(/static/images/move.png) no-repeat center left; }
-.button.delete {background: url(/static/images/topic_delete.png) no-repeat scroll top right;}
+.button.delete { background: url(/static/images/topic_delete.png) no-repeat scroll center left; }

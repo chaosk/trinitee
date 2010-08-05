@@ -1,0 +1,11 @@
+{% extends "forums/base.html" %}
+{% load breadcrumbs %}
+{% block title %}Topic delete confirmation - {{ block.super }}{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %} {% breadcrumb "Topic delete confirmation" %}{% endblock %}
+{% block content %}
+	<form action="{% url forums.views.topic_delete topic.id %}" method="post">
+	    {% include "snippets/form.html" %}
+	    <p><input type="submit" value="Delete topic" /></p>
+		<p><input type="submit" name="cancel" value="Cancel" /></p>
+	</form>
+{% endblock content %}

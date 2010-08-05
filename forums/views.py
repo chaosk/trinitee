@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import F, Q, Count
 from django.template import RequestContext
 from forums.forms import (PostForm, DeletePostForm, TopicForm,
-	MoveTopicForm, ReportPostForm)
+	DeleteTopicForm, MoveTopicForm, ReportPostForm)
 from forums.models import Category, Forum, Topic, Post, PostKarma, Report
 from utilities.annoying.decorators import render_to
 from utilities.annoying.functions import get_config, get_object_or_None
@@ -225,6 +225,27 @@ def post_delete(request, post_id):
 
 
 @login_required
+@render_to('forums/topic_delete.html')
+def topic_delete(request, topic_id):
+	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	if not request.user.is_staff:
+		messages.error(request, "You are not allowed to delete this topic.")
+		return redirect(topic.get_absolute_url())
+	if request.method == 'POST':
+		if not 'cancel' in request.POST and 'confirmation' in request.POST:
+			topic.delete()
+			messages.success(request, "Topic has been deleted.")
+			return redirect(topic.forum.get_absolute_url())
+		return redirect(topic.get_absolute_url())
+	else:
+		form = DeleteTopicForm()
+		messages.warning(request, "You are about to delete a topic "
+			"with all posts belonging to it. Be ABSOLUTELY sure "
+			"what you are doing, because this action cannot be reverted.")
+	return {'topic': topic, 'form': form}
+
+
+@login_required
 @render_to('forums/report_form.html')
 def post_report(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
@@ -300,6 +321,12 @@ def move_topic(request, topic_id):
 	else:
 		form = MoveTopicForm()
 	return {'topic': topic, 'form': form}
+
+
+@user_passes_test_or_403(lambda u: u.is_staff)
+@render_to('forums/topic_action.html')
+def topic_action(request, topic_id):
+	return {}
 
 
 def post_vote(request, post_id, value):

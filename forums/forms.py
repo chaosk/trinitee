@@ -10,6 +10,9 @@ class DeletePostForm(forms.Form):
 	confirmation = forms.BooleanField(label="Delete confirmation", required=False)
 
 
+class DeleteTopicForm(DeletePostForm):
+	pass
+
 class TopicForm(forms.Form):
 	title = forms.CharField(max_length=100, label="Topic subject")
 	content = forms.CharField(label="Message", widget=forms.Textarea())

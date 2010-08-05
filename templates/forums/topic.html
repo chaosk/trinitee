@@ -14,6 +14,7 @@
 	<script src="{{ settings.MEDIA_URL }}js/prototype.dajax.core.js" type="text/javascript"></script>
 	{% dajaxice_js_import %}
 	<script src="{{ settings.MEDIA_URL }}js/forums.karma.js" type="text/javascript"></script>
+	<script src="{{ settings.MEDIA_URL }}js/forums.action.js" type="text/javascript"></script>
 {% endblock header %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url topic.forum.name forums.views.forum_view topic.forum.id %} {% breadcrumb_url topic.title forums.views.topic_view topic.id %}{% endblock %}
 {% block content %}
@@ -35,6 +36,9 @@
 	<a class="button close" href="{% url forums.views.close_topic topic.id %}">Close topic</a>
 		{% endif %}
 	<a class="button move" href="{% url forums.views.move_topic topic.id %}">Move topic</a>
+	<a class="button delete" href="{% url forums.views.topic_delete topic.id %}">Remove topic</a>
+
+	<form action="{% url forums.views.topic_action topic.id %}" method="post">
 	{% endif %}
 	{% autopaginate posts settings.POSTS_PER_PAGE %}
 	{% paginate %}
@@ -80,6 +84,10 @@
 								{% endif %}
 								{% endwith %}
 							</span>
+							
+							{% if user.is_superuser or user.is_staff %}
+							<input type="checkbox" class="posts_selected" name="posts_selected[]" value="{{ p.id }}" />
+							{% endif %}
 						</td>
 					</tr>
 					<tr>
@@ -112,5 +120,28 @@
 	<a class="button reply" href="{% url forums.views.post_new topic.id %}">Reply</a>
 	{% else %}
 	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.post_new topic.id %}"{% endif %}>Reply</a>
+	{% endif %}
+	{% if user.is_superuser or user.is_staff %}
+		<select name="topic_action" id="topic_action" onchange="this.form.submit();">
+			<option value="">---</option>
+			<optgroup label="Post related">
+				<option value="delete_posts">Delete selected posts</option>
+				<option value="split">Split selected posts from this topic</option>
+			</optgroup>
+			<optgroup label="Topic related">
+				<option value="delete">Delete topic</option>
+				{% if topic.is_closed %}
+				<option value="open">Open topic</option>
+				{% else %}
+				<option value="close">Close topic</option>
+				{% endif %}
+				{% if topic.is_sticky %}
+				<option value="unstick">Unstick topic</option>
+				{% else %}
+				<option value="stick">Stick topic</option>
+				{% endif %}				
+			</optgroup>
+		</select>
+	</form>
 	{% endif %}
 {% endblock content %}
