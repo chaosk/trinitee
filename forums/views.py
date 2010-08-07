@@ -141,9 +141,12 @@ def topic_new(request, forum_id):
 @render_to('forums/post_new.html')
 def post_new(request, topic_id, quoted_post_id=None):
 	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
-	if topic.is_closed and not request.user.is_staff:
-		messages.error(request, "You are not allowed to post in closed topics.")
-		return redirect(topic.get_absolute_url())
+	if topic.is_closed:
+		if not request.user.is_staff:
+			messages.error(request, "You are not allowed to post in closed topics.")
+			return redirect(topic.get_absolute_url())
+		else:
+			messages.info(request, "Note: This topic is closed.")
 	if not can_post_reply(request.user, topic.forum):
 		messages.error(request, "You are not allowed to reply on this forum.")
 		return redirect(topic.get_absolute_url())
