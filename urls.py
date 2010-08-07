@@ -31,8 +31,6 @@ urlpatterns = patterns('',
 	(r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
 		{'feed_dict': feeds}),
 	(r'^random/$', 'django.views.generic.simple.direct_to_template', {'template': 'misc/random.html'}),
-	(r'^static/(?P<path>.*)$', 'django.views.static.serve',
-		{'document_root': settings.MEDIA_ROOT}),
 	url(r'^downloads/$', 'downloads.views.downloads', name='downloads'),
 	(r'^grappelli/', include('utilities.grappelli.urls')),
 	(r'^admin_tools/', include('utilities.admin_tools.urls')),
@@ -44,5 +42,11 @@ urlpatterns = patterns('',
 	(r'^503/$', 'django.views.generic.simple.direct_to_template', {'template': '503.html'}),
 	(r'^ban/$', 'django.views.generic.simple.direct_to_template', {'template': 'misc/banned.html'}),
 )
+
+if settings.DEBUG:
+	urlpatterns += patterns('',
+		(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+			{'document_root': settings.MEDIA_ROOT}),
+	)
 
 urlpatterns += ordering_urlpatterns

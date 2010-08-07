@@ -50,6 +50,7 @@ SITE_NAME = 'Trinitee'
 # When you change this setting, you have to run
 # ./manage.py syncdb
 # to update Site instance.
+# Also, it should NOT contain http://
 ### You have to uncomment it!
 #SITE_DOMAIN = ''
 
