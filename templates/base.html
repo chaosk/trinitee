@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="{{ settings.MEDIA_URL }}css/style.css" />
+	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/style.css" />
 	<title>{% block title %}{{ settings.SITE_NAME }}{% endblock %}{% if settings.DEBUG %} [DEBUG]{% endif %}</title>
 	{% block header %}{% endblock header %}
 </head>
@@ -11,6 +11,8 @@
 		{% if user.is_superuser or user.is_staff %}<a id="admin_url" href="/admin/"><span>God's habitat</span></a>{% endif %}
 		Hello, {{ user.username|default:"Guest" }}! - {% if user.is_authenticated %}<a href="{% url accounts.views.profile_settings %}">Settings</a> - <a href="{% url accounts.views.profile_details user.id %}">Your profile</a> - <a href="{% url accounts.views.logout %}?next={{ request.path }}">Logout</a>{% else %}<a href="{% url accounts.views.login %}?next={{ request.path }}">Login</a> (test:test) - <a href="{% url accounts.views.register %}">Sign up</a>{% endif %}
 	</div>
+
+	<div id="logo"></div>
 
 	<div id="page">
 		<div id="menu">

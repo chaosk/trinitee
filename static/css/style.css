@@ -1,6 +1,7 @@
 body {
 	font-family: "Droid Sans", "Myriad", "Myriad Pro", "Tahoma", "Helvetica", "Liberation Sans", "Bitstream Vera Sans", "Sans";
 	font-size: 13px;
+	margin: 0;
 }
 
 html {
@@ -17,6 +18,10 @@ a {
 
 a:hover {
 	color: #fa3;
+}
+
+option.button {
+	padding: 3px 3px 3px 18px;
 }
 
 #admin_url {
@@ -44,7 +49,11 @@ a:hover {
 #page {
 	background: #fff;
 	width: 80%;
-	margin: 50px auto;
+	margin: 0 auto 50px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-moz-box-shadow: 0 2px 3px #888;
+	-webkit-box-shadow: 0 2px 3px #888;
 }
 
 #menu {
@@ -59,11 +68,16 @@ a:hover {
 
 #content, #forum_stats {
 	padding: 20px;
+	overflow: hidden;
 }
 
 #forum_stats {
 	background: #f5f3d0;
 	color: #111;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+	-moz-border-radius-bottomleft: 10px;
+	-moz-border-radius-bottomright: 10px;
 }
 
 #footer {
@@ -74,6 +88,50 @@ a:hover {
 
 #footer:hover { color: #444 }
 #footer:hover #heart { color: #f06 }
+
+#breadcrumbs {
+	font-size: 85%;
+	padding: 0 15px;
+}
+
+#info {
+	color: #666;
+	font-size: 114%;
+	overflow: hidden;
+	border-bottom: thin solid #dbdbda;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+}
+
+#download_box {
+	background:none repeat scroll 0 0 #E4F9B7;
+	border:1px solid #B9CA94;
+	margin:0 280px 0 10px;
+	padding-bottom:10px;
+	padding-left:7px;
+	padding-top:7px;
+}
+
+#screenshotbar {
+	float:right;
+	width:200px;
+}
+
+#need-help {
+	font-size: 85%;
+}
+
+.smaller {
+	font-size: 90%;
+}
+
+#logo {
+/*	background: url(http://teeworlds.com/trac/teeworlds/browser/webpage/img/image_logo.png?format=raw) no-repeat;*/
+	background: url(/static/images/logo.png) no-repeat;
+	height: 158px;
+	width: 80%;
+	margin: 40px auto 0;
+}
 
 ul.messages, .category ul {
 	list-style-type: none;
@@ -122,6 +180,58 @@ ul.messages .error   { background: #c54d47; }
 #forum_view td p {
 	color: #4f4f4f;
 	margin: 0;
+}
+
+/****************
+ * Main page
+ ****************/
+
+.news {
+	color: #555;
+	clear: left;
+	overflow: hidden;
+	margin: 20px 0;
+}
+
+.news .left {
+	width: 120px;
+	text-align: center;
+	padding-top: 10px;
+}
+
+.news .left img {
+	padding: 5px;
+	border: 4px double #dbdbda;
+}
+
+.news .right {
+	padding: 0 20px;
+	float: left;
+	border-left: 4px double #dbdbda;
+	max-width: 70%
+}
+
+.news .right h2 {
+	margin: 0;
+}
+
+.news .article-details {
+	color: #777;
+	font-size: 80%;
+	font-style: italic;
+}
+
+.news article {
+	margin: 10px 0;
+	line-height: 20px;
+	text-align: justify;
+}
+
+#sidebar {
+	color: #444;
+	border-left: thin solid #dbdbda;
+	width: 20%;
+	padding: 0 20px 20px;
 }
 
 /****************
@@ -190,6 +300,10 @@ ul.messages .error   { background: #c54d47; }
 	padding: 10px;
 }
 
+#topic_view .content td[colspan="2"] {
+	padding: 15px 10px !important;
+}
+
 #topic_view .user_info {
 	background: #f6f6eb;
 	border-right: thin solid #e7e5be;
@@ -222,9 +336,9 @@ ul.messages .error   { background: #c54d47; }
 
 #topic_view .post .content tr:first-child {
 	color: #333;
-	font-size: 80%;
+	font-size: 85%;
 	border-bottom: thin dashed #ccc;
-	height: 42px;
+	height: 32px;
 	width: 50%;
 }
 
@@ -338,6 +452,80 @@ ul.messages .error   { background: #c54d47; }
 }
 
 /****************
+ * Search
+ ****************/
+
+#search {
+	width: 40%;
+}
+
+#search td {
+	padding: 1px 5px;
+	width: 70%;
+}
+
+#search td[colspan="2"] {
+	text-align: center !important;
+}
+
+#search tr td:first-child {
+	text-align: right;
+	width: 30%;
+}
+
+#search label {
+	font-weight: bold;
+}
+
+#search input,
+#search select {
+	font-size: 110%;
+	width: 100%;
+	padding: 2px;
+}
+
+#search input[type="submit"] {
+	width: 30%;
+}
+
+#results {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#results tbody tr {
+	border: thin solid #f5f3d0;
+}
+
+#results tbody tr:nth-child(odd) {
+	background: #fcfbeb;
+}
+
+#results tbody tr:hover {
+	background: #eee;
+	border: thin solid #e0e0e0;
+}
+
+#results th:not(.replies) {
+	text-align: left;
+	padding-left: 20px;
+}
+
+#results td {
+	padding: 3px 10px;
+}
+
+#results td.topic {
+	width: 50%;
+}
+
+#results th.replies,
+#results td.replies {
+	width: 10%;
+	text-align: center;
+}
+
+/****************
  * Buttons
  ****************/
 
@@ -360,7 +548,7 @@ a.post_button:hover {
 .post_button.quote { background: url(/static/images/quote.png) no-repeat scroll top right; }
 .post_button.report { background: url(/static/images/report.png) no-repeat scroll top right; }
 .post_button.delete { background: url(/static/images/post_delete.png) no-repeat scroll top right; }
-.karma-count { padding:20px;font-size: 12px; text-align: center; background: #f5f3d0; }
+.karma-count { float:right; border: thin dashed #e0e0e0; width:20px; height:20px; font-size: 16px; text-align: center; background: #f5f3d0; }
 .post_button.karma_negative { background: url(/static/images/karma_negative.png) no-repeat scroll top right; }
 .post_button.karma_neutral { background: url(/static/images/karma_neutral.png) no-repeat scroll top right; }
 .post_button.karma_positive { background: url(/static/images/karma_positive.png) no-repeat scroll top right; }
@@ -386,3 +574,7 @@ a.button.disabled { color: #aaa; }
 .button.close { background: url(/static/images/lock.png) no-repeat center left; }
 .button.move { background: url(/static/images/move.png) no-repeat center left; }
 .button.delete { background: url(/static/images/topic_delete.png) no-repeat scroll center left; }
+.button.split { background: url(/static/images/split.png) no-repeat center left; }
+
+.right	{ float: right; }
+.left	{ float: left; }
