@@ -85,9 +85,8 @@ class Post(models.Model):
 class Topic(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	author = models.ForeignKey(User, related_name='topics')
-	title = models.CharField(max_length=100)
+	title = models.CharField(max_length=60)
 	forum = models.ForeignKey('Forum', related_name='topics')
-	post_count = models.IntegerField(blank=True, null=True)
 	view_count = models.IntegerField(blank=True, default=0)
 	is_sticky = models.BooleanField(default=False)
 	is_closed = models.BooleanField(default=False)
@@ -196,7 +195,7 @@ class Category(OrderedModel):
 
 
 class PostTracking(models.Model):
-	user = AutoOneToOneField(User, primary_key=True)
+	user = AutoOneToOneField(User, primary_key=True, related_name='post_tracking')
 	topics = JSONField(null=True)
 	last_read = models.DateTimeField(auto_now=True)
 

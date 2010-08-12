@@ -34,11 +34,11 @@ def vote(request, post_id, vote_value):
 	result = post_vote(request, post_id, vote_value)
 	dajax = Dajax()
 	if isinstance(result, Post):
-		dajax.remove_css_class('#post-%s a.karma' % (post_id), 'current')
-		dajax.add_css_class('#post-%s a.karma_%s' % (post_id, CSS_CLASSES[vote_value]), 'current')
-		dajax.assign('#post-%s span.karma-voted' % post_id, 'innerHTML', 'Saved.')
-		dajax.assign('#post-%s span.karma-count' % post_id, 'innerHTML',
+		dajax.remove_css_class('#post-%s .karma' % (post_id), 'current')
+		dajax.add_css_class('#post-%s .karma_%s' % (post_id, CSS_CLASSES[vote_value]), 'current')
+		dajax.assign('#post-%s .karma-voted' % post_id, 'innerHTML', 'Saved.')
+		dajax.assign('#post-%s .karma-count' % post_id, 'innerHTML',
 			result.get_karma())
 	else:
-		dajax.assign('#post-%s span.karma-voted' % post_id, 'innerHTML', result[0])
+		dajax.assign('#post-%s .karma-voted' % post_id, 'innerHTML', result[0])
 	return dajax.json()

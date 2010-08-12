@@ -1,6 +1,6 @@
 import math
 from datetime import datetime, timedelta
-from django.shortcuts import (redirect, render_to_response, get_object_or_404)
+from django.shortcuts import redirect, render_to_response, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,8 +8,11 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import F, Q, Count
 from django.template import RequestContext
+from haystack.query import SearchQuerySet
+from haystack.views import SearchView
 from forums.forms import (PostForm, DeletePostForm, TopicForm,
-	DeleteTopicForm, MoveTopicForm, ReportPostForm)
+	DeleteTopicForm, MoveTopicForm, ReportPostForm, SplitPostsForm,
+	PostSearchForm)
 from forums.models import Category, Forum, Topic, Post, PostKarma, Report
 from utilities.annoying.decorators import render_to
 from utilities.annoying.functions import get_config, get_object_or_None
@@ -267,7 +270,7 @@ def post_report(request, post_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
-def close_topic(request, topic_id):
+def topic_close(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	topic.is_closed = True
 	topic.save()
@@ -277,7 +280,7 @@ def close_topic(request, topic_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
-def open_topic(request, topic_id):
+def topic_open(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	topic.is_closed = False
 	topic.save()
@@ -287,7 +290,7 @@ def open_topic(request, topic_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
-def stick_topic(request, topic_id):
+def topic_stick(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	topic.is_sticky = True
 	topic.save()
@@ -297,7 +300,7 @@ def stick_topic(request, topic_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
-def unstick_topic(request, topic_id):
+def topic_unstick(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	topic.is_sticky = False
 	topic.save()
@@ -308,7 +311,7 @@ def unstick_topic(request, topic_id):
 
 @user_passes_test_or_403(lambda u: u.is_staff)
 @render_to('forums/topic_move.html')
-def move_topic(request, topic_id):
+def topic_move(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if request.method == 'POST':
 		form = MoveTopicForm(request.POST)
@@ -327,9 +330,125 @@ def move_topic(request, topic_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
-@render_to('forums/topic_action.html')
+@render_to('forums/posts_delete.html')
+def posts_delete(request, topic_id):
+	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	if request.method == 'POST':
+		post_ids = request.POST.getlist('posts_selected')
+	else:
+		post_ids = request.GET.getlist('posts_selected')
+	if not post_ids:
+		messages.error(request, "You haven't checked any post.")
+		return redirect(topic.get_absolute_url())
+	if topic.first_post.id in post_ids:
+		messages.error(request, "You cannot delete topic's first post."
+			" Delete whole topic.")
+		return redirect(topic.get_absolute_url())
+	if request.method == 'POST':
+		if not 'cancel' in request.POST and 'confirmation' in request.POST:
+			posts = Post.objects.filter(pk__in=post_ids, topic=topic)
+			topic.post_count = F('post_count') - len(posts)
+			topic.forum.post_count = F('forum__post_count') - len(posts)
+			posts.delete()
+			topic.save()
+			topic.forum.save()
+			messages.success(request, "Post has been deleted.")
+		return redirect(topic.get_absolute_url())
+	else:
+		form = DeletePostForm()
+		messages.warning(request, "You are about to delete selected posts. \
+			Be ABSOLUTELY sure what you are doing, because this action \
+			cannot be reverted.")
+		return {'topic': topic, 'form': form, 'posts_selected': post_ids}
+
+
+@user_passes_test_or_403(lambda u: u.is_staff)
+@render_to('forums/posts_split.html')
+def posts_split(request, topic_id):
+	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	if request.method == 'POST':
+		post_ids = request.POST.getlist('posts_selected')
+	else:
+		post_ids = request.GET.getlist('posts_selected')
+	if not post_ids:
+		messages.error(request, "You haven't checked any post.")
+		return redirect(topic.get_absolute_url())
+	if topic.first_post.id in post_ids:
+		messages.error(request, "You cannot split out topic's first post.")
+		return redirect(topic.get_absolute_url())
+	if request.method == 'POST':
+		if not 'cancel' in request.POST and 'confirmation' in request.POST:
+			posts = Post.objects.filter(pk__in=post_ids, topic=topic) \
+				.order_by('id')
+			topic.post_count = F('post_count') - len(posts)
+			new_topic = Topic(author=posts[0].author,
+				title=form.cleaned_data['new_title'], forum=topic.forum,
+				post_count=len(posts), first_post=post[0])
+			new_topic.save()
+			posts.update(topic=new_topic)
+			topic.save()
+			messages.success(request, "Posts have been splitted.")
+		return redirect(topic.get_absolute_url())
+	else:
+		form = SplitPostsForm()
+		return {'topic': topic, 'form': form, 'posts_selected': post_ids}
+
+
+@user_passes_test_or_403(lambda u: u.is_staff)
 def topic_action(request, topic_id):
-	return {}
+	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	try:
+		action = request.GET['topic_action']
+	except KeyError:
+		return redirect(topic.get_absolute_url())
+	# <del>I hate this.</del><ins>Could be worse.</ins>
+	allowed_methods = ['topic_delete', 'topic_move', 'topic_open',
+		'topic_close', 'topic_stick', 'topic_unstick', 'posts_delete',
+		'posts_split']
+	if action in allowed_methods:
+		return globals().get(action)(request, topic_id)
+	return redirect(topic.get_absolute_url())
+
+
+@login_required
+@render_to('forums/search_latest.html')
+def search_latest(request):
+	topics = cache.get('forums_topics_latest_%s' % request.user.id)
+	if topics == None:
+		topics = list(Topic.objects.filter(last_post__created_at__gte= \
+			(datetime.now()-timedelta(days=1)).select_related()))
+		cache.set('forums_topics_latest_%s' % request.user.id, topics)
+	return {'topics': topics}
+
+
+@login_required
+@render_to('forums/search_unread.html')
+def search_unread(request):
+	topics = cache.get('forums_topics_unread_%s' % request.user.id)
+	if topics == None:
+		topics = list(Topic.objects.filter(last_post__created_at__gte= \
+			request.user.post_tracking.last_read).select_related())
+		cache.set('forums_topics_unread_%s' % request.user.id, topics)
+	return {'topics': topics}
+
+
+class PostSearchView(SearchView):
+
+	def __init__(self, *args, **kwargs):
+		super(PostSearchView, self).__init__(*args, **kwargs)
+		self.template='forums/search.html'
+		self.form_class=PostSearchForm
+		self.searchqueryset=SearchQuerySet().models(Topic)
+
+	def __name__(self):
+		return "PostSearchView"
+
+	def get_query(self):
+		if self.form.is_valid():
+			if self.form.cleaned_data['show_as'] == 'posts':
+				self.template = 'forums/search_as_posts.html'
+			return self.form.cleaned_data['q']
+		return ''
 
 
 def post_vote(request, post_id, value):

@@ -108,6 +108,8 @@ def can_access_forum(request, forum, return_plain_boolean=False, login_url=None)
 
 @register.filter
 def can_post_topic(user, forum):
+	if not user.is_authenticated():
+		return False
 	can_post_topic_groups = forum.can_post_topic.all()
 	if len(can_post_topic_groups)and \
 		not user.profile.group in forum.can_post_topic.all() and \
@@ -118,6 +120,8 @@ def can_post_topic(user, forum):
 
 @register.filter
 def can_post_reply(user, forum):
+	if not user.is_authenticated():
+		return False
 	can_post_reply_groups = forum.can_post_reply.all()
 	if len(can_post_reply_groups) and \
 		not user.profile.group in can_post_reply_groups and \
