@@ -16,7 +16,11 @@
 
 	<div id="page">
 		<div id="menu">
-			<a href="{% url home %}">home</a> | <a href="{% url downloads %}">downloads</a> | <a href="{% url forums.views.index %}">forum</a> | <a href="{% url accounts.views.userlist %}">userlist</a> | <a href="{% url forum_search %}">search</a>
+			{% url home as url_home %}
+			{% url journal as url_journal %}
+			{% url downloads.views.downloads as url_downloads %}
+			{% url forums.views.index as url_forum %}
+			<a href="{{ url_home }}"{% current request url_home %}>home</a> | <a href="{{ url_journal }}"{% current request url_journal %}>blog</a> | <a href="{{ url_downloads }}"{% current request url_downloads %}>downloads</a> | <a href="">support</a> | <a href="{{ url_forum }}"{% current request url_forum %}>forum</a>
 		</div>
 
 		{% if messages %}

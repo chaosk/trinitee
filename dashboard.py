@@ -20,36 +20,42 @@ class CustomIndexDashboard(Dashboard):
 		Dashboard.__init__(self, **kwargs)
 
 		self.children.append(DrawboardModule(
-			title='Drawboard',
+			title="Drawboard",
 			css_classes=['collapse', 'open'],
 		))
 
 		self.children.append(modules.AppList(
-			title=_('Users'),
+			title="Users",
 			include_list=('django.contrib.auth', 'accounts'),
 			css_classes=['collapse', 'open'],
 		))
 
 		self.children.append(modules.AppList(
-			title='Forums',
+			title="Forums",
 			include_list=('forums', ),
 			css_classes=['collapse', 'open'],
 		))
 
 		self.children.append(modules.AppList(
-			title='Downloads',
+			title="Flatpages",
+			include_list=('django.contrib.flatpages', ),
+			css_classes=['collapse', 'open'],
+		))
+
+		self.children.append(modules.AppList(
+			title="Downloads",
 			include_list=('downloads', ),
 			css_classes=['collapse', 'open'],
 		))
 
 		self.children.append(modules.AppList(
-			title='Bans',
+			title="Bans",
 			include_list=('misc', ),
 			css_classes=['collapse', 'open'],
 		))
 
 		self.children.append(modules.AppList(
-			title='Sites',
+			title="Sites",
 			include_list=('django.contrib.sites', ),
 			css_classes=['collapse', 'closed'],
 		))

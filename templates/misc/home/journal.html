@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load utils %}
+{% load smileys %}
+{% block header %}
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_news %}" title="{{ settings.SITE_NAME }} News" />
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_journal %}" title="{{ settings.SITE_NAME }} Blog" />
+	<link rel="alternate" type="application/atom+xml" href="{% url feed_forums_index %}" title="{{ settings.SITE_NAME }} Forum" />
+{% endblock header %}
+{% block breadcrumbs %}{% endblock breadcrumbs %}
+{% block content %}
+{% for item in journal %}
+<div class="news">
+	<div class="left">
+		{% if item.author.avatar %}
+			<img src="{{ item.author.avatar.url }}" alt="avatar">
+		{% endif %}
+	</div>
+	<div class="right">
+		<h2><a href="{{ item.topic.get_absolute_url }}">{{ item.topic.title }}</a></h2>
+		<div class="article-details">
+			{{ item.created_at|user_date:user }} by <a href="{{ item.author.get_absolute_url }}">{{ item.author }}</a>
+		</div>
+		<article>
+			{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+				{{ item.content_html|safe|smileys }}
+			{% else %}
+				{{ item.content_html|safe }}
+			{% endif %}
+		</article>
+		<div class="article-bar">
+			{% with item.topic.post_count|add:"-1" as replies %}
+				<a href="{{ item.get_absolute_url }}">{{ replies }} comment{{ replies|pluralize }}</a>
+			{% endwith %}
+		</div>
+	</div>
+</div>
+{% empty %}
+<h2>No entries! :-(</h2>
+{% endfor %}
+{% endblock content %}

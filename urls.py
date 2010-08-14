@@ -18,6 +18,7 @@ handler500 = 'misc.views.server_error'
 
 urlpatterns = patterns('',
 	url(r'^$', 'misc.home.views.homepage', name='home'),
+	url(r'^blog/$', 'misc.home.views.journal', name='journal'),
 	(r'^forum/', include('forums.urls')),
 	(r'^user/', include('accounts.urls')),
 	(r'^users/', 'accounts.views.userlist'),

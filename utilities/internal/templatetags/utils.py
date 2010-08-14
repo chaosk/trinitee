@@ -46,3 +46,10 @@ class SmartSpacelessNode(template.Node):
 		s = re.sub(r'>\s+<', '><', s)
 		s = s.replace('&#preservespace;', ' ')
 		return s
+
+
+@register.simple_tag
+def current(request, pattern):
+	if re.search(pattern, request.path):
+		return ' class="current"'
+	return ''
