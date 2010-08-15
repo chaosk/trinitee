@@ -42,6 +42,9 @@ class FlatPage(BaseFlatPage):
     
     objects = FlatPageManager()
     
+    def __unicode__(self):
+        return self.title
+    
     def save(self, *args, **kwargs):
         message = kwargs.get('message', 'Auto-saved')
         
