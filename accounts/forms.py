@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 from django.core.files.images import get_image_dimensions
 from accounts.models import UserProfile
 from forums.models import Forum
@@ -35,6 +36,12 @@ class RegistrationForm(forms.Form):
 	email = forms.EmailField(label="E-mail address")
 	email_confirmation = forms.EmailField(label="Confirm e-mail")
 	if get_config('ENABLE_CAPTCHA', False):
+		if not hasattr(settings, "RECAPTCHA_PUBLIC_KEY") \
+			or not settings.RECAPTCHA_PUBLIC_KEY \
+			or not hasattr(settings, "RECAPTCHA_PRIVATE_KEY") \
+			or not settings.RECAPTCHA_private_KEY:
+			raise ImproperlyConfigured("You must define the RECAPTCHA_PUBLIC_KEY"
+				" and/or RECAPTCHA_PRIVATE_KEY setting in order to use reCAPTCHA.")
 		recaptcha = ReCaptchaField()
 
 	def clean_username(self):

@@ -37,6 +37,7 @@ urlpatterns = patterns('',
 	(r'^admin_tools/', include('utilities.admin_tools.urls')),
 	(r'^admin/', include(admin.site.urls)),
 	(r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('utilities.dajaxice.urls')),
+	(r'^', include('utilities.superflatpages.urls')),
 )
 
 if settings.DEBUG:

@@ -173,7 +173,6 @@ MIDDLEWARE_CLASSES = (
 	'utilities.internal.middleware.LastActivityMiddleware',
 	'utilities.internal.middleware.StoredNotificationsMiddleware',
 	'utilities.pagination.middleware.PaginationMiddleware',
-	'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -197,7 +196,6 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'django.contrib.messages',
-	'django.contrib.flatpages',
 	'accounts',
 	'forums',
 	'downloads',
@@ -208,6 +206,7 @@ INSTALLED_APPS = (
 	'utilities.dajaxice',
 	'utilities.admin_tools.dashboard',
 	'utilities.grappelli',
+	'utilities.superflatpages',
 	'haystack',
 	'django.contrib.admin',
 )

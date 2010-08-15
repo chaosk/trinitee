@@ -38,7 +38,7 @@ class CustomIndexDashboard(Dashboard):
 
 		self.children.append(modules.AppList(
 			title="Flatpages",
-			include_list=('django.contrib.flatpages', ),
+			include_list=('utilities.superflatpages', ),
 			css_classes=['collapse', 'open'],
 		))
 
