@@ -19,18 +19,21 @@ from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.internal.decorators import user_passes_test_or_403
 from utilities.internal.templatetags.forums import (can_access_forum,
 	can_post_topic, can_post_reply)
+from utilities.objtrack.models import ObjectTracker
 
 
 @render_to('forums/index.html')
 def index(request):
 	users_online = cache.get('forums_users_online')
 	if users_online == None:
-		users_online = list(User.objects.filter(profile__last_activity_at__gte=
-			(datetime.now()-timedelta(minutes=15))))
+		users_online = list(User.objects.filter(is_active=True,
+			profile__last_activity_at__gte=(datetime.now()-timedelta(minutes=15))))
 		cache.set('forums_users_online', users_online)
 
+	tracker = ObjectTracker(request.session)
 	categories = cache.get('forums_categories_%s' % request.user.id
 		if request.user.is_authenticated() else 'anon')
+	categories = None
 	if categories == None:
 		#forums = list(Forum.objects.all(). \
 		#	select_related('category', 'last_post__topic', 'last_post__author'))
@@ -40,6 +43,10 @@ def index(request):
 			if can_access_forum(request, i, return_plain_boolean=True)]
 		categories = {}
 		for forum in forums:
+			forum.has_new_posts = not tracker.has_viewed(forum.last_post, 'created_at') \
+				if forum.last_post else False
+			forum.has_new_topics = not tracker.has_viewed(forum.last_topic, 'created_at') \
+				if forum.last_topic else False
 			cat = categories.setdefault(forum.category.id,
 				{'id': forum.category.id, 'category': forum.category, 'forums': []})
 			cat['forums'].append(forum)
@@ -60,7 +67,7 @@ def index(request):
 
 	users = cache.get('forums_count_users')
 	if users == None:
-		users = User.objects.count()
+		users = User.objects.exclude(is_active=False).count()
 		cache.set('forums_count_users', users)
 
 	return {'categories': categories, 'users_online': users_online,
@@ -83,6 +90,10 @@ def forum_view(request, forum_id):
 			order_by('-is_sticky', '-created_at'). \
 			select_related('author', 'last_post__author'))
 		cache.set('forums_topics_%s' % forum_id, topics)
+	tracker = ObjectTracker(request.session)
+	for topic in topics:
+		topic.has_new_posts = not tracker.has_viewed(topic.last_post, 'created_at') \
+			if topic.last_post else False
 	return {'forum': forum, 'topics': topics}
 
 
@@ -95,14 +106,16 @@ def topic_view(request, topic_id):
 	can_access = can_access_forum(request, topic.forum)
 	if not can_access == True:
 		return can_access
-	if request.user.is_authenticated():
-		topic.update_read(request.user)
+	tracker = ObjectTracker(request.session)
 	Topic.objects.filter(pk=topic_id).update(view_count=F('view_count') + 1) # FIXME ++ with cache
 	posts = cache.get('forums_posts_%s' % topic_id)
 	if posts == None:
 		posts = list(Post.objects.filter(topic__pk=topic_id) \
 			.select_related('author__profile__group', 'karma'))
 		cache.set('forums_posts_%s' % topic_id, posts)
+	for post in posts:
+		post.is_unread = not tracker.has_viewed(post, 'created_at')
+	tracker.bulk_mark_as_viewed(posts)
 	return {'topic': topic, 'posts': posts, 'first_post_id': posts[0].id}
 
 

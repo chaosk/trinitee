@@ -29,7 +29,7 @@
 		{% for t in topics %}
 		<tr>
 			{% url forums.views.topic_view t.id as topic_url %}
-			<td>{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{% if t|has_unreads:user %}<b>unread</b> {% endif %}{{ t.title }}</a> {{ t|topic_pagination:settings.POSTS_PER_PAGE }}</td>
+			<td>{% if t.has_new_posts %}<b>[UNREAD]</b> {% endif %}{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{{ t.title }}</a> {{ t|topic_pagination:settings.POSTS_PER_PAGE }}</td>
 			<td>{{ t.author }}</td>
 			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
 			<td>{{ t.view_count }}</td>

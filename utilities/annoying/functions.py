@@ -19,8 +19,7 @@ def get_object_or_None(klass, *args, **kwargs):
         return None
 
 
-
-def get_config(key, default):
+def get_config(key, default=False):
     """
     Get settings from django.conf if exists,
     return default value otherwise

@@ -5,7 +5,6 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from accounts.models import Group
 from utilities import postmarkup
-from utilities.annoying.fields import AutoOneToOneField, JSONField
 from utilities.annoying.functions import get_config
 from utilities.ordering.models import OrderedModel
 
@@ -107,6 +106,7 @@ class Topic(models.Model):
 	def delete(self, *args, **kwargs):
 		self.forum.update(post_count=F('post_count') - self.post_count,
 			topic_count=F('topic_count') - 1)
+		self.last_forum_topic.clear()
 		cache.delete('forums_topic_%s' % self.id)
 		cache.delete('forums_forum_%s' % self.forum.id)
 		super(Topic, self).delete(*args, **kwargs)
@@ -126,21 +126,6 @@ class Topic(models.Model):
 		except Post.DoesNotExist:
 			return None
 
-	def update_read(self, user):
-		tracking = user.posttracking
-		if tracking.last_read and (tracking.last_read > self.last_post.created_at):
-			return
-		if isinstance(tracking.topics, dict):
-			if len(tracking.topics) > 5120:
-				tracking.topics = None
-				tracking.save()
-			if self.last_post.id > tracking.topics.get(str(self.id), 0):
-				tracking.topics[str(self.id)] = self.last_post.id
-				tracking.save()
-		else:
-			tracking.topics = {self.id: self.last_post.id}
-			tracking.save()
-
 
 class Forum(OrderedModel):
 	name = models.CharField(max_length=100, unique=True)
@@ -154,6 +139,8 @@ class Forum(OrderedModel):
 		related_name='forum_can_post_reply')
 
 	last_post = models.ForeignKey('Post', related_name='last_forum_post',
+		blank=True, null=True)
+	last_topic = models.ForeignKey('Topic', related_name='last_forum_topic',
 		blank=True, null=True)
 
 	class Meta:
@@ -192,16 +179,6 @@ class Category(OrderedModel):
 
 	def __unicode__(self):
 		return self.name
-
-
-class PostTracking(models.Model):
-	user = AutoOneToOneField(User, primary_key=True, related_name='post_tracking')
-	topics = JSONField(null=True)
-	last_read = models.DateTimeField(auto_now=True)
-
-	class Meta:
-		verbose_name = 'Post tracking'
-		verbose_name_plural = 'Post tracking'
 
 
 class PostKarma(models.Model):
@@ -264,8 +241,10 @@ def post_topic_save(instance, **kwargs):
 	forum = topic.forum
 	if kwargs['created']:
 		forum.topic_count = forum.get_topic_count()
+		forum.last_topic = topic
 		forum.save(force_update=True)
 		cache.delete('homepage_news')
+		cache.delete('homepage_journal')
 		cache.delete('forums_count_topics')
 	cache.delete('forums_topics_%s' % forum)
 	cache.delete('forums_posts_%s' % topic)

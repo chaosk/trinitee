@@ -1,6 +1,7 @@
 import datetime
 from django.shortcuts import redirect, get_object_or_404
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -164,23 +165,34 @@ def register(request):
 			email = form.cleaned_data['email']
 			user = User(username=username, email=email, is_active=False)
 			user.set_password(password)
-			user.save()
-			t = loader.get_template('accounts/email/email_activation.html')
-			ak = ActivationKey(user=user)
-			ak.save()
-			webmaster_email = get_config('WEBMASTER_EMAIL', 'example@example.com')
-			site_name = get_config('SITE_NAME', 'Trinitee application')
-			c = Context({'new_user': user, 'activation_key': ak.key,
-				'webmaster_email': webmaster_email, 'site_name': site_name,
-				'server_name': request.get_host()})
-			send_mail("E-mail activation at %s" % site_name, t.render(c),
-				get_config('MAILER_ADDRESS', 'example@example.com'),
-				[email], fail_silently=False)
-			messages.success(request, "Thank you for registering. \
-			An email has been sent to the specified address with \
-			instructions on how to activate your new account. \
-			If it doesn't arrive you can contact the forum \
-			administrator at %s" % webmaster_email)
+			if not get_config('ACTIVATION_REQUIRED', False):
+				user.is_active = True
+				user.save()
+				messages.success(request, "Thank you for registering."
+					" You can now log in.")
+			else:
+				if not get_config('EMAIL_HOST', False) \
+					or not get_config('EMAIL_PORT', False) \
+					or not get_config('EMAIL_HOST_USER', False) \
+					or not get_config('EMAIL_HOST_PASSWORD', False):
+					raise ImproperlyConfigured("You must configure mailer.")
+				user.save()
+				ak = ActivationKey(user=user)
+				ak.save()
+				t = loader.get_template('accounts/email/email_activation.html')
+				webmaster_email = get_config('WEBMASTER_EMAIL', 'example@example.com')
+				site_name = get_config('SITE_NAME', 'Trinitee application')
+				c = Context({'new_user': user, 'activation_key': ak.key,
+					'webmaster_email': webmaster_email, 'site_name': site_name,
+					'server_name': request.get_host()})
+				send_mail("E-mail activation at %s" % site_name, t.render(c),
+					get_config('MAILER_ADDRESS', 'example@example.com'),
+					[email])
+				messages.success(request, "Thank you for registering."
+					" An email has been sent to the specified address with"
+					" instructions on how to activate your new account."
+					" If it doesn't arrive you can contact the forum"
+					" administrator at %s" % webmaster_email)
 			return redirect(reverse('accounts.views.login'))
 	else:
 		form = RegistrationForm()

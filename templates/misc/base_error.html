@@ -2,7 +2,7 @@
 <head>
 	<meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/style.css" />
-	<title>{% block error_title %}Unknown error{% endblock error_title %} - {{ settings.SITE_NAME }}</title>
+	<title>{% block title %}{% block error_title %}Unknown error{% endblock error_title %} - {{ settings.SITE_NAME }}{% endblock title %}</title>
 </head>
 <body>
 	<div id="error_page">

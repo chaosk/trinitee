@@ -67,7 +67,7 @@
 				<td>
 					<table class="content">
 						<tr class="post_data">
-							<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }}{# best... line... EVER! #} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %}</td>
+							<td>#{{ request.page|sub:1|mult:settings.POSTS_PER_PAGE|add:forloop.counter }}{# best... line... EVER! #} <a href="{{ p.get_absolute_url }}">{{ p.created_at|user_date:user }}</a>{% if p.modified_by %} (modified: {{ p.modified_at|user_date:user }}{% if p.modified_by != p.author %} by {{ p.modified_by }}{% endif %}){% endif %} {% if p.is_unread %}[unread]{% endif %}</td>
 							<td class="buttons">
 								<a class="post_button quote" title="Quote" href="{% url forums.views.post_new topic.id p.id %}"></a>
 								<a class="post_button report" title="Report" href="{% url forums.views.post_report p.id %}"></a>
