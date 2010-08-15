@@ -39,7 +39,7 @@ class RegistrationForm(forms.Form):
 		if not hasattr(settings, "RECAPTCHA_PUBLIC_KEY") \
 			or not settings.RECAPTCHA_PUBLIC_KEY \
 			or not hasattr(settings, "RECAPTCHA_PRIVATE_KEY") \
-			or not settings.RECAPTCHA_private_KEY:
+			or not settings.RECAPTCHA_PRIVATE_KEY:
 			raise ImproperlyConfigured("You must define the RECAPTCHA_PUBLIC_KEY"
 				" and/or RECAPTCHA_PRIVATE_KEY setting in order to use reCAPTCHA.")
 		recaptcha = ReCaptchaField()

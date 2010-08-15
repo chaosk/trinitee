@@ -62,7 +62,7 @@ JOURNAL_FORUM = 2
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
-# Days to activation keys expation
+# Days to activation keys expiration
 ACTIVATION_KEY_EXPIRY_TIME = 7
 
 # Paginator
