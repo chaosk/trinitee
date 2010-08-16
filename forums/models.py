@@ -232,6 +232,10 @@ def post_post_save(instance, **kwargs):
 		topic.save(force_update=True)
 		forum.save(force_update=True)
 		cache.delete('forums_count_posts')
+	if forum.id == get_config('NEWS_FORUM', 1):
+		cache.delete('homepage_news')
+	if forum.id == get_config('JOURNAL_FORUM', 2):
+		cache.delete('homepage_journal')
 	cache.delete('forums_topics_%s' % forum.id)
 	cache.delete('forums_posts_%s' % topic.id)
 
@@ -243,8 +247,6 @@ def post_topic_save(instance, **kwargs):
 		forum.topic_count = forum.get_topic_count()
 		forum.last_topic = topic
 		forum.save(force_update=True)
-		cache.delete('homepage_news')
-		cache.delete('homepage_journal')
 		cache.delete('forums_count_topics')
 	cache.delete('forums_topics_%s' % forum)
 	cache.delete('forums_posts_%s' % topic)
