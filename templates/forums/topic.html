@@ -80,7 +80,7 @@
 								<span class="karma-box">
 									{% with p|current_karma:user as post_current_karma %}
 									<div class="karma-count">{{ p.get_karma }}</div>
-									{% if user.is_authenticated and p.author == user %}
+									{% if user.is_authenticated and p.author != user %}
 									<a class="post_button karma karma_positive{% if post_current_karma == 1 %} current{% endif %}" title="Vote up this post" href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});"></a>
 									<a class="post_button karma karma_neutral{% if post_current_karma == 0 %} current{% endif %}" title="Cancel your vote for this post" href="{% url forums.views.post_votecancel p.id %}" onclick="return votecancel({{ p.id }});"></a>
 									<a class="post_button karma karma_negative{% if post_current_karma == -1 %} current{% endif %}" title="Vote down this post" href="{% url forums.views.post_votedown p.id %}" onclick="return votedown({{ p.id }});"></a>
