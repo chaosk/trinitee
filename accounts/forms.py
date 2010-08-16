@@ -131,11 +131,11 @@ class SettingsIdentityStaffForm(forms.ModelForm):
 		fields = ['group', 'title', 'location', 'icq', 'jabber', 'website']
 
 
-class SettingsIdentityForm(SettingsIdentityStaffForm):
+class SettingsIdentityForm(forms.ModelForm):
 
 	class Meta:
 		model = UserProfile
-		exclude = ['group', 'title']
+		fields = ['location', 'icq', 'jabber', 'website']
 
 
 class SettingsIdentityUserForm(forms.ModelForm):
