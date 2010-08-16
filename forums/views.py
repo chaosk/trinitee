@@ -53,7 +53,7 @@ def index(request):
 
 	# UGLY
 	for category in categories:
-		for forum in category.forums:
+		for forum in category['forums']:
 			forum.has_new_posts = not tracker.has_viewed(forum.last_post, 'created_at') \
 				if forum.last_post else False
 			forum.has_new_topics = not tracker.has_viewed(forum.last_topic, 'created_at') \
