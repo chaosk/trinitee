@@ -472,7 +472,8 @@ def post_vote(request, post_id, value):
 	post = get_object_or_None(Post, pk=post_id)
 	if post == None:
 		return ("You tried to vote for unexisting post.", True)
-	if post.author == request.user:
+	if post.author == request.user and not request.user.is_staff \
+		and not not request.user.is_superuser:
 		return ("You tried to vote for your own post.", False)
 	karma, created = PostKarma.objects.get_or_create(post=post,
 		user=request.user, defaults={'karma': value})
