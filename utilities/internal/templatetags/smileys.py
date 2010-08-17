@@ -25,7 +25,7 @@ smileys_default_list = (
 	(':rolleyes:', 'roll.png'),
 )
 
-SMILEYS_URL = get_config('SMILEYS_URL', '%ssmileys/' % settings.MEDIA_URL)
+SMILEYS_URL = get_config('SMILEYS_URL', '%simages/smileys/' % settings.MEDIA_URL)
 SMILEYS_LIST = get_config('SMILEYS_LIST', smileys_default_list)
 
 RE_SMILEYS_LIST = [(re.compile(re.escape(smiley[0])), smiley[0], smiley[1])
