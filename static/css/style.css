@@ -376,6 +376,24 @@ ul.messages .error   { background: #c54d47; }
 	text-align: justify;
 }
 
+#topic_view blockquote {
+	background: #eee;
+	border: thin solid #ccc;
+	margin: 10px 20px;
+	padding: 20px;
+}
+
+#topic_view blockquote em {
+	font-weight: bold;
+	margin-bottom: 10px;
+	display: block;
+}
+
+#topic_view blockquote em:after {
+	font-weight: normal;
+	content: ' wrote:';
+}
+
 .selected_post td {
 	background: #f5f3d0;
 }
@@ -548,13 +566,29 @@ a.post_button:hover {
 .post_button.quote { background: url(/static/images/quote.png) no-repeat scroll top right; }
 .post_button.report { background: url(/static/images/report.png) no-repeat scroll top right; }
 .post_button.delete { background: url(/static/images/post_delete.png) no-repeat scroll top right; }
-.karma-count { float:right; border: thin dashed #e0e0e0; width:20px; height:20px; font-size: 16px; text-align: center; background: #f5f3d0; }
 .post_button.karma_negative { background: url(/static/images/karma_negative.png) no-repeat scroll top right; }
 .post_button.karma_neutral { background: url(/static/images/karma_neutral.png) no-repeat scroll top right; }
 .post_button.karma_positive { background: url(/static/images/karma_positive.png) no-repeat scroll top right; }
 .post_button.karma { opacity: 0.2; }
 .post_button.karma:hover { opacity: 0.7; }
 .post_button.karma.current { opacity: 1; }
+.karma-count {
+	background: #f5f3d0;
+	border: thin solid #e0e0e0;
+	text-align: center;
+	min-width: 14px;
+	height: 14px;
+	display: inline-block;
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	vertical-align: middle;
+}
+
+input.posts_selected {
+	margin-left: 10px !important;
+	height: 16px;
+	vertical-align: middle;
+}
 
 a.button {
 	color: #789d42;

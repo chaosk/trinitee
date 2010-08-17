@@ -24,7 +24,7 @@
 	{% else %}
 	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.post_new topic.id %}"{% endif %}>Reply</a>
 	{% endif %}
-	
+
 	{% if user.is_superuser or user.is_staff %}
 	<div class="right">
 		{% if topic.is_sticky %}
@@ -45,7 +45,7 @@
 	{% endif %}
 	{% autopaginate posts settings.POSTS_PER_PAGE %}
 	{% paginate %}
-	
+
 	<table id="topic_view">
 		<tbody>
 		{% for p in posts %}
@@ -79,7 +79,6 @@
 								{% endif %}
 								<span class="karma-box">
 									{% with p|current_karma:user as post_current_karma %}
-									<div class="karma-count">{{ p.get_karma }}</div>
 									{% if user.is_authenticated %}
 									{% if p.author != user or user.is_superuser or user.is_staff %}
 									<a class="post_button karma karma_positive{% if post_current_karma == 1 %} current{% endif %}" title="Vote up this post" href="{% url forums.views.post_voteup p.id %}" onclick="return voteup({{ p.id }});"></a>
@@ -88,9 +87,10 @@
 									<span class="karma-voted"></span>
 									{% endif %}
 									{% endif %}
+									<div class="karma-count">{{ p.get_karma }}</div>
 									{% endwith %}
 								</span>
-							
+
 								{% if not p == topic.first_post %}
 								{% if user.is_superuser or user.is_staff %}
 								<input type="checkbox" class="posts_selected" name="posts_selected[]" value="{{ p.id }}" />

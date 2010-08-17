@@ -328,7 +328,8 @@ class QuoteTag(TagBase):
 
     def render_open(self, parser, node_index):
         if self.params:
-            return u'<blockquote><em>%s</em><br/>'%(PostMarkup.standard_replace(self.params))
+            return u'<blockquote><em>%s</em>' % \
+				(PostMarkup.standard_replace(self.params))
         else:
             return u'<blockquote>'
 
