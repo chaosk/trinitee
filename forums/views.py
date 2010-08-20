@@ -472,25 +472,28 @@ def post_vote(request, post_id, value):
 	post = get_object_or_None(Post, pk=post_id)
 	if post == None:
 		return ("You tried to vote for unexisting post.", True)
-	if post.author == request.user and not request.user.is_staff \
-		and not not request.user.is_superuser:
+	returned = post.vote(request.user, value)
+	if not returned:
 		return ("You tried to vote for your own post.", False)
-	karma, created = PostKarma.objects.get_or_create(post=post,
-		user=request.user, defaults={'karma': value})
-	""" refresh cache before incrementing karma counter """
-	post.get_karma(force_refresh=True)
-	if not created and not karma.karma == value:
-		"""
-			This actually works, so don't try to fix it.
-
-			No really, don't.
-
-			If you still don't believe me, the line below
-			subtracts current karma value and adds new one.
-		"""
-		cache.incr('forums_karma_%s' % post_id, - karma.karma + value)
-		karma.karma = value
-		karma.save()
+	# if post.author == request.user and not request.user.is_staff \
+	# 		and not request.user.is_superuser:
+	# 		return ("You tried to vote for your own post.", False)
+	# 	karma, created = PostKarma.objects.get_or_create(post=post,
+	# 		user=request.user, defaults={'karma': value})
+	# 	""" refresh cache before incrementing karma counter """
+	# 	post.get_karma(force_refresh=True)
+	# 	if not created and not karma.karma == value:
+	# 		"""
+	# 			This actually works, so don't try to fix it.
+	# 
+	# 			No really, don't.
+	# 
+	# 			If you still don't believe me, the line below
+	# 			subtracts current karma value and adds new one.
+	# 		"""
+	# 		cache.incr('forums_karma_%s' % post_id, - karma.karma + value)
+	# 		karma.karma = value
+	# 		karma.save()
 	return post
 
 

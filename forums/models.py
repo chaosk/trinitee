@@ -66,12 +66,36 @@ class Post(models.Model):
 	def get_absolute_url(self):
 		return ('forums.views.post_permalink', (), {'post_id': self.id})
 
-	def get_karma(self, force_refresh=False):
+	def vote(self, user, value):
+		if self.author == user and not user.is_staff \
+			and not user.is_superuser:
+			return False
+		karma, created = PostKarma.objects.get_or_create(post=self,
+			user=user, defaults={'karma': value})
+		self.get_karma()
+		if not created:
+			cache.incr('forums_karma_%s' % self.id, - karma.karma + value)
+			karma.karma = value
+			karma.save()
+		else:
+			cache.incr('forums_karma_%s' % self.id, value)
+		return True
+
+	def vote_up(self, user):
+		return self.vote(user, 1)
+
+	def vote_neutral(self, user):
+		return self.vote(user, 0)
+
+	def vote_down(self, user):
+		return self.vote(user, -1)
+
+	def get_karma(self):
 	# FIXME add bulk retrieving PLX PLX PLX.
 	# My butt hurts.
 	#                      --- Your database
 		karma = cache.get('forums_karma_%s' % self.id)
-		if force_refresh or karma == None:
+		if karma == None:
 			try:
 				karma = sum(PostKarma.objects.filter(post__exact=self). \
 					values_list('karma', flat=True))
