@@ -39,7 +39,7 @@ class KarmaTestCase(TestCase):
 		post = self.post_user
 		user = self.admin
 		returned = post.vote_up(user)
-		self.assertFalse(returned)
+		self.assertTrue(returned)
 
 	def testUserVotesOwnPostFailure(self):
 		post = self.post_user
