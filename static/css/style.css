@@ -570,13 +570,19 @@ ul.messages .error   { background: #c54d47; }
 	margin-right: 5%;
 }
 
-.form_field span {
+/* reCAPTCHA hack */
+.form_field span:not(#recaptcha_instructions_image) {
 	color: #555;
 	font-size: 80%;
 	text-align: right;
 	display: block;
 	margin-top: -5px;
 	width: 45%;
+}
+
+/* make it centered */
+#recaptcha_area {
+	margin: auto;
 }
 
 input[type="submit"] {
