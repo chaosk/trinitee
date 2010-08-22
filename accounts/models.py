@@ -46,9 +46,7 @@ class UserProfile(models.Model):
 	last_activity_ip = models.IPAddressField(blank=True, null=True)
 	badges = models.ManyToManyField('Badge', blank=True, related_name='users')
 	group = models.ForeignKey('Group', blank=True, null=True,
-		help_text="In addition to the permissions manually assigned, "
-			"this user will also get all permissions granted to each group "
-			"he/she is in.")
+		help_text="User will get all permissions granted to group he/she is in.")
 	admin_notes = models.CharField(blank=True, max_length=255)
 	title = models.CharField(blank=True, max_length=30)
 
@@ -56,13 +54,18 @@ class UserProfile(models.Model):
 		fname, dot, extension = filename.rpartition('.')
 		return 'uploads/avatars/%s.%s' % (self.id, extension)
 	avatar = models.ImageField(blank=True, default='',
-		storage=OverwriteStorage(), upload_to=avatar_filename)
+		storage=OverwriteStorage(), upload_to=avatar_filename,
+		help_text="Only gif, jpg and png files are allowed."
+			" The maximum image size allowed is %sx%s pixels and %s." % \
+			(get_config('AVATAR_MAX_WIDTH', 60), get_config('AVATAR_MAX_HEIGHT', 60),
+			get_config('AVATAR_MAX_SIZE', 10240)))
 
 	about = models.CharField(blank=True, max_length=800)
 	about_html = models.CharField(blank=True, max_length=1500)
 	signature = models.CharField(validators=[validate_signature],
-		blank=True, max_length=255)
-	signature_html = models.CharField(blank=True, max_length=500)
+		blank=True, max_length=300, help_text="Maximum size 300 characters long"
+			" and %s lines high." % get_config('SIGNATURE_MAX_LINES', 4))
+	signature_html = models.CharField(blank=True, max_length=600)
 	icq = models.CharField(blank=True, max_length=30)
 	jabber = models.CharField(blank=True, max_length=60)
 	location = models.CharField(blank=True, max_length=60)
