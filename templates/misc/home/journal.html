@@ -9,7 +9,7 @@
 {% block breadcrumbs %}{% endblock breadcrumbs %}
 {% block content %}
 {% for item in journal %}
-<div class="news">
+<div class="news" id="entry-{{ item.id }}">
 	<div class="left">
 		{% if item.author.avatar %}
 			<img src="{{ item.author.avatar.url }}" alt="avatar">

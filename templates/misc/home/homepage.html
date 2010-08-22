@@ -47,7 +47,7 @@
 
 			<ul>
 				{% for blog_item in journal %}
-				<li><a href="{{ blog_item.topic.get_absolute_url }}">{{ blog_item.topic.title }}</a></li>
+				<li><a href="{% url journal %}#entry-{{ blog_item.id }}">{{ blog_item.topic.title }}</a></li>
 				{% endfor %}
 			</ul>
 			{% endif %}
