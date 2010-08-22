@@ -13,17 +13,16 @@ from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
 from accounts.forms import *
 from haystack.query import SearchQuerySet
-from utilities.annoying.functions import get_config, get_object_or_None
+from utilities.annoying.functions import get_config
 from utilities.annoying.decorators import render_to
 from utilities.annoying.utils import HttpResponseReload
 from utilities.internal.decorators import user_passes_test_or_403
 
 
-@user_passes_test_or_403(lambda u: not u.is_active)
-# Checking if current user is active is correct, as AnonymousUser
-# is always not active and User with is_active=False cannot login.
 @render_to('accounts/login.html')
 def login(request):
+	if request.user.is_authenticated:
+		return redirect(reverse('home'))
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
 		if form.is_valid():
@@ -49,9 +48,10 @@ def login(request):
 
 
 def logout(request):
-	logout_(request)
-	messages.success(request, "Logged out successfully. "
-		"It was a pleasure to travel through this site with you!")
+	if request.user.is_authenticated:
+		logout_(request)
+		messages.success(request, "Logged out successfully. "
+			"It was a pleasure to travel through this site with you!")
 	return redirect(reverse('home'))
 
 
@@ -153,10 +153,10 @@ def profile_details(request, user_id):
 	return {'user_details': user_details}
 
 
-@user_passes_test_or_403(lambda u: not u.is_active)
 @render_to('accounts/register.html')
 def register(request):
-# ref: comment to accounts.views.login_
+	if request.user.is_authenticated:
+		return redirect(reverse('home'))
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
@@ -207,11 +207,12 @@ def activate_account(request, user_id, activation_key):
 	if activation.expires_at < datetime.datetime.now():
 		messages.error(request, "Activation key has expired. \
 			You can request a new key <a href=\"%s\">here</a>."
-			% reverse('accounts.views.new_activation_key'))
+			% reverse('accounts.views.resend_activation_key'))
 	else:
 		user.is_active = True
 		user.save()
 		messages.success(request, "Your account has been activated.")
+	# Deleting key anyway
 	activation.delete()
 	return redirect(reverse('home'))
 
@@ -220,15 +221,16 @@ def activate_account(request, user_id, activation_key):
 @render_to('accounts/resend_activation_key.html')
 def resend_activation_key(request, user_id):
 	user = get_object_or_404(User, pk=user_id)
-	activation = get_object_or_None(ActivationKey, user=user)
-	if not activation == None:
-		# Cleaning database from unused objects
+	try:
+		activation = ActivationKey.objects.get(user=user)
+	except ActivationKey.DoesNotExist:
+		# Removing unused key
 		activation.delete()
 	if request.method == 'POST':
 		form = ResendActivationKeyForm(request.POST)
 		if not form.cleaned_data['email'] == user.email:
 			messages.error(request, "E-mail address sent by you doesn't match \
-			with address used to register this account.")
+			the address used to register this account.")
 			return redirect(reverse('home'))
 		if form.is_valid():
 			t = loader.get_template('accounts/email/email_activation.html')

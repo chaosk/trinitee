@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form method="post" action="{% url django.contrib.auth.views.resend_activation_key %}">
+<form method="post" action="{% url accounts.views.resend_activation_key %}">
 	{% include "snippets/form.html" %}
 	<input type="submit" value="Resend" />
 </form>

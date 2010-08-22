@@ -11,4 +11,6 @@
 		<input type="hidden" name="next" value="{{ next }}" />
 		<input type="submit" value="login" />
 	</form>
+	<a href="{% url accounts.views.resend_activation_key %}">Resend activation key</a>
+	<a href="{% url django.contrib.auth.views.password_reset %}">Password reset</a>
 {% endblock %}
