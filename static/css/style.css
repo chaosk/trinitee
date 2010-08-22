@@ -544,6 +544,84 @@ ul.messages .error   { background: #c54d47; }
 }
 
 /****************
+ * Forms
+ ****************/
+
+.form_field {
+	padding: 10px;
+	width: 340px;
+	border-left: 2px solid #fff;
+}
+
+.form_field:hover {
+	background: #eee;
+	border-left: 2px solid #ddd;
+}
+
+.form_field label,
+.form_field input,
+.form_field select {
+	display: inline-block;
+	width: 45%;
+}
+
+.form_field label {
+	text-align: right;
+	margin-right: 5%;
+}
+
+.form_field span {
+	color: #555;
+	font-size: 80%;
+	text-align: right;
+	display: block;
+	margin-top: -5px;
+	width: 45%;
+}
+
+input[type="submit"] {
+	font-weight: bold;
+	font-size: 13px;
+	width: 340px;
+	margin-top: 20px;
+}
+
+.form_field.error {
+	color: #800;
+	background: #f66;
+	border-color: #d44;
+}
+
+.form_field.error:hover {
+	color: #600;
+	background: #e55;
+	border-color: #d33;
+}
+
+.form_field.error span {
+	color: #a33;
+}
+
+.form_field.error .form-error {
+	text-align: center;
+	font-style: oblique;
+}
+
+.form_field.required label {
+	font-weight: bold;
+}
+
+.form_field.required label:before {
+	color: #f00;
+	content: "*";
+	margin-right: 3px;
+}
+
+.form_field.error.required label:before {
+	color: #600;
+}
+
+/****************
  * Buttons
  ****************/
 
