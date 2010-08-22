@@ -3,6 +3,8 @@
 {% block title %}Sign up - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb "Sign up" %}{% endblock %}
 {% block content %}
+	<h1>Sign up</h1>
+
 	<form action="{% url accounts.views.register %}" method="post">
 	    {% include "snippets/form.html" %}
 	    <p><input type="submit" value="Send" /></p>

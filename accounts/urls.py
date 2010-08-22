@@ -10,7 +10,7 @@ urlpatterns = patterns('accounts.views',
 	(r'^logout/$', 'logout'),
 	(r'^register/$', 'register'),
 	(r'^activate/(?P<user_id>\d+)/(?P<activation_key>\w+)/$', 'activate_account'),
-	(r'^activate/resend/(?P<user_id>\d+)/$', 'resend_activation_key'),
+	(r'^activate/resend/$', 'resend_activation_key'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',

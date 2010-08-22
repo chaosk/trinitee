@@ -86,8 +86,34 @@ class RegistrationForm(forms.Form):
 
 
 class ResendActivationKeyForm(forms.Form):
-	email = forms.EmailField(label="E-mail address you've used to \
-		register on this site")
+	username = forms.CharField(min_length=2, max_length=30, label="Username")
+	email = forms.EmailField(label="E-mail address", help_text="...you've used"
+		" to register on this site")
+	email_confirmation = forms.EmailField(label="Confirm e-mail")
+
+	def clean_username(self):
+		username = self.cleaned_data.get('username')
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			raise forms.ValidationError("User with this username does not exist.")
+		if user.is_active:
+			raise forms.ValidationError("User with this username already activated"
+				" his account.")
+
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		email = cleaned_data.get('email')
+		email_confirmation = cleaned_data.get('email_confirmation')
+
+		if email and email_confirmation and not email == email_confirmation:
+			msg = "E-mail addresses do not match."
+			self._errors['email'] = self.error_class([msg])
+			self._errors['email_confirmation'] = self.error_class([msg])
+
+			# These fields are no longer valid.
+			del cleaned_data['email']
+			del cleaned_data['email_confirmation']
 
 
 class SettingsAvatarForm(forms.ModelForm):

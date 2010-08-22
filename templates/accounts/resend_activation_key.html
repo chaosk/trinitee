@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-
+{% load breadcrumbs %}
+{% block title %}Resend activation key - {{ block.super }}{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb "Resend activation key" %}{% endblock %}
 {% block content %}
+	<h1>Resend activation key</h1>
 
-<form method="post" action="{% url accounts.views.resend_activation_key %}">
-	{% include "snippets/form.html" %}
-	<input type="submit" value="Resend" />
-</form>
-
+	<form method="post" action="{% url accounts.views.resend_activation_key %}">
+		{% include "snippets/form.html" %}
+		<input type="submit" value="Resend" />
+	</form>
 {% endblock %}

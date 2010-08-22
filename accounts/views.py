@@ -13,7 +13,7 @@ from django.template import RequestContext, loader, Context, Template
 from accounts.models import ActivationKey, UserProfile
 from accounts.forms import *
 from haystack.query import SearchQuerySet
-from utilities.annoying.functions import get_config
+from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.annoying.decorators import render_to
 from utilities.annoying.utils import HttpResponseReload
 from utilities.internal.decorators import user_passes_test_or_403
@@ -21,7 +21,7 @@ from utilities.internal.decorators import user_passes_test_or_403
 
 @render_to('accounts/login.html')
 def login(request):
-	if request.user.is_authenticated:
+	if request.user.is_authenticated():
 		return redirect(reverse('home'))
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
@@ -48,7 +48,7 @@ def login(request):
 
 
 def logout(request):
-	if request.user.is_authenticated:
+	if request.user.is_authenticated():
 		logout_(request)
 		messages.success(request, "Logged out successfully. "
 			"It was a pleasure to travel through this site with you!")
@@ -155,7 +155,7 @@ def profile_details(request, user_id):
 
 @render_to('accounts/register.html')
 def register(request):
-	if request.user.is_authenticated:
+	if request.user.is_authenticated():
 		return redirect(reverse('home'))
 	if request.method == 'POST':
 		form = RegistrationForm(request.POST)
@@ -219,20 +219,19 @@ def activate_account(request, user_id, activation_key):
 
 @user_passes_test_or_403(lambda u: not u.is_active)
 @render_to('accounts/resend_activation_key.html')
-def resend_activation_key(request, user_id):
-	user = get_object_or_404(User, pk=user_id)
-	try:
-		activation = ActivationKey.objects.get(user=user)
-	except ActivationKey.DoesNotExist:
-		# Removing unused key
-		activation.delete()
+def resend_activation_key(request):
 	if request.method == 'POST':
 		form = ResendActivationKeyForm(request.POST)
-		if not form.cleaned_data['email'] == user.email:
-			messages.error(request, "E-mail address sent by you doesn't match \
-			the address used to register this account.")
-			return redirect(reverse('home'))
 		if form.is_valid():
+			user = get_object_or_404(User, username=username)
+			activation = get_object_or_None(ActivationKey, user=user)
+			if activation:
+				# Removing unused key
+				activation.delete()
+			if not form.cleaned_data['email'] == user.email:
+				messages.error(request, "E-mail address sent by you doesn't match \
+				the address used to register this account.")
+				return redirect(reverse('home'))
 			t = loader.get_template('accounts/email/email_activation.html')
 			ak = ActivationKey(user=user)
 			ak.save()
