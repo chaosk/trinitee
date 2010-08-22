@@ -14,7 +14,7 @@ class ReleaseInline(admin.TabularInline):
 
 
 class VersionAdmin(admin.ModelAdmin):
-	list_display = ['version_number', 'format_created_at', 'truncated_release_notes']
+	list_display = ['version_number', 'is_published', 'format_created_at', 'truncated_release_notes']
 	inlines = [ReleaseInline]
 	
 	def format_created_at(self, obj):

@@ -13,7 +13,8 @@ def homepage(request):
 	flavor = '_' + flavor if flavor else ''
 	latest_download = cache.get('homepage_latest_download_%s%s' % (os, flavor))
 	if latest_download == None:
-		latest_download = get_object_or_None(Release.objects.select_related(),
+		latest_download = get_object_or_None(Release.objects. \
+			exclude(version__is_published=False).select_related(),
 			platform__name='%s%s' % (os, flavor))
 		cache.set('homepage_latest_download_%s%s' % (os, flavor),
 			latest_download, 86400)

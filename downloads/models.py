@@ -8,6 +8,7 @@ class Version(models.Model):
 	version_number = models.CharField(max_length=10, unique=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	release_notes = models.TextField(blank=True)
+	is_published = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.version_number

@@ -8,6 +8,6 @@ from utilities.httpagentparser import os_detect
 def downloads(request):
 	versions = cache.get('downloads_versions')
 	if versions == None:
-		versions = list(Version.objects.reverse()[:5])
+		versions = list(Version.objects.exclude(is_published=False).reverse()[:5])
 		cache.set('downloads_versions', versions, 86400)
 	return {'versions': versions}
