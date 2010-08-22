@@ -57,7 +57,7 @@ class SplitPostsForm(forms.Form):
 
 
 class PostSearchForm(HighlightedSearchForm):
-	q = forms.CharField(label="Search", min_length=4)
+	q = forms.CharField(required=False, label="Search", min_length=4)
 	sort_by = forms.ChoiceField(required=False, choices=SORT_POST_BY_CHOICES,
 		label="Sort by")
 	sort_dir = forms.ChoiceField(required=False, choices=SORT_DIR_CHOICES,

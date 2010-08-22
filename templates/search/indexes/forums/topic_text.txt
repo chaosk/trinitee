@@ -1,5 +1,4 @@
 {{ object.topic.title }}
-{{ object.created_by.get_full_name }}
 
 {% for post in object.posts.all %}
     {{ post.content }}

@@ -26,4 +26,6 @@ urlpatterns = patterns('forums.views',
 	(r'^post/vote/cancel/(?P<post_id>\d+)/$', 'post_votecancel'),
 	(r'^post/vote/down/(?P<post_id>\d+)/$', 'post_votedown'),
 	url(r'^search/$', PostSearchView(), name='forum_search'),
+	(r'^search/latest/$', 'search_latest'),
+	(r'^search/unread/$', 'search_unread'),
 )

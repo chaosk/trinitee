@@ -33,11 +33,9 @@
 				<td class="last-post"><a href="{{ result.object.last_post.get_absolute_url }}" title="Topic &quot;{{ result.title }}&quot;">{{ result.object.last_post.created_at|user_date:user }}</a> by {{ result.object.last_post.author }}</td>
 			</tr>
 		{% endfor %}
-		</tbody>
+	</tbody>
 	</table>
 	{% else %}
-	{% if query %}
 	<h3>No results found.</h3>
-	{% endif %}
 	{% endif %}
 {% endblock %}

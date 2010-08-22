@@ -255,6 +255,7 @@ def post_post_save(instance, **kwargs):
 		profile.save(force_update=True)
 		topic.save(force_update=True)
 		forum.save(force_update=True)
+		cache.delete('forums_topics_latest')
 		cache.delete('forums_count_posts')
 	if forum.id == get_config('NEWS_FORUM', 1):
 		cache.delete('homepage_news')

@@ -430,32 +430,42 @@ def topic_action(request, topic_id):
 @login_required
 @render_to('forums/search_latest.html')
 def search_latest(request):
-	topics = cache.get('forums_topics_latest_%s' % request.user.id)
+	topics = cache.get('forums_topics_latest')
 	if topics == None:
 		topics = list(Topic.objects.filter(last_post__created_at__gte= \
-			(datetime.now()-timedelta(days=1)).select_related()))
-		cache.set('forums_topics_latest_%s' % request.user.id, topics)
+			(datetime.now()-timedelta(days=1))).select_related())
+		cache.set('forums_topics_latest', topics)
+	tracker = ObjectTracker(request.session)
+	for topic in topics:
+		topic.has_new_posts = not tracker.has_viewed(topic.last_post, 'created_at') \
+			if topic.last_post else False
 	return {'topics': topics}
 
 
 @login_required
 @render_to('forums/search_unread.html')
 def search_unread(request):
-	topics = cache.get('forums_topics_unread_%s' % request.user.id)
+	topics = cache.get('forums_topics_unread')
 	if topics == None:
 		topics = list(Topic.objects.filter(last_post__created_at__gte= \
-			request.user.post_tracking.last_read).select_related())
-		cache.set('forums_topics_unread_%s' % request.user.id, topics)
-	return {'topics': topics}
+			(datetime.now()-timedelta(days=7))).select_related())
+		cache.set('forums_topics_unread', topics)
+	tracker = ObjectTracker(request.session)
+	unread_topics = []
+	for topic in topics:
+		if not tracker.has_viewed(topic.last_post, 'created_at'):
+			unread_topics.append(topic)
+	return {'topics': unread_topics}
 
 
 class PostSearchView(SearchView):
 
 	def __init__(self, *args, **kwargs):
 		super(PostSearchView, self).__init__(*args, **kwargs)
-		self.template='forums/search.html'
-		self.form_class=PostSearchForm
-		self.searchqueryset=SearchQuerySet().models(Topic)
+		self.topic_view = True
+		self.template = 'forums/search.html'
+		self.form_class = PostSearchForm
+		self.searchqueryset = SearchQuerySet().models(Topic)
 
 	def __name__(self):
 		return "PostSearchView"
@@ -463,9 +473,16 @@ class PostSearchView(SearchView):
 	def get_query(self):
 		if self.form.is_valid():
 			if self.form.cleaned_data['show_as'] == 'posts':
+				self.searchqueryset = SearchQuerySet().models(Post)
 				self.template = 'forums/search_as_posts.html'
 			return self.form.cleaned_data['q']
 		return ''
+
+	def get_results(self):
+		if self.query:
+			results = self.form.search()
+			return results
+		return []
 
 
 def post_vote(request, post_id, value):
