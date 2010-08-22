@@ -567,8 +567,16 @@ ul.messages .error   { background: #c54d47; }
 
 .form_field label {
 	text-align: right;
-	font-weight: bold;
 	margin-right: 5%;
+}
+
+.form_field span {
+	color: #555;
+	font-size: 80%;
+	text-align: right;
+	display: block;
+	margin-top: -5px;
+	width: 45%;
 }
 
 input[type="submit"] {
@@ -590,9 +598,27 @@ input[type="submit"] {
 	border-color: #d33;
 }
 
+.form_field.error span {
+	color: #a33;
+}
+
 .form_field.error .form-error {
 	text-align: center;
 	font-style: oblique;
+}
+
+.form_field.required label {
+	font-weight: bold;
+}
+
+.form_field.required label:before {
+	color: #f00;
+	content: "*";
+	margin-right: 3px;
+}
+
+.form_field.error.required label:before {
+	color: #600;
 }
 
 /****************
