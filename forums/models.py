@@ -42,8 +42,12 @@ class Post(models.Model):
 		forum = topic.forum
 		topic_first_post_id = topic.first_post.id
 		topic_last_post_id = topic.last_post.id
-		self.last_topic_post.clear()
-		self.last_forum_post.clear()
+		if self_id == topic_last_post_id:
+			self.last_topic_post.clear()
+			topic.set_last_post(exclude=self_id)
+		if self_id == self.last_forum_post.id:
+			self.last_forum_post.clear()
+			forum.set_last_post(exclude=self_id)
 		PostKarma.objects.filter(post=self).delete()
 		super(Post, self).delete(*args, **kwargs)
 		# if post was first in topic - remove topic
@@ -144,11 +148,17 @@ class Topic(models.Model):
 	def get_post_count(self):
 		return Post.objects.filter(topic__exact=self).count()
 
-	def get_last_post(self):
+	def get_last_post(self, exclude=None):
 		try:
-			return Post.objects.filter(topic__exact=self).latest()
+			return Post.objects.exclude(pk=exclude).filter(topic__exact=self).latest()
 		except Post.DoesNotExist:
 			return None
+
+	def set_last_post(self, exclude=None):
+		last_post = self.get_last_post(exclude)
+		if last_post:
+			self.last_post = last_post
+			self.save()
 
 
 class Forum(OrderedModel):
@@ -186,11 +196,30 @@ class Forum(OrderedModel):
 		return Topic.objects.filter(forum__exact=self).count()
 	topic_count = models.PositiveIntegerField(default=0)
 
-	def get_last_post(self):
+	def get_last_post(self, exclude=None):
 		try:
-			return Post.objects.filter(topic__forum=self).latest()
+			return Post.objects.exclude(pk=exclude).filter(forum=self).latest()
 		except Post.DoesNotExist:
 			return None
+
+	def get_last_topic(self, exclude=None):
+		try:
+			return Topic.objects.exclude(pk=exclude).filter(forum=self).latest()
+		except Topic.DoesNotExist:
+			return None
+
+	def set_last_post(self, exclude=None):
+		last_post = self.get_last_post(exclude)
+		if last_post:
+			self.last_post = last_post
+			self.save()
+
+	def set_last_topic(self, exclude=None):
+		last_topic = self.get_last_topic(exclude)
+		if last_topic:
+			self.last_topic = last_topic
+			self.save()
+
 
 
 class Category(OrderedModel):
@@ -213,13 +242,15 @@ class PostKarma(models.Model):
 		(-1, 'MINUS'),
 	)
 	karma = models.IntegerField(choices=KARMA_CHOICES, default=0)
-
 	class Meta:
 		unique_together = ('user', 'post')
 
 	def __unicode__(self):
 		return "%s" % self.karma
 
+	def save(self, *args, **kwargs):
+		cache.delete('forums_posts_%s' % self.post.topic.id)
+		super(Post, self).save(*args, **kwargs)
 
 class Report(models.Model):
 	post = models.ForeignKey('Post')

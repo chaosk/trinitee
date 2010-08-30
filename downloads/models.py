@@ -19,7 +19,7 @@ class Version(models.Model):
 
 
 class Platform(models.Model):
-	name = models.CharField(max_length=10)
+	name = models.CharField(max_length=15)
 	displayed_name = models.CharField(max_length=20)
 
 	def __unicode__(self):

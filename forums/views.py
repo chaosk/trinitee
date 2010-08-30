@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db.models import F, Q, Count
+from django.db.models import F, Q, Count, Sum
 from django.template import RequestContext
 from haystack.query import SearchQuerySet
 from haystack.views import SearchView
@@ -115,7 +115,8 @@ def topic_view(request, topic_id):
 	posts = cache.get('forums_posts_%s' % topic_id)
 	if posts == None:
 		posts = list(Post.objects.filter(topic__pk=topic_id) \
-			.select_related('author__profile__group', 'karma'))
+			.select_related('author__profile__group', 'karma') \
+			.annotate(karma_count=Sum('karma__karma')))
 		cache.set('forums_posts_%s' % topic_id, posts)
 	for post in posts:
 		post.is_unread = not tracker.has_viewed(post, 'created_at')
@@ -137,7 +138,7 @@ def post_permalink(request, post_id):
 def topic_new(request, forum_id):
 	forum = get_object_or_404(Forum, pk=forum_id)
 	if not can_post_topic(request.user, forum):
-		messages.error(request, "You are not allowed to to post new topics \
+		messages.error(request, "You are not allowed to post new topics \
 			on this forum.")
 		return redirect(forum.get_absolute_url())
 	if request.method == 'POST':

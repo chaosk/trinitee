@@ -1,7 +1,7 @@
 [
  {
    "model": "auth.user",
-   "pk": 0,
+   "pk": 2,
    "fields": {
      "username": "trinitee",
      "first_name": "Default",
@@ -13,10 +13,10 @@
  },
  {
    "model": "accounts.userprofile",
-   "pk": 0,
+   "pk": 2,
    "fields": {
-     "user": 0,
-     "avatar": "uploads/avatars/0.png",
+     "user": 2,
+     "avatar": "uploads/avatars/2.png",
      "signature": "I'm a lonesome loner, a lonely man, walking down a lonely road... Alone."
    }
  }

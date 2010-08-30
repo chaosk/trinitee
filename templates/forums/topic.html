@@ -87,7 +87,7 @@
 									<span class="karma-voted"></span>
 									{% endif %}
 									{% endif %}
-									<div class="karma-count">{{ p.get_karma }}</div>
+									<div class="karma-count">{{ p.karma_count|default:0 }}</div>
 									{% endwith %}
 								</span>
 

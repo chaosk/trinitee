@@ -22,7 +22,7 @@
 		{% for f in c.forums %}
 		<tr>
 			<td>
-				<b><a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> {% if f.has_new_posts %} [ New Posts ] {% endif %}</b>
+				<b><a href="{% url forums.views.forum_view f.id %}">{{ f.name }}</a> {% if f.has_new_posts %} [ New posts ] {% endif %}</b>
 				<p>{{ f.description }}</p>
 			</td>
 			<td>{{ f.topic_count }}</td>

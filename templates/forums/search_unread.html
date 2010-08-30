@@ -21,7 +21,7 @@
 		<tbody>
 		{% for topic in topics %}
 			<tr>
-				<td class="topic"><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a>{% if topic.has_new_posts %} [ New Posts ] {% endif %}</td>
+				<td class="topic"><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a>{% if topic.has_new_posts %} [ New posts ] {% endif %}</td>
 				<td class="replies">{{ topic.post_count|add:-1 }}</td>
 				<td class="last-post"><a href="{{ topic.last_post.get_absolute_url }}" title="Topic &quot;{{ topic.title }}&quot;">{{ topic.last_post.created_at|user_date:user }}</a> by {{ topic.last_post.author }}</td>
 			</tr>
