@@ -61,8 +61,8 @@
 {% for n in news %}
 <div class="news">
 	<div class="left">
-		{% if n.author.avatar %}
-			<img src="{{ n.author.avatar.url }}" alt="avatar">
+		{% if n.author.profile.avatar %}
+			<img src="{{ n.author.profile.avatar.url }}" alt="avatar">
 		{% endif %}
 	</div>
 	<div class="right">

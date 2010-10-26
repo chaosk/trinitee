@@ -42,6 +42,7 @@ class Group(models.Model):
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, unique=True, related_name='profile')
+	registration_ip = models.IPAddressField(blank=True, null=True)
 	last_activity_at = models.DateTimeField(auto_now_add=True)
 	last_activity_ip = models.IPAddressField(blank=True, null=True)
 	badges = models.ManyToManyField('Badge', blank=True, related_name='users')
@@ -54,11 +55,7 @@ class UserProfile(models.Model):
 		fname, dot, extension = filename.rpartition('.')
 		return 'uploads/avatars/%s.%s' % (self.id, extension)
 	avatar = models.ImageField(blank=True, default='',
-		storage=OverwriteStorage(), upload_to=avatar_filename,
-		help_text="Only gif, jpg and png files are allowed."
-			" The maximum image size allowed is %sx%s pixels and %s." % \
-			(get_config('AVATAR_MAX_WIDTH', 60), get_config('AVATAR_MAX_HEIGHT', 60),
-			get_config('AVATAR_MAX_SIZE', 10240)))
+		storage=OverwriteStorage(), upload_to=avatar_filename)
 
 	about = models.CharField(blank=True, max_length=800)
 	about_html = models.CharField(blank=True, max_length=1500)
@@ -106,6 +103,10 @@ class UserProfile(models.Model):
 	def get_post_count(self):
 		return forums.models.Post.objects.filter(author__exact=self).count()
 
+	def get_warn_count(self):
+		return sum(Warn.objects.filter(user=self) \
+			.values_list('weight', flat=True))
+
 
 class Badge(models.Model):
 	title = models.CharField(max_length=30)
@@ -147,10 +148,11 @@ class Warn(models.Model):
 	)
 	created_at = models.DateTimeField(auto_now_add=True)
 	weight = models.IntegerField(choices=WEIGHTS, default=1)
-	reason = models.ForeignKey(WarningReason)
-	user = models.ForeignKey(User, related_name='warnings')
+	reason = models.ForeignKey(WarningReason, default=6)
+	user = models.ForeignKey(User, related_name='warns')
 	created_by = models.ForeignKey(User, related_name='warns_given')
-	modified_by = models.ForeignKey(User, related_name='warns_modified')
+	modified_by = models.ForeignKey(User, related_name='warns_modified',
+		blank=True, null=True)
 	comment = models.CharField(blank=True, max_length=1000)
 
 	def __unicode__(self):
@@ -159,8 +161,6 @@ class Warn(models.Model):
 
 def post_user_save(instance, **kwargs):
 	if kwargs['created']:
-		if instance.id == 0: # really special case
-			return
 		profile = UserProfile(user=instance)
 		profile.save()
 
@@ -197,12 +197,13 @@ def post_warning_save(instance, **kwargs):
 				"Here's last warning comment:\n%s" % instance.comment)
 		ban.save()
 	else:
-		StoredNotification(user=instance.user,
+		notification = StoredNotification(user=instance.user,
 			message="You have been warned (weight: %s) by %s.<br />Reason: %s"
 				"<br />Additional comment:<br />%s<br /><br />"
 				"You have %s warnings. You are on the way to destruction, "
-				"make your time." % (instance.weight, instance.warned_by,
+				"make your time." % (instance.weight, instance.created_by,
 				instance.reason, instance.comment, warn_count), level=40)
+		notification.save()
 
 
 post_save.connect(post_user_save, sender=User,

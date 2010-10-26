@@ -74,9 +74,9 @@ class Post(models.Model):
 		if self.author == user and not user.is_staff \
 			and not user.is_superuser:
 			return False
+		self.get_karma()
 		karma, created = PostKarma.objects.get_or_create(post=self,
 			user=user, defaults={'karma': value})
-		self.get_karma()
 		if not created:
 			cache.incr('forums_karma_%s' % self.id, - karma.karma + value)
 			karma.karma = value
@@ -250,7 +250,7 @@ class PostKarma(models.Model):
 
 	def save(self, *args, **kwargs):
 		cache.delete('forums_posts_%s' % self.post.topic.id)
-		super(Post, self).save(*args, **kwargs)
+		super(PostKarma, self).save(*args, **kwargs)
 
 class Report(models.Model):
 	post = models.ForeignKey('Post')

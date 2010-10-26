@@ -16,6 +16,9 @@
 	{% else %}
 	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
 	{% endif %}
+	{% if user.is_superuser or user.is_staff %}
+	<form action="{% url forums.views.forum_action forum.id %}" method="get">
+	{% endif %}
 	{% autopaginate topics settings.TOPICS_PER_PAGE %}
 	{% paginate %}
 	<table id="forum_view">
@@ -33,7 +36,12 @@
 			<td>{{ t.author }}</td>
 			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
 			<td>{{ t.view_count }}</td>
-			<td><a href="{{ t.last_post.get_absolute_url }}">{{ t.last_post.created_at|user_date:user }}</a> by {{ t.last_post.author }}</td>
+			<td>
+				<a href="{{ t.last_post.get_absolute_url }}">{{ t.last_post.created_at|user_date:user }}</a> by {{ t.last_post.author }}
+				{% if user.is_superuser or user.is_staff %}
+				<input type="checkbox" class="topics_selected" name="topics_selected" value="{{ t.id }}" />
+				{% endif %}
+			</td>
 		{% empty %}
 			<td colspan="4">No topics in this forum.</td>
 		</tr>
@@ -44,5 +52,18 @@
 	<a class="button reply" href="{% url forums.views.topic_new forum.id %}">New topic</a>
 	{% else %}
 	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
+	{% endif %}
+	{% if user.is_superuser or user.is_staff %}
+		<div class="right">
+			<select name="forum_action" id="forum_action" onchange="this.form.submit();">
+				<option value="">---</option>
+				<option value="mass_topic_delete" disabled="disabled">Delete selected topics</option>
+				<option value="mass_topic_move" disabled="disabled">Move selected topics to another forum</option>
+				<option value="mass_topic_close" disabled="disabled">Close selected topics</option>
+				<option value="mass_topic_open" disabled="disabled">Open selected topics</option>
+				<option value="topics_merge">Merge selected topics</option>
+			</select>
+		</div>
+	</form>
 	{% endif %}
 {% endblock content %}

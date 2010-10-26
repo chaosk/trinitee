@@ -32,7 +32,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ForumAdmin(admin.ModelAdmin):
 	list_display = ('category', 'order_link', 'name')
 	list_display_links = ('name', )
-	exclude = ('last_post', 'post_count', 'topic_count')
+	exclude = ('last_post', 'last_topic', 'post_count', 'topic_count')
 
 
 class TopicAdminForm(forms.ModelForm):
@@ -62,7 +62,6 @@ class TopicAdmin(admin.ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		if change:
-			obj.modified_by = request.user
 			obj.first_post.modified_by = request.user
 			obj.first_post.content = form.cleaned_data['content']
 			obj.first_post.save()

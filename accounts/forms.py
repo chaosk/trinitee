@@ -126,14 +126,17 @@ class SettingsAvatarForm(forms.ModelForm):
 
 	def clean_avatar(self):
 		avatar = self.cleaned_data.get('avatar')
-		delete = self.cleaned_data.get('delete')
-		if not avatar or delete:
-			return avatar
+		if not avatar:
+			return
 		else:
+			filesize = len(avatar)
+			max_s = get_config('AVATAR_MAX_SIZE', 10240)
+			if filesize > max_s:
+				raise forms.ValidationError("The image file is too big. "
+					"It's supposed to be %iKB" % (max_s/1024))
 			w, h = get_image_dimensions(avatar)
 			max_w = get_config('AVATAR_MAX_WIDTH', 60)
 			max_h = get_config('AVATAR_MAX_HEIGTH', 60)
-			# TODO add max file size
 			if w > max_w:
 				raise forms.ValidationError("The image is %i pixel wide. "
 					"It's supposed to be %ipx" % (w, max_h))

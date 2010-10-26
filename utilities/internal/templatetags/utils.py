@@ -50,6 +50,11 @@ class SmartSpacelessNode(template.Node):
 
 @register.simple_tag
 def current(request, pattern):
+	if pattern == "/":
+		if request.path == pattern:
+			return ' id="current"'
+		else:
+			return ''
 	if re.search(pattern, request.path):
-		return ' class="current"'
+		return ' id="current"'
 	return ''

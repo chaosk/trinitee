@@ -23,7 +23,8 @@ def homepage(request):
 	if news == None:
 		news = list(Post.objects.filter(topic__forum=news_forum_id,
 			topic__first_post__id=F('id')).order_by('-created_at'). \
-				select_related()[:get_config('NEWS_ITEMS_ON_HOMEPAGE', 5)])
+				select_related('author__profile', 'topic') \
+				[:get_config('NEWS_ITEMS_ON_HOMEPAGE', 5)])
 		cache.set('homepage_news', news)
 	journal_forum_id = get_config('JOURNAL_FORUM', 2)
 	journal = cache.get('homepage_journal')

@@ -117,6 +117,7 @@ class WarnAdmin(admin.ModelAdmin):
 
 # I'm terribly sorry, I had to do that, because I HATE DJANGO
 admin.site.unregister([User, DjangoGroup])
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Badge, BadgeAdmin)

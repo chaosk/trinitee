@@ -169,7 +169,7 @@ def register(request):
 				user.is_active = True
 				user.save()
 				messages.success(request, "Thank you for registering."
-					" You can now log in.")
+					" You may log in now.")
 			else:
 				if not get_config('EMAIL_HOST', False) \
 					or not get_config('EMAIL_PORT', False) \
@@ -193,6 +193,8 @@ def register(request):
 					" instructions on how to activate your new account."
 					" If it doesn't arrive you can contact the forum"
 					" administrator at %s" % webmaster_email)
+			user.profile.registration_ip = request.META['REMOTE_ADDR']
+			user.profile.save()
 			return redirect(reverse('accounts.views.login'))
 	else:
 		form = RegistrationForm()

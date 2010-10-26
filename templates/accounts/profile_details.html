@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load breadcrumbs %}
 {% load utils %}
+{% load truncate %}
 {% block title %}{{ user_details.profile }} - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url user_details.profile accounts.views.profile_details user_details.id %}{% endblock %}
 {% block content %}
@@ -51,4 +52,28 @@
 		<dt>Date joined</dt>
 			<dd>{{ user_details.date_joined|user_date:user }}</dd>
 	</div>
+
+	{% if user.is_staff or user.is_superuser %}
+	<div class="box" id="staff">
+		<div class="label">Staff</div>
+		<dt>Admin notes</dt>
+			<dd>{{ user_details.profile.admin_notes|default:"-" }}</dd>
+		<dt>Warnings ({{ user_details.profile.get_warn_count }})</dt>
+			{% for warn in user_details.warns.all %}
+				<dd>W:{{ warn.weight }}, by {{ warn.created_by }}, {{ warn.reason }}, &quot;{{ warn.comment|truncate:50 }}&quot;, <a href="">edit</a>, <a href="">delete</a></dd>
+			{% empty %}
+			<dd>-</dd>
+			{% endfor %}
+		<dt>Bans</dt>
+			{% for ban in user_details.bans_applied.all %}
+				<dd>by {{ ban.created_by }}, expires at {{ ban.expires_at }}, &quot;{{ ban.comment|truncate:50 }}&quot;, <a href="">edit</a>, <a href="">delete</a></dd>
+			{% empty %}
+			<dd>-</dd>
+			{% endfor %}
+		<dt>Registration IP address</dt>
+			<dd>{{ user_details.profile.registration_ip|default:"Unknown" }}</dd>
+		<dt>Last used IP address</dt>
+			<dd>{{ user_details.profile.last_activity_ip|default:"Unknown" }}</dd>
+	</div>
+	{% endif %}
 {% endblock content %}

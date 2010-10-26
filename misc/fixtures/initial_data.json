@@ -31,6 +31,13 @@
    "model": "misc.warningreason",
    "pk": 5,
    "fields": {
+     "reason": "Doubleposting"
+   }
+ },
+ {
+   "model": "misc.warningreason",
+   "pk": 5,
+   "fields": {
      "reason": "Other"
    }
  }

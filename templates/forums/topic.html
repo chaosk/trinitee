@@ -93,7 +93,7 @@
 
 								{% if not p == topic.first_post %}
 								{% if user.is_superuser or user.is_staff %}
-								<input type="checkbox" class="posts_selected" name="posts_selected[]" value="{{ p.id }}" />
+								<input type="checkbox" class="posts_selected" name="posts_selected" value="{{ p.id }}" />
 								{% endif %}
 								{% endif %}
 							</td>

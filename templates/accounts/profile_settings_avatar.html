@@ -9,9 +9,22 @@
 {% block content %}
 	<form enctype="multipart/form-data" method="post" action="{% url accounts.views.profile_settings_avatar %}">
 		{% if user.profile.avatar %}
-			Current avatar: <img src="{{ user.profile.avatar.url }}" />
+		<div class="form_field">
+			<label for="current_avatar">Current avatar</label><img src="{{ user.profile.avatar.url }}" />
+		</div>
 		{% endif %}
-		{% include "snippets/form.html" %}
+		<div class="form_field{% if form.avatar.errors %} error{% endif%}">
+			<label for="id_avatar">Avatar</label><input type="file" name="avatar" id="id_avatar" />
+			<span>Only gif, jpg and png files are allowed. The maximum image size allowed is {{ settings.AVATAR_MAX_WIDTH }}x{{ settings.AVATAR_MAX_HEIGHT }} pixels and {{ settings.AVATAR_MAX_SIZE|filesizeformat }}.</span>
+			{% if form.avatar.errors %}
+				{% for error in form.avatar.errors %}
+				<div class="form-error">{{ error }}</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="form_field">
+			<label for="id_delete">Delete avatar?</label><input type="checkbox" name="delete" id="id_delete" />
+		</div>
 		<input type="submit" value="Send" />
 	</form>
 {% endblock %}

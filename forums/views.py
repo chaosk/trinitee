@@ -1,4 +1,5 @@
 import math
+import time
 from datetime import datetime, timedelta
 from django.shortcuts import redirect, render_to_response, get_object_or_404
 from django.contrib import messages
@@ -11,8 +12,8 @@ from django.template import RequestContext
 from haystack.query import SearchQuerySet
 from haystack.views import SearchView
 from forums.forms import (PostForm, DeletePostForm, TopicForm,
-	DeleteTopicForm, MoveTopicForm, ReportPostForm, SplitPostsForm,
-	PostSearchForm)
+	DeleteTopicForm, MergeTopicsForm, MoveTopicForm, ReportPostForm,
+	SplitPostsForm, PostSearchForm)
 from forums.models import Category, Forum, Topic, Post, PostKarma, Report
 from utilities.annoying.decorators import render_to
 from utilities.annoying.functions import get_config, get_object_or_None
@@ -105,19 +106,28 @@ def forum_view(request, forum_id):
 def topic_view(request, topic_id):
 	topic = cache.get('forums_topic_%s' % topic_id)
 	if topic == None:
-		topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+		topic = get_object_or_404(Topic.objects.select_related('first_post',
+			'last_post', 'forum'), pk=topic_id)
 		cache.set('forums_topic_%s' % topic_id, topic)
 	can_access = can_access_forum(request, topic.forum)
 	if not can_access == True:
 		return can_access
-	tracker = ObjectTracker(request.session)
-	Topic.objects.filter(pk=topic_id).update(view_count=F('view_count') + 1) # FIXME ++ with cache
+	if cache.get('forums_topic_%s_views' % topic_id) is None:
+		cache.set('forums_topic_%s_views_timestamp' % topic_id, time.time(), 86400)
+		cache.set('forums_topic_%s_views' % topic_id, topic.view_count, 86400)
+	else:
+		cache.incr('forums_topic_%s_views' % topic_id)
+		if time.time() > cache.get('forums_topic_%s_views_timestamp' % topic_id) + 600:
+			cache.set('forums_topic_%s_views_timestamp' % topic_id, time.time(), 86400)
+			topic.view_count=cache.get('forums_topic_%s_views' % topic_id)
+			topic.save()
 	posts = cache.get('forums_posts_%s' % topic_id)
 	if posts == None:
 		posts = list(Post.objects.filter(topic__pk=topic_id) \
 			.select_related('author__profile__group', 'karma') \
 			.annotate(karma_count=Sum('karma__karma')))
 		cache.set('forums_posts_%s' % topic_id, posts)
+	tracker = ObjectTracker(request.session)
 	for post in posts:
 		post.is_unread = not tracker.has_viewed(post, 'created_at')
 	tracker.bulk_mark_as_viewed(posts)
@@ -161,7 +171,7 @@ def topic_new(request, forum_id):
 @login_required
 @render_to('forums/post_new.html')
 def post_new(request, topic_id, quoted_post_id=None):
-	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
+	topic = get_object_or_404(Topic.objects.select_related('last_post'), pk=topic_id)
 	if topic.is_closed:
 		if not request.user.is_staff:
 			messages.error(request, "You are not allowed to post in closed topics.")
@@ -172,6 +182,12 @@ def post_new(request, topic_id, quoted_post_id=None):
 		messages.error(request, "You are not allowed to reply on this forum.")
 		return redirect(topic.get_absolute_url())
 	if request.method == 'POST':
+		if not request.user.is_staff and not request.user.is_superuser and \
+			(topic.last_post.created_at + timedelta(days=2) > datetime.now() and \
+			topic.last_post.author == request.user):
+			warn = Warn(created_by=User.objects.get(pk=get_config('SYSTEM_USER', 2)),
+				user=request.user, comment="Automatically warned for doubleposting.")
+			warn.save()
 		form = PostForm(request.POST)
 		if form.is_valid():
 			content = form.cleaned_data['content']
@@ -181,6 +197,10 @@ def post_new(request, topic_id, quoted_post_id=None):
 			messages.success(request, "Your reply has been saved.")
 			return redirect(post.get_absolute_url())
 	else:
+		if not request.user.is_staff and not request.user.is_superuser and \
+			(topic.last_post.created_at + timedelta(days=2) > datetime.now() and \
+			topic.last_post.author == request.user):
+			messages.warning(request, "You will get warned for doubleposting if you press \"reply\" button. Think twice before you do that!")
 		form = PostForm()
 		if quoted_post_id:
 			try:
@@ -413,6 +433,41 @@ def posts_split(request, topic_id):
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
+@render_to('forums/topics_merge.html')
+def topics_merge(request, forum_id):
+	forum = get_object_or_404(Forum.objects.select_related(), pk=forum_id)
+	if request.method == 'POST':
+		if 'cancel' in request.POST:
+			return redirect(forum.get_absolute_url())
+		topic_ids = request.POST.get('topics_selected').split(",")
+	else:
+		topic_ids = request.GET.getlist('topics_selected')
+	if not topic_ids:
+		messages.error(request, "You haven't selected any topic.")
+		return redirect(forum.get_absolute_url())
+	if len(topic_ids) == 1:
+		messages.error(request, "You need to select at least 2 topics to merge.")
+		return redirect(forum.get_absolute_url())
+	if request.method == 'POST':
+		topics = Topic.objects.filter(pk__in=topic_ids, forum=forum) \
+			.order_by('id')
+		# we want to remove all selected topics except the first, tricky.
+		merged_topic = topics[0]
+		topics = topics.exclude(pk=merged_topic.id)
+		posts = Post.objects.filter(topic__in=topic_ids)
+		posts.update(topic=merged_topic)
+		merged_topic.first_post = posts[0]
+		merged_topic.post_count = posts.count()
+		merged_topic.save()
+		topics.delete()
+		messages.success(request, "Topics have been merged.")
+		return redirect(forum.get_absolute_url())
+	else:
+		form = MergeTopicsForm()
+		return {'form': form, 'forum': forum, 'topics_selected': topic_ids}
+
+
+@user_passes_test_or_403(lambda u: u.is_staff)
 def topic_action(request, topic_id):
 	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
 	try:
@@ -428,7 +483,20 @@ def topic_action(request, topic_id):
 	return redirect(topic.get_absolute_url())
 
 
-@login_required
+@user_passes_test_or_403(lambda u: u.is_staff)
+def forum_action(request, forum_id):
+ 	forum = get_object_or_404(Forum.objects.select_related(), pk=forum_id)
+	try:
+		action = request.GET['forum_action']
+	except KeyError:
+		return redirect(forum.get_absolute_url())
+	allowed_methods = ['mass_topic_delete', 'mass_topic_move', 'mass_topic_open',
+		'mass_topic_close', 'topics_merge']
+	if action in allowed_methods:
+		return globals().get(action)(request, forum_id)
+	return redirect(forum.get_absolute_url())
+
+
 @render_to('forums/search_latest.html')
 def search_latest(request):
 	topics = cache.get('forums_topics_latest')
@@ -443,7 +511,6 @@ def search_latest(request):
 	return {'topics': topics}
 
 
-@login_required
 @render_to('forums/search_unread.html')
 def search_unread(request):
 	topics = cache.get('forums_topics_unread')
@@ -484,6 +551,13 @@ class PostSearchView(SearchView):
 			results = self.form.search()
 			return results
 		return []
+
+
+def mark_as_read(request):
+	tracker = ObjectTracker(request.session)
+	tracker.mark_all_as_viewed()
+	messages.info(request, "Marked all posts as read.")
+	return redirect(reverse('forums.views.index'))
 
 
 def post_vote(request, post_id, value):

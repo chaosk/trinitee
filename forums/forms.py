@@ -43,6 +43,10 @@ class TopicForm(forms.Form):
 	content = forms.CharField(label="Message", widget=forms.Textarea())
 
 
+class MergeTopicsForm(forms.Form):
+	pass
+
+
 class MoveTopicForm(forms.Form):
 	forum = forms.ModelChoiceField(queryset=Forum.objects.all())
 

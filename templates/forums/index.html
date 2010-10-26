@@ -36,6 +36,9 @@
 			<td colspan="4">No categories. :-(</td>
 		{% endfor %}
 	</tbody></table>
+	<a href="{% url forums.views.search_unread %}">Show unread posts</a>
+	<a href="{% url forums.views.search_latest %}">Show latest posts</a>
+	<a href="{% url forums.views.mark_as_read %}">Mark all posts as read</a>
 {% endblock content %}
 {% block after_content %}
 	<div id="forum_stats">

@@ -31,29 +31,9 @@
 #  DAMAGE.
 #----------------------------------------------------------------------
 
-from django.shortcuts import render_to_response
-from django.views.decorators.cache import cache_control
+from django.utils import simplejson
+from utilities.dajaxice.core import dajaxice_functions
 
-from utilities.dajaxice.core import DajaxiceRequest
-
-
-def dajaxice_request(request, call):
-    """
-    dajaxice_request
-    Uses DajaxRequest to handle dajax request.
-    Return the apropiate json according app_name and method.
-    """
-    return DajaxiceRequest(request, call).process()
-    
-@cache_control(max_age=DajaxiceRequest.get_cache_control())
-def js_core(request):
-    """
-    Return the dajax JS code according settings.DAJAXICE_FUNCTIONS registered functions.
-    """
-    data = {'dajaxice_js_functions':DajaxiceRequest.get_js_functions(),
-            'DAJAXICE_URL_PREFIX': DajaxiceRequest.get_media_prefix(),
-            'DAJAXICE_XMLHTTPREQUEST_JS_IMPORT':DajaxiceRequest.get_xmlhttprequest_js_import(),
-            'DAJAXICE_JSON2_JS_IMPORT':DajaxiceRequest.get_json2_js_import(),
-            'DAJAXICE_EXCEPTION':DajaxiceRequest.get_exception_message()
-             }
-    return render_to_response('dajaxice/dajaxice.core.js', data, mimetype="text/javascript" )
+def test_submodule_registered_function(request):
+    return ""
+dajaxice_functions.register(test_submodule_registered_function)

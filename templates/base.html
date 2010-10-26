@@ -7,20 +7,37 @@
 	{% block header %}{% endblock header %}
 </head>
 <body>
-	<div id="user">
-		{% if user.is_superuser or user.is_staff %}<a id="admin_url" href="/admin/"><span>God's habitat</span></a>{% endif %}
-		Hello, {{ user.username|default:"Guest" }}! - {% if user.is_authenticated %}<a href="{% url accounts.views.profile_settings %}">Settings</a> - <a href="{% url accounts.views.profile_details user.id %}">Your profile</a> - <a href="{% url accounts.views.logout %}?next={{ request.path }}">Logout</a>{% else %}<a href="{% url accounts.views.login %}?next={{ request.path }}">Login</a> (test:test) - <a href="{% url accounts.views.register %}">Sign up</a>{% endif %}
+	<div id="header">
+		<div id="in">
+			<div id="logo"><a href="{% url home %}"><img src="{{ MEDIA_URL }}images/logo.png" alt="Teeworlds logo" /></a></div>
+			<div id="user-box">
+				<div>
+					{% if user.profile.avatar %}
+					<img src="{{ user.profile.avatar.url }}" alt="avatar" />
+					{% else %}
+					<img src="{{ MEDIA_URL }}uploads/avatars/2.png" />
+					{% endif %}
+					<p>Hello, {{ user.username|default:"Guest" }}!<br>{% if user.is_authenticated %}<a href="{% url accounts.views.profile_settings %}">Settings</a> - <a href="{% url accounts.views.profile_details user.id %}">Your profile</a> - <a href="{% url accounts.views.logout %}?next={{ request.path }}">Logout</a>{% else %}<a href="{% url accounts.views.login %}?next={{ request.path }}">Login</a> (test:test) - <a href="{% url accounts.views.register %}">Sign up</a>{% endif %}{% if user.is_superuser or user.is_staff %}<br><a id="admin_url" href="/admin/"><span>Admin panel</span></a>{% endif %}</p>
+				</div>
+			</div>
+		</div>
 	</div>
-
-	<div id="logo"></div>
 
 	<div id="page">
 		<div id="menu">
-			{% url home as url_home %}
-			{% url journal as url_journal %}
-			{% url downloads.views.downloads as url_downloads %}
-			{% url forums.views.index as url_forum %}
-			<a href="{{ url_home }}"{% current request url_home %}>home</a> | <a href="{{ url_journal }}"{% current request url_journal %}>blog</a> | <a href="{{ url_downloads }}"{% current request url_downloads %}>downloads</a> | <a href="">support</a> | <a href="{{ url_forum }}"{% current request url_forum %}>forum</a>
+			<ul>
+				{% url home as url_home %}
+				{% url journal as url_journal %}
+				{% url downloads.views.downloads as url_downloads %}
+				{% url forums.views.index as url_forum %}
+				<li id="donate"><a href="#donate">Donate!</a></li>
+				<li{% current request url_forum %}><a href="{{ url_forum }}">Forum</a></li>
+				<!-- li ><a href="/?page=docs">Docs</a></li -->
+				<li{% current request "/support/ "%}><a href="/support/">Support</a></li>
+				<li{% current request url_downloads %}><a href="{{ url_downloads }}">Downloads</a></li>
+				<li{% current request url_journal %}><a href="{{ url_journal }}">Blog</a></li>
+				<li{% current request url_home %}><a href="{{ url_home }}">News</a></li>
+			</ul>
 		</div>
 
 		{% if messages %}
