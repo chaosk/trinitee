@@ -131,7 +131,7 @@ def topic_view(request, topic_id):
 	for post in posts:
 		post.is_unread = not tracker.has_viewed(post, 'created_at')
 	tracker.bulk_mark_as_viewed(posts)
-	return {'topic': topic, 'posts': posts, 'first_post_id': posts[0].id}
+	return {'topic': topic, 'posts': posts, 'first_post': posts[0]}
 
 
 def post_permalink(request, post_id):

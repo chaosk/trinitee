@@ -49,7 +49,7 @@
 	<table id="topic_view">
 		<tbody>
 		{% for p in posts %}
-			<tr id="post-{{ p.id }}" class="post">
+			<tr id="post-{{ p.id }}" class="post{% if p.author == first_post.author %} topic-starter{% endif %}">
 				<td class="user_info">
 					<span class="username"><a href="{% url accounts.views.profile_details p.author.id %}">{{ p.author }}</a></span>
 					<div class="rank">{{ p.author.profile.title|default:p.author.profile.group.user_title }}</div>
@@ -91,10 +91,8 @@
 									{% endwith %}
 								</span>
 
-								{% if not p == topic.first_post %}
 								{% if user.is_superuser or user.is_staff %}
-								<input type="checkbox" class="posts_selected" name="posts_selected" value="{{ p.id }}" />
-								{% endif %}
+								<input type="checkbox" class="posts_selected" name="posts_selected" {% if p == topic.first_post %}disabled="disabled"{% endif %} value="{{ p.id }}" />
 								{% endif %}
 							</td>
 						</tr>

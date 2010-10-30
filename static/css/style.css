@@ -424,20 +424,24 @@ ul.messages .error   { background: #c54d47; }
 	width: 50%;
 }
 
-#topic_view .post:first-child .content {
-	background: #edf9d4;
-}
-
-#topic_view .post:first-child .content tr:first-child {
-	border-bottom: thin dashed #b9ca94;
-}
-
 #topic_view .post .content {
 	padding: 10px;
 }
 
 #topic_view .post:nth-child(even) .content {
 	background: #f9f9f9;
+}
+
+#topic_view .post.topic-starter .content {
+	background: #e8f4d2;
+}
+
+#topic_view .post:nth-child(even).topic-starter .content {
+	background: #e5f1d0;
+}
+
+#topic_view .post.topic-starter .content tr:first-child {
+	border-bottom: thin dashed #b9ca94;
 }
 
 /*#topic_view .post .content tr:not(:first-child) td:first-child {
