@@ -782,3 +782,43 @@ a.button.disabled { color: #aaa; }
 
 .right	{ float: right; }
 .left	{ float: left; }
+
+.tooltip {
+	position:relative;
+}
+
+.tooltip:before{
+	font:12px/1.4 Arial,Georgia,sans-serif;
+	content: attr(title);
+	display:none;
+	position:absolute;
+	padding:5px 10px;
+	margin:1em 0 3em;
+	color:#fff;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	background:#075698;
+	background-color: rgba(0,0,0,0.8);
+
+	-moz-box-shadow: 0px 0px 4px #000; /* FF3.5+ */
+	-webkit-box-shadow: 0px 0px 4px #000; /* Saf3.0+, Chrome */
+	box-shadow: 0px 0px 4px #000; /* Opera 10.5, IE 9.0 */
+}
+
+.posts_selected:before {
+	left: -150px;
+}
+
+.tooltip-visible:before {
+	display: block;
+}
+
+.tooltip:hover::before{
+	display:block;
+}
+ 
+.tooltip:hover{
+	z-index:10;
+	position:relative;
+}
