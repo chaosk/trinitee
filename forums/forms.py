@@ -57,7 +57,7 @@ class ReportPostForm(forms.Form):
 
 
 class SplitPostsForm(forms.Form):
-	title = forms.CharField(max_length=60, label="New topic subject")
+	new_title = forms.CharField(max_length=60, label="New topic subject")
 
 
 class PostSearchForm(HighlightedSearchForm):

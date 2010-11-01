@@ -12,12 +12,12 @@
 {% block content %}
 	<h2>{{ forum.name }}</h2>
 	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}
-	<a class="button reply" href="{% url forums.views.topic_new forum.id %}">New topic</a>
+	<a class="topic_button reply" href="{% url forums.views.topic_new forum.id %}"><span class="sprited"></span>New topic</a>
 	{% else %}
-	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
+	<a class="topic_button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}><span class="sprited"></span>New topic</a>
 	{% endif %}
 	{% if user.is_superuser or user.is_staff %}
-	<form action="{% url forums.views.forum_action forum.id %}" method="get">
+	<form id="forum_action_form" action="{% url forums.views.forum_action forum.id %}" method="get">
 	{% endif %}
 	{% autopaginate topics settings.TOPICS_PER_PAGE %}
 	{% paginate %}
@@ -32,10 +32,15 @@
 		{% for t in topics %}
 		<tr>
 			{% url forums.views.topic_view t.id as topic_url %}
-			<td>{% if t.has_new_posts %}<b>[UNREAD]</b> {% endif %}{% if t.is_sticky %}<b>[STICKY]</b> {% endif %}{% if t.is_closed %}<b>[CLOSED]</b> {% endif %}<a href="{{ topic_url }}">{{ t.title }}</a> {{ t|topic_pagination:settings.POSTS_PER_PAGE }}</td>
+			<td>
+				{% if t.has_new_posts %}<span class="icon sprited unread" title="Unread topic"></span>{% endif %}
+				{% if t.is_sticky %}<span class="icon sprited sticky" title="Sticky"></span>{% endif %}
+				{% if t.is_closed %}<span class="icon sprited closed" title="Closed"></span>{% endif %}
+				<a href="{{ topic_url }}">{{ t.title }}</a> {{ t|topic_pagination:settings.POSTS_PER_PAGE }}
+			</td>
 			<td>{{ t.author }}</td>
 			<td>{{ t.post_count|add:"-1" }}{# nice hack #}</td>
-			<td>{{ t.view_count }}</td>
+			<td>{{ t.view_count }}{# TODO provide get_view_count filter to retrieve cached view count #}</td>
 			<td>
 				<a href="{{ t.last_post.get_absolute_url }}">{{ t.last_post.created_at|user_date:user }}</a> by {{ t.last_post.author }}
 				{% if user.is_superuser or user.is_staff %}
@@ -49,15 +54,15 @@
 	</table>
 	{% paginate %}
 	{% if user.is_superuser or user.is_staff or user|can_post_topic:forum %}
-	<a class="button reply" href="{% url forums.views.topic_new forum.id %}">New topic</a>
+	<a class="topic_button reply left" href="{% url forums.views.topic_new forum.id %}"><span class="sprited"></span>New topic</a>
 	{% else %}
-	<a class="button reply disabled"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}>New topic</a>
+	<a class="topic_button reply disabled left"{% if not user.is_authenticated %} href="{% url forums.views.topic_new forum.id %}"{% endif %}><span class="sprited"></span>New topic</a>
 	{% endif %}
 	{% if user.is_superuser or user.is_staff %}
 		<div class="right">
 			<select name="forum_action" id="forum_action" onchange="this.form.submit();">
 				<option value="">---</option>
-				<option value="mass_topic_delete" disabled="disabled">Delete selected topics</option>
+				<option value="mass_topic_delete" disabled="disabled"{# FIXME #}>Delete selected topics</option>
 				<option value="mass_topic_move" disabled="disabled">Move selected topics to another forum</option>
 				<option value="mass_topic_close" disabled="disabled">Close selected topics</option>
 				<option value="mass_topic_open" disabled="disabled">Open selected topics</option>

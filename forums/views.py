@@ -415,21 +415,25 @@ def posts_split(request, topic_id):
 		messages.error(request, "You cannot split out topic's first post.")
 		return redirect(topic.get_absolute_url())
 	if request.method == 'POST':
-		if not 'cancel' in request.POST and 'confirmation' in request.POST:
-			posts = Post.objects.filter(pk__in=post_ids, topic=topic) \
-				.order_by('id')
-			topic.post_count = F('post_count') - len(posts)
-			new_topic = Topic(author=posts[0].author,
-				title=form.cleaned_data['new_title'], forum=topic.forum,
-				post_count=len(posts), first_post=post[0])
-			new_topic.save()
-			posts.update(topic=new_topic)
-			topic.save()
-			messages.success(request, "Posts have been splitted.")
-		return redirect(topic.get_absolute_url())
+		form = SplitPostsForm(request.POST)
+		if form.is_valid():
+			if not 'cancel' in request.POST:
+				posts = Post.objects.filter(pk__in=post_ids, topic=topic) \
+					.order_by('id')
+				topic.post_count = F('post_count') - len(posts)
+				new_topic = Topic(author=posts[0].author,
+					title=form.cleaned_data['new_title'], forum=topic.forum,
+					post_count=len(posts), first_post=posts[0], last_post=posts.latest())
+				new_topic.save()
+				posts.update(topic=new_topic)
+				topic.save()
+				topic.forum.topic_count = F('topic_count') - 1
+				topic.forum.save()
+				messages.success(request, "Posts have been splitted.")
+			return redirect(topic.get_absolute_url())
 	else:
 		form = SplitPostsForm()
-		return {'topic': topic, 'form': form, 'posts_selected': post_ids}
+	return {'topic': topic, 'form': form, 'posts_selected': post_ids}
 
 
 @user_passes_test_or_403(lambda u: u.is_staff)
@@ -451,15 +455,21 @@ def topics_merge(request, forum_id):
 	if request.method == 'POST':
 		topics = Topic.objects.filter(pk__in=topic_ids, forum=forum) \
 			.order_by('id')
+		posts = Post.objects.filter(topic__in=topic_ids)
 		# we want to remove all selected topics except the first, tricky.
 		merged_topic = topics[0]
 		topics = topics.exclude(pk=merged_topic.id)
-		posts = Post.objects.filter(topic__in=topic_ids)
 		posts.update(topic=merged_topic)
 		merged_topic.first_post = posts[0]
+		merged_topic.last_post = posts.latest()
 		merged_topic.post_count = posts.count()
 		merged_topic.save()
+		forum = merged_topic.forum
+		forum.topic_count = F('topic_count') - topics.count()
+		# oh rly.
+		forum.last_topic.last_forum_topic.clear()
 		topics.delete()
+		forum.set_last_topic()
 		messages.success(request, "Topics have been merged.")
 		return redirect(forum.get_absolute_url())
 	else:

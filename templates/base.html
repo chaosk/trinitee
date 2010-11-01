@@ -33,7 +33,7 @@
 				<li id="donate"><a href="#donate">Donate!</a></li>
 				<li{% current request url_forum %}><a href="{{ url_forum }}">Forum</a></li>
 				<!-- li ><a href="/?page=docs">Docs</a></li -->
-				<li{% current request "/support/ "%}><a href="/support/">Support</a></li>
+				<li{% current request "/support/" %}><a href="/support/">Support</a></li>
 				<li{% current request url_downloads %}><a href="{{ url_downloads }}">Downloads</a></li>
 				<li{% current request url_journal %}><a href="{{ url_journal }}">Blog</a></li>
 				<li{% current request url_home %}><a href="{{ url_home }}">News</a></li>

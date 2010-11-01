@@ -1,13 +1,9 @@
 {% extends "admin_tools/dashboard/module.html" %}
-{% load dajaxice_templatetags %}
 {% block module_content %}
-<script src="http://www.google.com/jsapi" type="text/javascript" charset="utf-8"></script>
-<script>
-	google.load("prototype", "1.6.0.3");
-</script>
+<script src="{{ MEDIA_URL }}js/prototype.min.js" type="text/javascript"></script>
 <script src="{{ MEDIA_URL }}js/prototype.dajax.core.js" type="text/javascript"></script>
-{% dajaxice_js_import %}
-<script type="text/javascript" src="{{ MEDIA_URL }}js/admin.drawboard.js"></script>
+<script src="{{ MEDIA_URL }}js/dajaxice.core.js" type="text/javascript"></script>
+<script src="{{ MEDIA_URL }}js/admin.drawboard.js" type="text/javascript"></script>
 <div class="group module drawboard {{ module.css_classes|join:" " }}" id="drawboard-module">
     <h2>{{ module.title }}</h2>
     <ul>
