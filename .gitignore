@@ -2,4 +2,8 @@
 *.pyc
 *.sqlite
 *.svn*
-/settings.py
+*.tmproj
+trinitee/settings_local.py
+build/
+pip-log.txt
+src/
