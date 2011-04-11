@@ -1,0 +1,6 @@
+recursive-include trinitee/media *
+recursive-include trinitee/templates *
+
+include LICENCE
+include README
+include *.txt
