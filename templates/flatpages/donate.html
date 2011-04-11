@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load utils %}
+{% load breadcrumbs %}
+{% block title %}{{ flatpage.title }} - {{ block.super }}{% endblock %}
+{% block breadcrumbs %}{{ block.super }} {% breadcrumb flatpage.title %}{% endblock %}
+{% if flatpage.extra_css %}
+{% block extra_css %}
+{{ flatpage.extra_css }}
+{% endblock %}
+{% endif %}
+{% block content %}    
+    <div class="section flatpage">
+        {% ifequal flatpage.content_format 'txt' %}
+            {{ flatpage.content|linebreaks }}
+        {% endifequal %}
+        {% ifequal flatpage.content_format 'html' %}
+            {{ flatpage.content|safe }}
+        {% endifequal %}
+    </div>
+{% endblock %}

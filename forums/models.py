@@ -3,7 +3,6 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save
-from accounts.models import Group
 from utilities import postmarkup
 from utilities.annoying.functions import get_config
 from utilities.ordering.models import OrderedModel
@@ -221,7 +220,6 @@ class Forum(OrderedModel):
 			self.save()
 
 
-
 class Category(OrderedModel):
 	name = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
@@ -252,6 +250,7 @@ class PostKarma(models.Model):
 		cache.delete('forums_posts_%s' % self.post.topic.id)
 		super(PostKarma, self).save(*args, **kwargs)
 
+
 class Report(models.Model):
 	post = models.ForeignKey('Post')
 	reported_by = models.ForeignKey(User, related_name='reports')
@@ -268,6 +267,26 @@ class Report(models.Model):
 	def change_list_status(self):
 		""" Workaround for http://code.djangoproject.com/ticket/11058 """
 		pass
+
+
+class Poll(models.Model):
+	created_at = models.DateTimeField(auto_now_add=True)
+	created_by = models.ForeignKey(User, related_name='polls_started')
+	expires_at = models.DateTimeField(blank=True, null=True)
+	question = models.CharField(max_length=255)
+	topic = models.ForeignKey(Topic)
+	max_votes = models.PositiveIntegerField(default=1, help_text="Number of choices user can pick.")
+
+
+class Choice(models.Model):
+	poll = models.ForeignKey(Poll)
+	choice = models.CharField(max_length=255)
+
+
+class Vote(models.Model):
+	poll = models.ForeignKey(Poll)
+	choice = models.ForeignKey(Choice)
+	user = models.ForeignKey(User)
 
 
 def post_post_save(instance, **kwargs):

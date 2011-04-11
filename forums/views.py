@@ -15,12 +15,14 @@ from forums.forms import (PostForm, DeletePostForm, TopicForm,
 	DeleteTopicForm, MergeTopicsForm, MoveTopicForm, ReportPostForm,
 	SplitPostsForm, PostSearchForm)
 from forums.models import Category, Forum, Topic, Post, PostKarma, Report
+from utilities import postmarkup
 from utilities.annoying.decorators import render_to
 from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.internal.decorators import user_passes_test_or_403
-from utilities.internal.templatetags.forums import (can_access_forum,
+from utilities.internal.templatetags.forums_helpers import (can_access_forum,
 	can_post_topic, can_post_reply)
 from utilities.objtrack.models import ObjectTracker
+from utilities.ratelimitcache import ratelimit_post_manual_not_staff as rl_notstaff
 
 
 @render_to('forums/index.html')
@@ -32,25 +34,8 @@ def index(request):
 		cache.set('forums_users_online', users_online)
 
 	tracker = ObjectTracker(request.session)
-	categories = cache.get('forums_categories_%s' % request.user.id
-		if request.user.is_authenticated() else 'anon')
 
-	if categories == None:
-		#forums = list(Forum.objects.all(). \
-		#	select_related('category', 'last_post__topic', 'last_post__author'))
-		forums = list(Forum.objects.annotate(num_can_read=Count('can_read')). \
-			select_related('category', 'last_post__topic', 'last_post__author'))
-		forums = [i for i in forums
-			if can_access_forum(request, i, return_plain_boolean=True)]
-		categories = {}
-		for forum in forums:
-			cat = categories.setdefault(forum.category.id,
-				{'id': forum.category.id, 'category': forum.category, 'forums': []})
-			cat['forums'].append(forum)
-		cmpdef = lambda a, b: cmp(a['category'].order, b['category'].order)
-		categories = sorted(categories.values(), cmpdef)
-		cache.set('forums_categories_%s' % request.user.id
-			if request.user.is_authenticated() else 'anon', categories)
+	categories = get_categories(request)
 
 	# UGLY
 	for category in categories:
@@ -144,6 +129,7 @@ def post_permalink(request, post_id):
 
 
 @login_required
+@rl_notstaff(minutes=3, requests=5, name='newtopic')
 @render_to('forums/topic_new.html')
 def topic_new(request, forum_id):
 	forum = get_object_or_404(Forum, pk=forum_id)
@@ -156,13 +142,21 @@ def topic_new(request, forum_id):
 		if form.is_valid():
 			title = form.cleaned_data['title']
 			content = form.cleaned_data['content']
-			topic = Topic(title=title, author=request.user, forum=forum)
-			topic.save()
-			post = Post(topic=topic, author=request.user,
-				author_ip=request.META['REMOTE_ADDR'], content=content)
-			post.save()
-			messages.success(request, "Your topic has been saved.")
-			return redirect(topic.get_absolute_url())
+			if 'preview' in request.POST:
+				markup = postmarkup.create(annotate_links=False,
+					use_pygments=get_config('BBCODE_USE_PYGMENTS', False))
+				content_preview = markup(content)
+				return {'forum': forum, 'form': form, 'content_preview': content_preview}
+			else:
+				topic = Topic(title=title, author=request.user, forum=forum)
+				topic.save()
+				post = Post(topic=topic, author=request.user,
+					author_ip=request.META['REMOTE_ADDR'], content=content)
+				post.save()
+				if not (request.user.is_staff or request.user.is_superuser):
+					rl_notstaff().cache_incr(rl_notstaff().current_key(request))
+				messages.success(request, "Your topic has been saved.")
+				return redirect(topic.get_absolute_url())
 	else:
 		form = TopicForm()
 	return {'forum': forum, 'form': form}
@@ -182,20 +176,26 @@ def post_new(request, topic_id, quoted_post_id=None):
 		messages.error(request, "You are not allowed to reply on this forum.")
 		return redirect(topic.get_absolute_url())
 	if request.method == 'POST':
-		if not request.user.is_staff and not request.user.is_superuser and \
-			(topic.last_post.created_at + timedelta(days=2) > datetime.now() and \
-			topic.last_post.author == request.user):
-			warn = Warn(created_by=User.objects.get(pk=get_config('SYSTEM_USER', 2)),
-				user=request.user, comment="Automatically warned for doubleposting.")
-			warn.save()
 		form = PostForm(request.POST)
 		if form.is_valid():
 			content = form.cleaned_data['content']
-			post = Post(topic=topic, author=request.user,
-				author_ip=request.META['REMOTE_ADDR'], content=content)
-			post.save()
-			messages.success(request, "Your reply has been saved.")
-			return redirect(post.get_absolute_url())
+			if 'preview' in request.POST:
+				markup = postmarkup.create(annotate_links=False,
+					use_pygments=get_config('BBCODE_USE_PYGMENTS', False))
+				content_preview = markup(content)
+				return {'topic': topic, 'form': form, 'content_preview': content_preview}
+			else:
+				if not request.user.is_staff and not request.user.is_superuser and \
+					(topic.last_post.created_at + timedelta(days=2) > datetime.now() and \
+					topic.last_post.author == request.user):
+					warn = Warn(created_by=User.objects.get(pk=get_config('SYSTEM_USER', 2)),
+						user=request.user, comment="Automatically warned for doubleposting.")
+					warn.save()
+				post = Post(topic=topic, author=request.user,
+					author_ip=request.META['REMOTE_ADDR'], content=content)
+				post.save()
+				messages.success(request, "Your reply has been saved.")
+				return redirect(post.get_absolute_url())
 	else:
 		if not request.user.is_staff and not request.user.is_superuser and \
 			(topic.last_post.created_at + timedelta(days=2) > datetime.now() and \
@@ -380,7 +380,7 @@ def posts_delete(request, topic_id):
 		return redirect(topic.get_absolute_url())
 	if topic.first_post.id in post_ids:
 		messages.error(request, "You cannot delete topic's first post."
-			" Delete whole topic.")
+			" Delete whole topic intead.")
 		return redirect(topic.get_absolute_url())
 	if request.method == 'POST':
 		if not 'cancel' in request.POST and 'confirmation' in request.POST:
@@ -390,7 +390,7 @@ def posts_delete(request, topic_id):
 			posts.delete()
 			topic.save()
 			topic.forum.save()
-			messages.success(request, "Post has been deleted.")
+			messages.success(request, "Posts have been deleted.")
 		return redirect(topic.get_absolute_url())
 	else:
 		form = DeletePostForm()
@@ -570,6 +570,13 @@ def mark_as_read(request):
 	return redirect(reverse('forums.views.index'))
 
 
+def quick_jump(request):
+	if not 'f' in request.GET:
+		return redirect(reverse('forum_index'))
+	forum = get_object_or_404(Forum.objects.all(), pk=request.GET['f'])
+	return redirect(forum.get_absolute_url())
+
+
 def post_vote(request, post_id, value):
 	post = get_object_or_None(Post, pk=post_id)
 	if post == None:
@@ -630,3 +637,25 @@ def post_votedown(request, post_id):
 			return redirect(reverse('forums.views.index'))
 	messages.info(request, "Saved.")
 	return post_permalink(request, post_id)
+
+
+def get_categories(request):
+	categories = cache.get('forums_categories_%s' % request.user.id
+		if request.user.is_authenticated() else 'anon')
+
+	if categories == None:
+		forums = list(Forum.objects.annotate(num_can_read=Count('can_read')). \
+			select_related('category', 'last_post__topic', 'last_post__author'))
+		forums = [i for i in forums
+			if can_access_forum(request, i, return_boolean=True)]
+		categories = {}
+		for forum in forums:
+			cat = categories.setdefault(forum.category.id,
+				{'id': forum.category.id, 'category': forum.category, 'forums': []})
+			cat['forums'].append(forum)
+		cmpdef = lambda a, b: cmp(a['category'].order, b['category'].order)
+		categories = sorted(categories.values(), cmpdef)
+		cache.set('forums_categories_%s' % request.user.id
+			if request.user.is_authenticated() else 'anon', categories)
+
+	return categories

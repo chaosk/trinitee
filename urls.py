@@ -24,6 +24,7 @@ urlpatterns = patterns('',
 	(r'^users/', 'accounts.views.userlist'),
 	(r'^profile/(?P<user_id>\d+)/$',
 		'accounts.views.profile_details'),
+	(r'^community_content/', include('community_content.urls')),
 	url(r'^feed/$', NewsFeed(), name='feed_news'),
 	url(r'^feed/journal/$', JournalFeed(), name='feed_journal'),
 	url(r'^feed/forums/$', ForumIndexFeed(), name='feed_forums_index'),
@@ -37,7 +38,6 @@ urlpatterns = patterns('',
 	(r'^admin_tools/', include('utilities.admin_tools.urls')),
 	(r'^admin/', include(admin.site.urls)),
 	(r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('utilities.dajaxice.urls')),
-	(r'^', include('utilities.superflatpages.urls')),
 )
 
 if settings.DEBUG:
@@ -52,3 +52,6 @@ if settings.DEBUG:
 	)
 
 urlpatterns += ordering_urlpatterns
+
+# make sure that superflatpages are loaded at the end, as they trigger 404 on failure
+urlpatterns + patterns('', (r'^', include('utilities.superflatpages.urls')))

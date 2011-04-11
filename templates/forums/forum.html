@@ -1,6 +1,6 @@
 {% extends "forums/base.html" %}
 {% load utils %}
-{% load forums %}
+{% load forums_helpers %}
 {% load breadcrumbs %}
 {% load pagination_tags %}
 {% block title %}{{ forum.name }} (Page {{ request.page }}) - {{ block.super }}{% endblock %}

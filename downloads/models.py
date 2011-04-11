@@ -36,7 +36,8 @@ class Release(models.Model):
 		if fname[-4:] == '.tar':
 			extension = 'tar.' + extension
 		# END HACK
-		return 'uploads/releases/teeworlds-%s-%s.%s' % (self.version.version_number, self.platform.name, extension)
+		return 'uploads/releases/teeworlds-%s-%s.%s' % \
+			(self.version.version_number, self.platform.name, extension)
 
 	uploaded_file = models.FileField(upload_to=release_filename,
 		storage=OverwriteStorage())

@@ -1,4 +1,5 @@
 import datetime
+from time import sleep
 from django.shortcuts import redirect, get_object_or_404
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -17,14 +18,30 @@ from utilities.annoying.functions import get_config, get_object_or_None
 from utilities.annoying.decorators import render_to
 from utilities.annoying.utils import HttpResponseReload
 from utilities.internal.decorators import user_passes_test_or_403
+from utilities.ratelimitcache import (ratelimit_post_manual_punish_recaptcha as rl_recaptcha,
+	ratelimit_post_manual_punish_sleep as rl_sleep)
 
 
+@rl_sleep(minutes=3, requests=4, name='login')
+@rl_recaptcha(minutes=3, requests=2, name='login')
 @render_to('accounts/login.html')
-def login(request):
+def login(request, *args, **kwargs):
 	if request.user.is_authenticated():
 		return redirect(reverse('home'))
+	if 'punishment' in kwargs:
+		if 'recaptcha' in kwargs['punishment']:
+			login_form_class = LoginWithRecaptchaForm
+		if 'sleep' in kwargs['punishment']:
+			messages.warning(request, "You've been punished for 5 consecutive "
+				"login failures. Requests from this IP address will be ignored "
+				"for next 3 minutes.")
+			return HttpResponseReload(request)
+	else:
+		login_form_class = LoginForm
 	if request.method == 'POST':
-		form = LoginForm(request.POST)
+		if not sleep_time is None:
+			sleep(sleep_time)
+		form = login_form_class(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data['username']
 			password = form.cleaned_data['password']
@@ -42,8 +59,10 @@ def login(request):
 			else:
 				messages.error(request, "Your username and password \
 					didn't match. Please try again.")
+		# That's a POST request, and user failed to log in. ++ the fail counter
+		rl_recaptcha().cache_incr(rl_recaptcha().current_key(request))
 	else:
-		form = LoginForm()
+		form = login_form_class()
 	return {'form': form, 'next': request.GET.get('next', '').strip()}
 
 
@@ -60,7 +79,7 @@ def userlist(request):
 	users = cache.get('accounts_userlist')
 	if users == None:
 		users = User.objects.exclude(is_active=False).select_related('profile')
-		cache.set('accounts_userlist', users)
+		cache.set('accounts_userlist', users, 86400)
 	form = UserSearchForm(request.GET)
 	users = list(form.filter(users))
 	return {'users': users, 'form': form}

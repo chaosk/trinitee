@@ -39,6 +39,10 @@
 	<a href="{% url forums.views.search_unread %}">Show unread posts</a>
 	<a href="{% url forums.views.search_latest %}">Show latest posts</a>
 	<a href="{% url forums.views.mark_as_read %}">Mark all posts as read</a>
+	
+	{% with categories as quick_jump %}
+		{% include "snippets/quick_jump.html" %}
+	{% endwith %}
 {% endblock content %}
 {% block after_content %}
 	<div id="forum_stats">

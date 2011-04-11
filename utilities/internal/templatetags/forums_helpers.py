@@ -40,7 +40,7 @@ def topic_pagination(topic, posts_per_page):
 
 
 @register.filter
-def can_access_forum(request, forum, return_plain_boolean=False, login_url=None):
+def can_access_forum(request, forum, return_boolean=False, login_url=None):
 	if request.user.is_staff or request.user.is_superuser:
 		return True
 	if not login_url:
@@ -59,13 +59,13 @@ def can_access_forum(request, forum, return_plain_boolean=False, login_url=None)
 
 	if num_can_read and not group in forum_can_read_groups:
 		if not request.user.is_authenticated():
-			return False if return_plain_boolean else \
+			return False if return_boolean else \
 				HttpResponseRedirect('%s?%s=%s' % (login_url,
 				REDIRECT_FIELD_NAME, quote(request.get_full_path())))
 		resp = render_to_response('403.html',
 			context_instance=RequestContext(request))
 		resp.status_code = 403
-		return False if return_plain_boolean else resp
+		return False if return_boolean else resp
 	return True
 
 

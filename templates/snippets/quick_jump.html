@@ -1,0 +1,14 @@
+{% if quick_jump %}
+<form action="{% url forum_quick_jump %}" method="GET">
+	<select name="f" id="f" onchange="this.form.submit();">
+		<option disabled="disabled">Quick jump</option>
+		{% for c in quick_jump %}
+		<optgroup label="{{ c.category.name }}">
+			{% for forum in c.forums %}
+			<option value="{{ forum.id }}">{{ forum.name }}</option>
+			{% endfor %}
+		</optgroup>
+		{% endfor %}
+	</select>
+</form>
+{% endif %}

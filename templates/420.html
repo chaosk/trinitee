@@ -1,0 +1,7 @@
+{% extends "misc/base_error.html" %}
+{% block error_title %}Rate limit exceeded{% endblock error_title %}
+{% block error_code %}RLE{% endblock error_code %}
+{% block content %}
+	<h1>Rate limit exceeded</h1>
+	<h2>You've made too many requests to some particular action.</h2>
+{% endblock content %}

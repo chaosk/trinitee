@@ -4,6 +4,7 @@ from forums.models import Post
 from utilities.annoying.functions import get_config
 from utilities.internal.templatetags.truncate import truncate
 
+
 class PostPreviewWidget(forms.Widget):
 	def render(self, name, value, attrs=None):
 		if value is None:
@@ -13,6 +14,7 @@ class PostPreviewWidget(forms.Widget):
 		post = Post.objects.get(pk=value)
 		return '<input type="hidden" name="%s" value="%s"><a href="%s">%s</a><br /><i>%s</i>' % \
 			(name, value, post.get_absolute_url(), post, truncate(post.content, 80))
+
 
 class NullBooleanROWidget(forms.Widget):
 	def render(self, name, value, attrs=None):

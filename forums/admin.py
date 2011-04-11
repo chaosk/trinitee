@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib import admin
 from django.forms.models import BaseInlineFormSet
-from forums.models import Category, Forum, Topic, Post, Report
+from forums.models import Category, Forum, Topic, Post, Report, Poll, Choice
+from forums.widgets import NullBooleanROWidget, PostPreviewWidget
 from utilities.internal.templatetags.truncate import truncate
-from utilities.internal.widgets import NullBooleanROWidget, PostPreviewWidget
 
 
 class RequiredInlineFormSet(BaseInlineFormSet):
@@ -100,6 +100,33 @@ class TopicAdmin(admin.ModelAdmin):
 	urlized_author.short_description = 'Topic starter'
 
 
+class ChoiceInline(admin.TabularInline):
+	model = Choice
+
+
+class PollAdmin(admin.ModelAdmin):
+	list_display = ('created_at', 'expires_at', 'has_expired', 'created_by', 'max_votes', 'question')
+	list_display_links = ('question', )
+	inlines = [ChoiceInline]
+	fieldsets = (
+		(None, {
+			'fields': ('question', 'expires_at', 'max_votes')
+		}),
+	)
+	
+	def save_model(self, request, obj, form, change):
+		if not change:
+			obj.created_by = request.user
+		obj.save()
+	
+	def has_expired(self, obj):
+		if not obj.expires_at:
+			return None
+		return True if datetime.datetime.now() > obj.expires_at else False
+	has_expired.boolean = True
+	has_expired.short_description = 'Has expired?'
+
+
 class ReportAdminForm(forms.ModelForm):
 
 	class Meta:
@@ -164,4 +191,5 @@ class ReportAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Forum, ForumAdmin)
 admin.site.register(Topic, TopicAdmin)
+admin.site.register(Poll, PollAdmin)
 admin.site.register(Report, ReportAdmin)

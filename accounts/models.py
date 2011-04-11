@@ -1,6 +1,6 @@
 import datetime
 from pytz import common_timezones
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -30,9 +30,8 @@ class Group(models.Model):
 			"give group members is_staff status.")
 
 	def group_badge_filename(self, filename):
-		fname, dot, extension = filename.rpartition('.')
-		return 'uploads/badges/group/%s.%s' % (self.id, extension)
-
+		return 'uploads/badges/group/%s.%s' % (self.id,
+			filename.rpartition('.')[2])
 	group_badge = models.ImageField(blank=True, default='',
 		storage=OverwriteStorage(), upload_to=group_badge_filename)
 
@@ -52,8 +51,8 @@ class UserProfile(models.Model):
 	title = models.CharField(blank=True, max_length=30)
 
 	def avatar_filename(self, filename):
-		fname, dot, extension = filename.rpartition('.')
-		return 'uploads/avatars/%s.%s' % (self.id, extension)
+		return 'uploads/avatars/%s.%s' % (self.id,
+			filename.rpartition('.')[2])
 	avatar = models.ImageField(blank=True, default='',
 		storage=OverwriteStorage(), upload_to=avatar_filename)
 
@@ -93,7 +92,7 @@ class UserProfile(models.Model):
 			self.about_html = markup(self.about)
 		else:
 			self.signature_html = self.signature
-			self.about_html = markup(self.about)
+			self.about_html = self.about
 		super(UserProfile, self).save(*args, **kwargs)
 
 	@models.permalink
@@ -113,8 +112,8 @@ class Badge(models.Model):
 	description = models.CharField(max_length=255)
 
 	def badge_filename(self, filename):
-		fname, dot, extension = filename.rpartition('.')
-		return 'uploads/badges/user/%s.%s' % (self.id, extension)
+		return 'uploads/badges/user/%s.%s' % (self.id,
+			filename.rpartition('.')[2])
 	badge = models.ImageField(storage=OverwriteStorage(),
 		upload_to=badge_filename)
 

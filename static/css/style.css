@@ -143,15 +143,15 @@ option.button {
 	position: relative;
 }
 
-#menu li#current {
+#menu li#current, #menu li#donate-current {
 	margin-top: -12px;
 }
 
-#menu li#current a {
+#menu li#current a, #menu li#donate-current a {
 	padding-bottom: 21px;
 }
 
-#menu li#donate a {
+#menu li#donate a, #menu li#donate-current a {
 	color: #036;
 	background-color: #ffaf33;
 	background-image: -moz-linear-gradient(center top , #ffe1b3, #ffaf33);

@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from forums.views import PostSearchView
 
 urlpatterns = patterns('forums.views',
-	(r'^$', 'index'),
+	url(r'^$', 'index', name='forum_index'),
 	(r'^(?P<forum_id>\d+)/$', 'forum_view'),
 	(r'^(?P<forum_id>\d+)/action/$', 'forum_action'),
 	(r'^(?P<forum_id>\d+)/action/merge/$', 'topics_merge'),
@@ -27,6 +27,7 @@ urlpatterns = patterns('forums.views',
 	(r'^post/vote/up/(?P<post_id>\d+)/$', 'post_voteup'),
 	(r'^post/vote/cancel/(?P<post_id>\d+)/$', 'post_votecancel'),
 	(r'^post/vote/down/(?P<post_id>\d+)/$', 'post_votedown'),
+	url(r'^jump/$', 'quick_jump', name='forum_quick_jump'),
 	(r'^mark_as_read/$', 'mark_as_read'),
 	url(r'^search/$', PostSearchView(), name='forum_search'),
 	(r'^search/latest/$', 'search_latest'),

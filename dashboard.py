@@ -43,6 +43,12 @@ class CustomIndexDashboard(Dashboard):
 		))
 
 		self.children.append(modules.AppList(
+			title="Community content",
+			include_list=('community_content',),
+			css_classes=['collapse', 'open'],
+		))
+
+		self.children.append(modules.AppList(
 			title="Downloads",
 			include_list=('downloads', ),
 			css_classes=['collapse', 'open'],

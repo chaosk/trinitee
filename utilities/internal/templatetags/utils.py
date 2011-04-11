@@ -58,3 +58,10 @@ def current(request, pattern):
 	if re.search(pattern, request.path):
 		return ' id="current"'
 	return ''
+
+
+@register.simple_tag
+def current_unique(request, pattern, id):
+	if re.search(pattern, request.path):
+		return ' id="%s-current"' % id
+	return ' id="%s"' % id

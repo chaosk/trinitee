@@ -3,8 +3,59 @@
 {% block title %}New topic - {{ block.super }}{% endblock %}
 {% block breadcrumbs %}{{ block.super }} {% breadcrumb_url forum.name forums.views.forum_view forum.id %} {% breadcrumb "New topic" %}{% endblock %}
 {% block content %}
+	{% if content_preview %}
+	{% load smileys %}
+	<table id="topic_view">
+		<tbody>
+			<tr id="post-preview" class="post">
+				<td class="user_info">
+					<span class="username"><a href="{% url accounts.views.profile_details user.id %}">{{ user }}</a></span>
+					<div class="rank">{{ user.profile.title|default:user.profile.group.user_title }}</div>
+					<div class="user_image_p">
+						<div class="user_image">
+						{% if user.profile.avatar %}
+							<img class="avatar" src="{{ user.profile.avatar.url }}" />
+						{% endif %}
+						{% if user.profile.group.group_badge %}
+							<img class="badge" src="{{ user.profile.group.group_badge.url }}" />
+						{% endif %}
+						</div>
+					</div>
+				</td>
+				<td>
+					<table class="content">
+						<tr class="post_data">
+							<td colspan="2">Post preview</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+								{{ content_preview|safe|smileys }}
+								{% else %}
+								{{ content_preview|safe }}
+								{% endif %}
+							</td>
+						</tr>
+						{% if user.profile.show_signatures and user.profile.signature %}
+						<tr>
+							<td colspan="2" class="signature">
+								{% if settings.ENABLE_SMILEYS and user.profile.show_smileys|default_if_none:"1" %}
+								{{ user.profile.signature_html|safe|smileys }}
+								{% else %}
+								{{ user.profile.signature_html|safe }}
+								{% endif %}
+							</td>
+						</tr>
+						{% endif %}
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	{% endif %}
 	<form action="{% url forums.views.topic_new forum.id %}" method="post">
-	    {% include "snippets/form.html" %}
-	    <p><input type="submit" value="Post new topic" /></p>
+		{% include "snippets/form.html" %}
+		<p><input type="submit" value="Post new topic" /></p>
+		<p><input type="submit" name="preview" value="Preview" /></p>
 	</form>
 {% endblock content %}

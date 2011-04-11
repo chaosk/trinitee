@@ -27,6 +27,15 @@ class LoginForm(forms.Form):
 		widget=forms.PasswordInput(render_value=False))
 
 
+class LoginWithRecaptchaForm(LoginForm):
+	if get_config('ENABLE_CAPTCHA', False):
+		if not get_config('RECAPTCHA_PUBLIC_KEY', False) \
+			or not get_config('RECAPTCHA_PRIVATE_KEY', False):
+			raise ImproperlyConfigured("You must define the RECAPTCHA_PUBLIC_KEY"
+				" and/or RECAPTCHA_PRIVATE_KEY setting in order to use reCAPTCHA.")
+		recaptcha = ReCaptchaField()
+
+
 class RegistrationForm(forms.Form):
 	username = forms.CharField(min_length=2, max_length=30, label="Username")
 	password = forms.CharField(min_length=4, label="Password",

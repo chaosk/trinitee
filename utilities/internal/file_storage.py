@@ -13,3 +13,12 @@ class OverwriteStorage(FileSystemStorage):
 		if self.exists(name):
 			self.delete(name)
 		return name
+
+
+def generic_filename(self, filename):
+	if self.hasattr('slug'):
+		return "uploads/%s/%s-%s.%s" % (self._meta.verbose_name_plural,
+			self.created_by.id, self.slug, filename.rpartition('.')[2])
+	return "uploads/%s/%s.%s" % (self._meta.verbose_name_plural,
+		self.created_by.id, filename.rpartition('.')[2])
+

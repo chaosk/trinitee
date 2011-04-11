@@ -130,6 +130,8 @@ class UserPostsFeed(Feed):
 
 
 class AdminReportFeed(DeprecatedFeed):
+	""" Oh, this one gets removed from Django 1.4. """
+
 	title = "Unreviewed user reports - %s Forum" % \
 		get_config('SITE_NAME', "Trinitee")
 	link = '/admin/forums/report/'
