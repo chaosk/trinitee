@@ -1,5 +1,0 @@
-{{ object.topic.title }}
-
-{% for post in object.posts.all %}
-    {{ post.content }}
-{% endfor %}

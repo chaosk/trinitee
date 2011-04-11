@@ -1,3 +1,0 @@
-{{ object.topic.title }}
-
-{{ object.content }}

@@ -1,3 +1,0 @@
-{{ object.title }}
-{{ object.content }}
-{{ object.last_modified_by.get_full_name }}

@@ -1,9 +1,0 @@
-{% extends "misc/base_error_login.html" %}
-{% block error_title %}Access denied{% endblock error_title %}
-{% block error_code %}BAN{% endblock error_code %}
-{% block content %}
-	<h1>OLOLO. BANNED.</h1>
-	<h2>Ban expires in {{ expires_at|timeuntil }}.</h2>
-	{{ comment }}
-{% endblock content %}
-{% block return_to_home %}{% endblock return_to_home %}
