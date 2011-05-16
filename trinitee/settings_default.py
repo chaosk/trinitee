@@ -14,7 +14,6 @@ PROJECT_DIR = os.path.dirname(__file__)
 DEBUG = False
 TEMPLATE_DEBUG = False
 TEMPLATE_CACHING = True
-BETA = False
 
 INTERNAL_IPS = ('127.0.0.1',)
 
@@ -54,10 +53,18 @@ MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+# Absolute path to the directory that holds static files.
+# Example: "/home/media/media.lawrence.com/static/"
+STATIC_ROOT = os.path.join(MEDIA_ROOT, 'static')
+
+# URL that handles the static files served from STATIC_ROOT.
+# Example: "http://media.lawrence.com/static/"
+STATIC_URL = '/media/static/'
+
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/admin/'
+ADMIN_MEDIA_PREFIX = '/media/static/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'foobar'
@@ -91,7 +98,6 @@ AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 # Message storage backend
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-FIRST_LOGIN_REDIRECT_URL = '/getstarted/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
@@ -128,6 +134,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.contrib.auth.context_processors.auth',
 	'django.core.context_processors.debug',
 	'django.core.context_processors.i18n',
+	'django.core.context_processors.static',
 	'django.core.context_processors.media',
 	'django.core.context_processors.request',
 )
@@ -138,7 +145,7 @@ TEMPLATE_DIRS = (
 	os.path.join(PROJECT_DIR, 'templates'),
 )
 
-OUR_APPS = (
+PROJECT_APPS = (
 )
 
 INSTALLED_APPS = (
@@ -148,4 +155,4 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.admin',
-) + OUR_APPS
+) + PROJECT_APPS
