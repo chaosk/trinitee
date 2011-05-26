@@ -146,6 +146,7 @@ TEMPLATE_DIRS = (
 )
 
 PROJECT_APPS = (
+	'wiki',
 )
 
 INSTALLED_APPS = (
@@ -155,4 +156,5 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.admin',
+	'south',
 ) + PROJECT_APPS

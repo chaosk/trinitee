@@ -5,7 +5,7 @@ import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
-
+	(r'^wiki/', include('wiki.urls')),
 )
 
 if settings.DEBUG:
