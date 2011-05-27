@@ -12,3 +12,27 @@ def wiki_index(request):
 	return {
 		'page': page,
 	}
+
+
+def wiki_detail(request, slug):
+	raise NotImplementedError
+
+
+def wiki_new(request):
+	raise NotImplementedError
+
+
+def wiki_edit(request, slug):
+	raise NotImplementedError
+
+
+def wiki_history(request, slug):
+	raise NotImplementedError
+
+
+def wiki_history_detail(request, slug, rev):
+	raise NotImplementedError
+
+
+def wiki_compare(request, slug, rev_from, rev_to):
+	raise NotImplementedError
