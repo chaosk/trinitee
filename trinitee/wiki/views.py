@@ -14,8 +14,12 @@ def wiki_index(request):
 	}
 
 
+@render_to('wiki/detail.html')
 def wiki_detail(request, slug):
-	raise NotImplementedError
+	page = get_object_or_404(WikiPage, slug=slug)
+	return {
+		'page': page,
+	}
 
 
 def wiki_new(request):
