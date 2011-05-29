@@ -10,6 +10,7 @@ class WikiPage(models.Model):
 	slug = models.SlugField()
 	content = models.TextField()
 	content_html = models.TextField()
+	updated = models.DateTimeField(auto_now_add=True)
 
 	def slugify_title(self):
 		new_slug = slug = slugify(self.title) or "bad-title"
