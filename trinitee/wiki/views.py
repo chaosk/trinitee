@@ -4,7 +4,7 @@ from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
 
 
-@render_to('wiki/index.html')
+@render_to('wiki/detail.html')
 def wiki_index(request):
 	""" Returns Index wiki page """
 	page, created = WikiPage.objects.get_or_create(slug='Index',
