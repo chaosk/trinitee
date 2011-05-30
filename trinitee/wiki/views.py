@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 from annoying.decorators import render_to
 from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
