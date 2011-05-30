@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from annoying.decorators import render_to
+from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
 
 
@@ -22,12 +23,50 @@ def wiki_detail(request, slug):
 	}
 
 
+@render_to('wiki/new.html')
 def wiki_new(request):
-	raise NotImplementedError
+	form = WikiNewForm()
+	if request.method == 'POST':
+		form = WikiNewForm(request.POST)
+		if form.is_valid():
+			new_page = form.save()
+			messages.success(request, "New page has been added to the wiki.")
+			return redirect(new_page.get_absolute_url())
+	return {
+		'form': form,
+	}
 
 
+@render_to('wiki/edit.html')
 def wiki_edit(request, slug):
-	raise NotImplementedError
+	page = get_object_or_404(WikiPage, slug=slug)
+	form = WikiEditForm(instance=page)
+	if request.method == 'POST':
+		form = WikiEditForm(request.POST, instance=page)
+		if form.is_valid():
+			form.save()
+			messages.success(request,
+				"Successfully updated \"{0}\" page.".format(page)
+			)
+			return redirect(page.get_absolute_url())
+	return {
+		'page': page,
+		'form': form,
+	}
+
+
+@render_to('wiki/delete.html')
+def wiki_delete(request, slug):
+	page = get_object_or_404(WikiPage, slug=slug)
+	if request.method == 'POST':
+		page.delete()
+		messages.success(request,
+			"Successfully removed \"{0}\" page.".format(page)
+		)
+		return redirect(reverse('wiki_index'))
+	return {
+		'page': page,
+	}
 
 
 def wiki_history(request, slug):

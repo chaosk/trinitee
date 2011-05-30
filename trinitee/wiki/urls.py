@@ -8,6 +8,7 @@ urlpatterns = patterns('wiki.views',
 		'wiki_history_detail', name='wiki_history_detail'),
 	url(r'^(?P<slug>[^/]+)/_history/$', 'wiki_history', name='wiki_history'),
 	url(r'^(?P<slug>[^/]+)/_edit/$', 'wiki_edit', name='wiki_edit'),
+	url(r'^(?P<slug>[^/]+)/_delete/$', 'wiki_delete', name='wiki_delete'),
 	url(r'^(?P<slug>[^/]+)$', 'wiki_detail', name='wiki_detail'),
 	url(r'^$', 'wiki_index', name='wiki_index'),
 )
