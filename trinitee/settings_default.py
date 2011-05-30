@@ -146,6 +146,7 @@ TEMPLATE_DIRS = (
 )
 
 PROJECT_APPS = (
+	'lib',
 	'wiki',
 )
 

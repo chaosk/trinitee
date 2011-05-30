@@ -1,32 +1,19 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django.template.defaultfilters import slugify
+from lib.templatefilters import slugify
 from markdown import markdown
 
 
 class WikiPage(models.Model):
 	""" A wiki page """
 
-	title = models.CharField(max_length=50)
-	slug = models.SlugField()
+	title = models.CharField(max_length=255, unique=True)
+	slug = models.SlugField(unique=True)
 	content = models.TextField()
 	content_html = models.TextField()
 
-	def slugify_title(self):
-		new_slug = slug = slugify(self.title) or "bad-title"
-		# preventing slugs from being non-unique, wordpress-style
-		n = 1
-		while True:
-			try:
-				WikiPage.objects.get(slug=new_slug)
-			except WikiPage.DoesNotExist:
-				break
-			n += 1
-			if n != 1:
-				new_slug = "{0}-{1}".format(slug, n)
-		return new_slug
-
 	def save(self, *args, **kwargs):
-		self.slug = self.slugify_title()
+		self.slug = slugify(self.title)
 		self.content_html = markdown(self.content)
 		super(WikiPage, self).save(*args, **kwargs)
 
