@@ -7,7 +7,7 @@ from wiki.models import WikiPage
 def wiki_index(request):
 	""" Returns Index wiki page """
 	page, created = WikiPage.objects.get_or_create(slug='Index',
-		defaults={'title': 'Index'}
+		defaults={'title': u'Index'}
 	)
 	return {
 		'page': page,
