@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ page }} - Wiki
+{% endblock title %}
+
+{% block extra_menu %}
+	<li class="right"><a href="{% url wiki_new %}">New page</a></li>
+	<li class="right"><a href="{% url wiki_edit page.slug %}">Edit page</a></li>
+	<li class="right"><a href="{% url wiki_history page.slug %}">Page history</a></li>
+	<li class="right"><a href="{% url wiki_delete page.slug %}">Delete page</a></li>
+{% endblock extra_menu %}
+
+{% block content %}
+	<h1 class="title">{{ page }}</h1>
+
+	{{ page.content_html|safe }}
+{% endblock content %}

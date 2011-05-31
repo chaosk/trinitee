@@ -4,11 +4,38 @@
 <head>
 	<title>{% block title %}{% endblock title %} - Trinitee</title>
 	<meta charset="utf-8">
+	<link href="http://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
 	<link href="{{ STATIC_URL }}base.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
+	<header class="main">
+		<h1>trinitee</h1>
+	</header>
 
+	{% if messages %}
+	<section id="messages">
+		{% for message in messages %}
+		<div{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+			{{ message|safe }}
+		</div>
+		{% endfor %}
+	</section>
+	{% endif %}
+
+	<div id="content">
+		<ul class="menu">
+			<li><a href="/">Home</a></li>
+			<li><a href="{% url wiki_index %}">Wiki</a></li>
+			{% block extra_menu %}{% endblock extra_menu %}
+		</ul>
+
+		{% block content %}{% endblock content %}
+	</div>
+
+	<footer>
+		&copy; 2011
+	</footer>
 </body>
 
 </html>

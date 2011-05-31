@@ -2,3 +2,104 @@ html, body {
 	padding:0;
 	margin:0;
 }
+
+html {
+	color: #666;
+	background-color: #e7e5be;
+	font-size: 13px;
+	font-family: 'Droid Sans', sans-serif;
+}
+
+body {
+	width: 960px;
+	margin: 0 auto;
+}
+
+a {
+	color: #970;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #fa3;
+	text-decoration: underline;
+}
+
+header.main {
+	color: #918f61;
+	font-size: 22px;
+	text-shadow: 0 0 10px #fff;
+	padding: 0 20px;
+}
+
+#messages div {
+	padding: 20px;
+	margin: 20px 0;
+}
+
+	#messages .success {
+		background: #aed180;
+	}
+
+#messages div, #content {
+	border-radius: 15px;
+	box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+#content {
+	background-color: #fff;
+	padding: 20px;
+}
+
+	#content ul.menu {
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+	}
+
+		#content ul.menu li {
+			padding: 10px;
+			display: inline-block;
+		}
+
+		#content ul.menu li.right {
+			float: right;
+		}
+
+	#content h1, #content h2, #content h3 {
+		border-bottom: thin solid;
+	}
+
+	#content .nb {
+		border: none;
+	}
+
+	#content h1.title {
+		font-size: 36px;
+	}
+
+footer {
+	color: #fff;
+	font-size: 10px;
+	text-align: center;
+	margin-top: 20px;
+}
+
+form {
+	width: 100%;
+}
+
+	form label {
+		font-weight: bold;
+		margin: 5px;
+	}
+
+	form textarea {
+		width: 100%;
+		height: 350px;
+		resize: vertical;
+	}
+
+	form input#id_title {
+		width: 50%;
+	}
