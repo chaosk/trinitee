@@ -2,6 +2,7 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('wiki.views',
 	url(r'^_new/?$', 'wiki_new', name='wiki_new'),
+	url(r'^_list/?$', 'wiki_list', name='wiki_list'),
 	url(r'^(?P<slug>[^/]+)/_history/(?P<rev_from>\d+)\.\.\.(?P<rev_to>\d+)/$',
 	 	'wiki_compare', name='wiki_compare'),
 	url(r'^(?P<slug>[^/]+)/_history/(?P<rev>\d+)/$',
