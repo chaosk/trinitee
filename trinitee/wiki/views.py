@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from annoying.decorators import render_to
-from reversion.models import Version
+from reversion.models import Version
 from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
 
