@@ -82,8 +82,9 @@ def wiki_list(request):
 @render_to('wiki/history.html')
 def wiki_history(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
-	versions = Version.objects.get_for_object(page)
+	versions = Version.objects.get_for_object(page).order_by('-id')
 	return {
+		'page': page,
 		'versions': versions,
 	}
 
