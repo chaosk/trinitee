@@ -125,6 +125,7 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.http.ConditionalGetMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.transaction.TransactionMiddleware',
+	'reversion.middleware.RevisionMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
@@ -157,5 +158,6 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.admin',
+	'reversion',
 	'south',
 ) + PROJECT_APPS

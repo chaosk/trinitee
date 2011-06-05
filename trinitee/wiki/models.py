@@ -23,3 +23,10 @@ class WikiPage(models.Model):
 	@models.permalink
 	def get_absolute_url(self):
 		return ('wiki.views.wiki_detail', (), {'slug': self.slug})
+
+
+# this is here because we don't have any models that use django admin app;
+# if you are going to use it, check "Admin Integration" chapter of
+# https://github.com/etianen/django-reversion/wiki/getting-started
+import reversion
+reversion.register(WikiPage)
