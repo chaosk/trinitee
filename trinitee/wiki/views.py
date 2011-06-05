@@ -71,6 +71,10 @@ def wiki_delete(request, slug):
 	}
 
 
+def wiki_list(request):
+	raise NotImplementedError
+
+
 def wiki_history(request, slug):
 	raise NotImplementedError
 
