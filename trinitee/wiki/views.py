@@ -72,8 +72,11 @@ def wiki_delete(request, slug):
 	}
 
 
+@render_to('wiki/list.html')
 def wiki_list(request):
-	raise NotImplementedError
+	return {
+		'pages': WikiPage.objects.all()
+	}
 
 
 @render_to('wiki/history.html')

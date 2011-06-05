@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+	List of all pages - Wiki
+{% endblock title %}
+
+{% block extra_menu %}
+	<li class="right"><a href="{% url wiki_new %}">New page</a></li>
+{% endblock extra_menu %}
+
+{% block content %}
+	<h1 class="title">List of all pages</h1>
+
+	<ul>
+		{% for page in pages %}
+		<li><a href="{{ page.get_absolute_url }}">{{ page }}</a></li>
+		{% empty %}
+		<li>There are no pages at all!</li>
+		{% endfor %}
+	</ul>
+{% endblock content %}
