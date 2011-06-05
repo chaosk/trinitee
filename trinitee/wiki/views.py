@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from annoying.decorators import render_to
+from reversion.models import Version
 from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
 
@@ -75,8 +76,13 @@ def wiki_list(request):
 	raise NotImplementedError
 
 
+@render_to('wiki/history.html')
 def wiki_history(request, slug):
-	raise NotImplementedError
+	page = get_object_or_404(WikiPage, slug=slug)
+	versions = Version.objects.get_for_object(page)
+	return {
+		'versions': versions,
+	}
 
 
 def wiki_history_detail(request, slug, rev):
