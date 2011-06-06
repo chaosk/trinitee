@@ -9,7 +9,7 @@ class WikiPage(models.Model):
 
 	title = models.CharField(max_length=255, unique=True)
 	slug = models.SlugField(unique=True)
-	content = models.TextField()
+	content = models.TextField(help_text="Markdown syntax")
 	content_html = models.TextField()
 
 	def save(self, *args, **kwargs):

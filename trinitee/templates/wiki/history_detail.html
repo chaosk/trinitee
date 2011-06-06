@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-	{{ page }} - Wiki
+	{{ page.title }} - Wiki
 {% endblock title %}
 
 {% block extra_menu %}
@@ -13,7 +13,7 @@
 {% endblock extra_menu %}
 
 {% block content %}
-	<h1 class="title">{{ page }}</h1>
+	<h1 class="title">{{ page.title }} @{{ revision.date_created }}</h1>
 
 	{{ page.content_html|safe }}
 {% endblock content %}

@@ -7,9 +7,11 @@ Please override settings in settings_local.py instead.
 """
 
 import os
-# Django settings for teerace project.
+import sys
+# Django settings for trinitee project.
 
 PROJECT_DIR = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(os.path.join(PROJECT_DIR, "lib"), "vendor"))
 
 DEBUG = False
 TEMPLATE_DEBUG = False

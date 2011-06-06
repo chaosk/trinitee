@@ -10,6 +10,7 @@ class WikiNewForm(forms.ModelForm):
 
 
 class WikiEditForm(forms.ModelForm):
+	comment = forms.CharField()
 
 	class Meta:
 		model = WikiPage
