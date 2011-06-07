@@ -164,4 +164,4 @@ INSTALLED_APPS = (
 	'south',
 ) + PROJECT_APPS
 
-PYLINT_RCFILE = os.path.join(os.dirname(PROJECT_DIR), '.pylintrc')
+PYLINT_RCFILE = os.path.join(os.path.dirname(PROJECT_DIR), '.pylintrc')
