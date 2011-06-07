@@ -11,7 +11,8 @@ ignore=.git
 
 # C0111 - Missing docstring
 # W0105 - String statement has no effect
-disable=C0111,W0105
+# W0312 - Found indentation with %ss instead of %ss
+disable=C0111,W0105,W0312
 
 [REPORTS]
 
