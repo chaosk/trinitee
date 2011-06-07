@@ -163,3 +163,5 @@ INSTALLED_APPS = (
 	'reversion',
 	'south',
 ) + PROJECT_APPS
+
+PYLINT_RCFILE = os.path.join(PROJECT_DIR, '.pylintrc')
