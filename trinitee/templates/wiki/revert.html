@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Revert - {{ page }} - Wiki
+{% endblock title %}
+
+{% block content %}
+	<h1 class="title">Reverting "{{ page }}" to the state from {{ version.revision.date_created }}</h1>
+	<h2 class="nb">Are you sure?</h2>
+	<form action="{% url wiki_revert page.slug version.id %}" method="post">{% csrf_token %}
+		<input type="submit" value="Yes"> <a href="{% url wiki_detail page.slug %}">No</a>
+	</form>
+{% endblock content %}

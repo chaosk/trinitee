@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Restore - {{ version.field_dict.title }} - Wiki
+{% endblock title %}
+
+{% block content %}
+	<h1 class="title">Restoring "{{ version.field_dict.title }}" to the state from {{ version.revision.date_created }}</h1>
+	<h2 class="nb">Are you sure?</h2>
+	<form action="{% url wiki_restore version.field_dict.slug version.id %}" method="post">{% csrf_token %}
+		<input type="submit" value="Yes"> <a href="{% url wiki_index %}">No</a>
+	</form>
+{% endblock content %}

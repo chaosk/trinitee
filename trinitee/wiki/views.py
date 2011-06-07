@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -86,6 +87,7 @@ def wiki_delete(request, slug):
 		messages.success(request,
 			"Successfully removed \"{0}\" page.".format(page)
 		)
+		revision.comment = "Page deleted"
 		return redirect(reverse('wiki_index'))
 	return {
 		'page': page,
@@ -165,9 +167,13 @@ def wiki_revert(request, slug, rev):
 		version.revert()
 		messages.success(request,
 			"Successfully reverted \"{0}\" page to state from {1}.".format(
-				page, version.revision.date_created
+				page,
+				datetime.strftime(version.revision.date_created,
+					"%B %d, %Y, %I:%M %p"
+				)
 			)
 		)
+		revision.comment = "Reverted to #{0}".format(version.id)
 		return redirect(reverse('wiki_detail', kwargs={'slug': slug}))
 	return {
 		'page': page,
@@ -183,9 +189,12 @@ def wiki_restore(request, slug, rev):
 		messages.success(request,
 			"Successfully restored \"{0}\" page to state from {1}.".format(
 				version.get_field_dict().get('title'),
-				version.revision.date_created
+				datetime.strftime(version.revision.date_created, 
+					"%B %d, %Y, %I:%M %p"
+				)
 			)
 		)
+		revision.comment = "Page restored"
 		return redirect(reverse('wiki_detail', kwargs={'slug': slug}))
 	return {
 		'version': version,
