@@ -135,8 +135,8 @@ def wiki_compare(request, slug, rev_from, rev_to):
 		version_to = Version.objects.get(pk=rev_to)
 	except Version.DoesNotExist:
 		raise Http404
-	if page.id != version_from.object_id or \
-		version_from.object_id != version_to.object_id:
+	if page.id != int(version_from.object_id) or \
+		int(version_from.object_id) != int(version_to.object_id):
 		messages.error(request,
 			"You have tried to compare revisions of different pages."
 		)
