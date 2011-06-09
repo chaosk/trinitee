@@ -150,6 +150,7 @@ TEMPLATE_DIRS = (
 
 PROJECT_APPS = (
 	'lib',
+	'accounts',
 	'wiki',
 )
 

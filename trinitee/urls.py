@@ -5,6 +5,9 @@ import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
+	url(r'^$', 'django.views.generic.simple.direct_to_template',
+		{'template': 'home.html'}, name='home'),
+	(r'^accounts/', include('accounts.urls')),
 	(r'^wiki/', include('wiki.urls')),
 )
 

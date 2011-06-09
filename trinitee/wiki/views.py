@@ -133,8 +133,8 @@ def wiki_history_detail(request, slug, rev):
 def wiki_compare(request, slug, rev_from, rev_to):
 	page = get_object_or_404(WikiPage, slug=slug)
 	try:
-		version_from = Version.objects.get(pk=rev_from)
-		version_to = Version.objects.get(pk=rev_to)
+		version_from = Version.objects.select_related().get(pk=rev_from)
+		version_to = Version.objects.select_related().get(pk=rev_to)
 	except Version.DoesNotExist:
 		raise Http404
 	if page.id != int(version_from.object_id) or \
@@ -157,7 +157,7 @@ def wiki_compare(request, slug, rev_from, rev_to):
 @render_to("wiki/revert.html")
 def wiki_revert(request, slug, rev):
 	page = get_object_or_404(WikiPage, slug=slug)
-	version = get_object_or_404(Version, pk=rev)
+	version = get_object_or_404(Version.objects.select_related(), pk=rev)
 	if page.id != int(version.object_id):
 		messages.error(request,
 			"You have tried to revert this page to another page object."

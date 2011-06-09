@@ -25,7 +25,7 @@
 
 	<div id="content">
 		<ul class="menu">
-			<li><a href="/">Home</a></li>
+			<li><a href="{% url home %}">Home</a></li>
 			<li><a href="{% url wiki_index %}">Wiki</a></li>
 			{% block extra_menu %}{% endblock extra_menu %}
 		</ul>
