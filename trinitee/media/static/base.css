@@ -8,6 +8,7 @@ html {
 	background-color: #e7e5be;
 	font-size: 13px;
 	font-family: 'Droid Sans', sans-serif;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.3);
 }
 
 body {
@@ -26,11 +27,28 @@ a:hover {
 }
 
 header.main {
-	color: #918f61;
+	color: #9dc547;
 	font-size: 22px;
-	text-shadow: 0 0 10px #fff;
+	text-transform: uppercase;
 	padding: 0 20px;
 }
+
+ul.menu.main {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+	ul.menu.main li {
+		padding: 10px;
+		display: inline-block;
+	}
+
+	ul.menu.main li.right {
+		font-size: 80%;
+		margin-top: 5px;
+		float: right;
+	}
 
 #messages div {
 	padding: 20px;
@@ -38,33 +56,19 @@ header.main {
 }
 
 	#messages .success {
-		background: #aed180;
+		background: #9dc547;
 	}
 
 #messages div, #content {
-	border-radius: 15px;
-	box-shadow:0 0 5px rgba(0,0,0,0.1);
+	border: thin solid #9dc547;
+	border-top-width: 5px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 
 #content {
 	background-color: #fff;
 	padding: 20px;
 }
-
-	#content ul.menu {
-		list-style-type: none;
-		padding: 0;
-		margin: 0;
-	}
-
-		#content ul.menu li {
-			padding: 10px;
-			display: inline-block;
-		}
-
-		#content ul.menu li.right {
-			float: right;
-		}
 
 	#content h1, #content h2, #content h3 {
 		border-bottom: thin solid;
@@ -79,7 +83,7 @@ header.main {
 	}
 
 footer {
-	color: #fff;
+	color: #333;
 	font-size: 10px;
 	text-align: center;
 	margin-top: 20px;
@@ -91,7 +95,8 @@ form {
 
 	form label {
 		font-weight: bold;
-		margin: 5px;
+		margin: 5px 2px 3px;
+		display: block;
 	}
 
 	form textarea {
@@ -100,6 +105,44 @@ form {
 		resize: vertical;
 	}
 
-	form input#id_title {
-		width: 50%;
+	form textarea, form input {
+		background-color: #fff;
+		border: thin solid #999;
+		-moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px;
+		padding: 5px;
+	}
+
+	form input:focus, form input:hover {
+		box-shadow: 0 0 5px #9dc547;
+		outline: none;
+	}
+
+	form input:not([type=submit]) {
+		width: 33%;
+	}
+
+	form input[type=submit] {
+		color: #506324;
+		background-color: #9dc547;
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#9dc547), to(#e4f9b7));
+		background-image: -moz-linear-gradient(bottom,  #9dc547,  #e4f9b7);
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9dc547', endColorstr='#e4f9b7');
+		border-color: #789636;
+		font-weight: bold;
+		text-transform: uppercase;
+		text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+		letter-spacing: 1px;
+		padding: 5px 25px;
+	}
+
+	form input[type=submit]:active {
+		background-color: #e4f9b7;
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#e4f9b7), to(#9dc547));
+		background-image: -moz-linear-gradient(bottom,  #e4f9b7,  #9dc547);
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e4f9b7', endColorstr='#9dc547');
+	}
+
+	form span.helptext {
+		font-size: 80%;
+		margin-left: 10px;
 	}
