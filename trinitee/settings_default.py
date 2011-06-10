@@ -101,8 +101,8 @@ AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
-LOGOUT_URL = '/logout/'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
 
 ABSOLUTE_URL_OVERRIDES = {
 	'auth.user': lambda u: "/profile/%s/" % u.id,
