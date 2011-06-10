@@ -23,13 +23,20 @@
 	</section>
 	{% endif %}
 
-	<div id="content">
-		<ul class="menu">
-			<li><a href="{% url home %}">Home</a></li>
-			<li><a href="{% url wiki_index %}">Wiki</a></li>
-			{% block extra_menu %}{% endblock extra_menu %}
-		</ul>
+	<ul class="menu main">
+		<li><a href="{% url home %}">Home</a></li>
+		<li><a href="{% url wiki_index %}">Wiki</a></li>
+		<li><a href="{% url userlist %}">User list</a></li>
+		{% if request.user.is_authenticated %}
+			<li><a href="{% url logout %}">Logout</a></li>
+		{% else %}
+			<li><a href="{% url login %}">Login</a></li>
+			<li><a href="{% url register %}">Register</a></li>
+		{% endif %}
+		{% block extra_menu %}{% endblock extra_menu %}
+	</ul>
 
+	<div id="content">
 		{% block content %}{% endblock content %}
 	</div>
 
