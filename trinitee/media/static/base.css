@@ -146,3 +146,15 @@ form {
 		font-size: 80%;
 		margin-left: 10px;
 	}
+
+	form ul.errorlist {
+		text-shadow: none;
+		list-style-type: none;
+		padding: 0;
+	}
+
+		form ul.errorlist li {
+			color: #fff;
+			background-color: #c54747;
+			padding: 5px 10px;
+		}
