@@ -95,7 +95,7 @@ form {
 
 	form label {
 		font-weight: bold;
-		margin: 5px 2px 3px;
+		margin: 5px 2px 0px;
 		display: block;
 	}
 
@@ -109,9 +109,11 @@ form {
 		background-color: #fff;
 		border: thin solid #999;
 		-moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px;
+		margin: 0;
 		padding: 5px;
 	}
 
+	form textarea:focus, form textarea:hover,
 	form input:focus, form input:hover {
 		box-shadow: 0 0 5px #9dc547;
 		outline: none;
