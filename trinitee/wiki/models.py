@@ -9,6 +9,11 @@ class WikiPage(models.Model):
 
 	title = models.CharField(max_length=255, unique=True)
 	slug = models.SlugField(unique=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	created_by = models.ForeignKey(User, related_name='created_pages')
+	modified_at = models.DateTimeField(auto_now=True)
+	modified_by = models.ForeignKey(User, blank=True, null=True,
+		related_name='modified_pages')
 	content = models.TextField(help_text="Markdown syntax")
 	content_html = models.TextField()
 
