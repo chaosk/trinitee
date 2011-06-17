@@ -121,7 +121,7 @@ def wiki_history_detail(request, slug, rev):
 		version = Version.objects.get(pk=rev)
 	except Version.DoesNotExist:
 		raise Http404
-	if page.id != version.object_id:
+	if page.id != int(version.object_id):
 		raise Http404
 	return {
 		'page': version.get_field_dict(),
