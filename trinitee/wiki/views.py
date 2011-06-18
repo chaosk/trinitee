@@ -118,7 +118,7 @@ def wiki_history(request, slug):
 def wiki_history_detail(request, slug, rev):
 	page = get_object_or_404(WikiPage, slug=slug)
 	try:
-		version = Version.objects.get(pk=rev)
+		version = Version.objects.select_related().get(pk=rev)
 	except Version.DoesNotExist:
 		raise Http404
 	if page.id != int(version.object_id):
