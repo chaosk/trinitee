@@ -9,7 +9,6 @@ class WikiTestCase(unittest.TestCase):
 	def setUp(self):
 		self.page1, c = WikiPage.objects.get_or_create(title=u"Page 1",
 			content="Page 1!")
-		
 		self.page2, c = WikiPage.objects.get_or_create(title=u"Page 2",
 			content="Page _2_!")
 		self.client = Client()
@@ -66,5 +65,5 @@ class WikiTestCase(unittest.TestCase):
 
 	def testViewHistory(self):
 		response = self.client.get(reverse('wiki_history',
-			args=self.page1.slug))
+			args=[self.page1.slug]))
 		self.assertEqual(response.status_code, 200)
