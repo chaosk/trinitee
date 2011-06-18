@@ -14,6 +14,11 @@ class WikiTestCase(unittest.TestCase):
 			content="Page _2_!")
 		self.client = Client()
 
+	def testViewIndex(self):
+		response = self.client.get(reverse('wiki_index'))
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.context['page'].title, u"Index")
+
 	def testViewDetailSuccess(self):
 		response = self.client.get(reverse('wiki_detail',
 			args=[self.page1.slug]))
@@ -53,4 +58,13 @@ class WikiTestCase(unittest.TestCase):
 		# Send POST data with non-unique title
 		response = self.client.post(reverse('wiki_new'),
 			{'title': u"Page 1", 'content': "Test content"})
+		self.assertEqual(response.status_code, 200)
+
+	def testViewList(self):
+		response = self.client.get(reverse('wiki_list'))
+		self.assertEqual(response.status_code, 200)
+
+	def testViewHistory(self):
+		response = self.client.get(reverse('wiki_history',
+			args=self.page1.slug))
 		self.assertEqual(response.status_code, 200)
