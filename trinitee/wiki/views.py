@@ -106,7 +106,10 @@ def wiki_history(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
 	versions = Version.objects.get_for_object(page).select_related() \
 		.order_by('-id')
-	latest_version_id = versions[0].id
+	try:
+		latest_version_id = versions[0].id
+	except IndexError:
+		latest_version_id = None
 	return {
 		'page': page,
 		'latest_version_id': latest_version_id,
