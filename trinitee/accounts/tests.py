@@ -7,10 +7,16 @@ from accounts.models import UserProfile
 
 class AccountsTestCase(unittest.TestCase):
 	def setUp(self):
-		self.user1, c = User.objects.get_or_create(username="AnneM",
-			email="anne@moore.com")
-		self.user2, c = User.objects.get_or_create(username="JohnD",
-			email="john@doe.com")
+		if not User.objects.all().exists():
+			self.user1 = User.objects.create_user(username="AnneM",
+				password='topsecret', email="anne@moore.com")
+			self.user2 = User.objects.create_user(username="JohnD",
+				password='dupa.8', email="john@doe.com")
+			# dupa.8 is kinda epic password in polish internet
+			# not that anyone cares, jsut explaining how it got here
+		else:
+			self.user1 = User.objects.get(pk=1)
+			self.user2 = User.objects.get(pk=2)
 		self.client = Client()
 
 	def testViewProfileSuccess(self):
@@ -68,6 +74,75 @@ class AccountsTestCase(unittest.TestCase):
 			'email2': "jack24@aol.com", 'password1': "wearenotalone",
 			'password2': "wearealone"})
 		self.assertEqual(response.status_code, 200)
+
+		# Try to register while being logged in already
+		self.client.login(username=self.user1.username,
+			password='topsecret')
+		response = self.client.post(reverse('register'),
+			{'username': "JackB", 'email1': "jack24@aol.com",
+			'email2': "jack24@aol.com", 'password1': "wearenotalone",
+			'password2': "wearenotalone"},
+			follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(reverse('home'), response.redirect_chain[0][0])
+		self.assertTrue(response.context['user'].is_authenticated())
+		self.assertNotEqual(response.context['user'].username, "JackB")
+
+	def testViewLoginPrepare(self):
+		response = self.client.get(reverse('login'))
+		self.assertEqual(response.status_code, 200)
+
+	def testViewLoginSuccess(self):
+		response = self.client.post(reverse('login'),
+			{'username': self.user1.username,
+			'password': 'topsecret'},
+			follow=True)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(bool(len(response.redirect_chain)))
+		self.assertTrue(response.context['user'].is_authenticated())
+		self.assertEqual(response.context['user'].username,
+			self.user1.username)
+
+	def testViewLoginFailure(self):
+		# Send no POST data
+		response = self.client.post(reverse('login'))
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(response.context['user'].is_authenticated())
+
+		# Send incomplete POST data
+		response = self.client.post(reverse('login'),
+			{'username': self.user1.username})
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(response.context['user'].is_authenticated())
+
+		# Send incorrect POST data
+		response = self.client.post(reverse('login'),
+			{'username': self.user1.username,
+			'password': 'topsecretwrong'})
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(response.context['user'].is_authenticated())
+
+		# Try to login while being logged in already
+		self.client.login(username=self.user1.username,
+			password='topsecret')
+		response = self.client.post(reverse('login'),
+			{'username': self.user2.username,
+			'password': 'dupa.8'},
+			follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(reverse('home'), response.redirect_chain[0][0])
+		self.assertTrue(response.context['user'].is_authenticated())
+		self.assertNotEqual(response.context['user'].username,
+			self.user2.username)
+
+	def testViewLogoutSuccess(self):
+		self.client.login(username=self.user1.username,
+			password='topsecret')
+		response = self.client.get(reverse('logout'), follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(reverse('home'), response.redirect_chain[0][0])
+		self.assertFalse(response.context['user'].is_authenticated())
 
 	def testViewList(self):
 		response = self.client.get(reverse('userlist'))
