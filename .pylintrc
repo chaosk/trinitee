@@ -7,7 +7,8 @@ profile=no
 # path. You may set this option multiple times.
 ignore=.git
 ignore=migrations
-ignore=vendor
+# Commented out due to http://www.logilab.org/ticket/22273
+# ignore=vendor
 
 [MESSAGES CONTROL]
 
