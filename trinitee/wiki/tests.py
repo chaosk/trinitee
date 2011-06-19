@@ -8,10 +8,12 @@ INVALID_SLUG = '_invalidslug'
 
 class WikiTestCase(unittest.TestCase):
 	def setUp(self):
-		self.page1, c = WikiPage.objects.get_or_create(title=u"Page 1",
-			content="Page 1!")
-		self.page2, c = WikiPage.objects.get_or_create(title=u"Page 2",
-			content="Page _2_!")
+		self.page1, c = WikiPage.objects.get_or_create(slug="Page_1", defaults={
+			'title': u"Page 1",
+			'content': "Page 1!"})
+		self.page2, c = WikiPage.objects.get_or_create(slug="Page_2", defaults={
+			'title': u"Page 2",
+			'content': "Page _2_!"})
 		self.client = Client()
 
 	def testViewIndex(self):
@@ -76,8 +78,7 @@ class WikiTestCase(unittest.TestCase):
 			args=[self.page1.slug]), {'content': new_content,
 				'comment': "Slightly updated"}, follow=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response.redirect_chain[0][0],
-			self.page1.get_absolute_url())
+		self.assertIn(self.page1.get_absolute_url(), response.redirect_chain[0][0])
 		self.assertEqual(response.context['page'].content, new_content)
 
 	def testViewEditFailure(self):
