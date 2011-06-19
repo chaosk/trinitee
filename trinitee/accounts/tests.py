@@ -55,6 +55,20 @@ class AccountsTestCase(unittest.TestCase):
 			'password2': "wearenotalone"})
 		self.assertEqual(response.status_code, 200)
 
+		# Send POST data with mistyped second email
+		response = self.client.post(reverse('register'),
+			{'username': "JackB", 'email1': "jack24@aol.com",
+			'email2': "jack25@aol.com", 'password1': "wearenotalone",
+			'password2': "wearenotalone"})
+		self.assertEqual(response.status_code, 200)
+
+		# Send POST data with mistyped second password
+		response = self.client.post(reverse('register'),
+			{'username': "JackB", 'email1': "jack24@aol.com",
+			'email2': "jack24@aol.com", 'password1': "wearenotalone",
+			'password2': "wearealone"})
+		self.assertEqual(response.status_code, 200)
+
 	def testViewList(self):
 		response = self.client.get(reverse('userlist'))
 		self.assertEqual(response.status_code, 200)
