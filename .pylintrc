@@ -7,6 +7,7 @@ profile=no
 # path. You may set this option multiple times.
 ignore=.git
 ignore=migrations
+ignore=vendor
 
 [MESSAGES CONTROL]
 
