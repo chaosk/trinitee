@@ -62,7 +62,8 @@ class PostKarma(models.Model):
 
 	def __unicode__(self):
 		return "{0}, {1} to {2} for #{3}".format(
-			self.get_karma_display(), user, post.created_by, post.id
+			self.get_karma_display(), self.user,
+			self.post.created_by, self.post.id
 		)
 
 
