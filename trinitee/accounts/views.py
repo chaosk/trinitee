@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import (authenticate, login as auth_login,
 	logout as auth_logout)
@@ -71,6 +71,14 @@ def register(request):
 	return {
 		'register_form': register_form,
 		'next': next_uri,
+	}
+
+
+@render_to('accounts/profile.html')
+def profile(request, user_id):
+	user = get_object_or_404(User.objects.select_related(), pk=user_id)
+	return {
+		'profile_user': user,
 	}
 
 
