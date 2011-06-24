@@ -35,7 +35,6 @@ def topic_detail(request, topic_id):
 
 
 @render_to('forums/topic_new.html')
-@login_required
 def topic_new(request, category_id):
 	# TODO check credentials
 	category = get_object_or_404(Category, pk=category_id)
@@ -58,7 +57,6 @@ def topic_new(request, category_id):
 
 
 @render_to('forums/post_new.html')
-@login_required
 def post_new(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if topic_id.is_closed:
@@ -86,7 +84,6 @@ def post_new(request, topic_id):
 	}
 
 @render_to('forums/post_edit.html')
-@login_required
 def post_edit(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
 	topic = post.topic
@@ -117,14 +114,12 @@ def post_edit(request, post_id):
 
 
 @render_to('forums/post_delete.html')
-@login_required
 def post_delete(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
-	if not request.user.is_staff:
-		if not post.id == post.topic.last_post.id:
-			# add a timedelta condition
-			messages.error(request, "You are not allowed to delete this post.")
-			return redirect(topic.get_absolute_url()
+	if not request.user.is_staff and not post.id == post.topic.last_post.id:
+		# add a timedelta condition
+		messages.error(request, "You are not allowed to delete this post.")
+		return redirect(topic.get_absolute_url())
 	if request.method == 'POST':
 		if post.id == post.topic.first_post_id:
 			post.topic.delete()
