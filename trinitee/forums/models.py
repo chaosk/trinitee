@@ -5,7 +5,8 @@ from django.db import models
 class Category(models.Model):
 	title = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
-	parent = models.ForeignKey('self', blank=True, null=True)
+	parent = models.ForeignKey('self', blank=True, null=True,
+		related_name='categories')
 	ordering = models.IntegerField(default=1)
 
 	def __unicode__(self):

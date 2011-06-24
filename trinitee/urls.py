@@ -8,6 +8,7 @@ urlpatterns = patterns('',
 	url(r'^$', 'django.views.generic.simple.direct_to_template',
 		{'template': 'home.html'}, name='home'),
 	(r'^accounts/', include('accounts.urls')),
+	(r'^forums/', include('forums.urls')),
 	(r'^wiki/', include('wiki.urls')),
 )
 
