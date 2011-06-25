@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
-from django.utils import unittest
+from lib.unittest import TestCase
 from accounts.models import UserProfile
 
 
-class AccountsTestCase(unittest.TestCase):
+class AccountsTestCase(TestCase):
 	def setUp(self):
 		if not User.objects.all().exists():
 			self.user1 = User.objects.create_user(username="AnneM",
@@ -13,7 +13,7 @@ class AccountsTestCase(unittest.TestCase):
 			self.user2 = User.objects.create_user(username="JohnD",
 				password='dupa.8', email="john@doe.com")
 			# dupa.8 is kinda epic password in polish internet
-			# not that anyone cares, jsut explaining how it got here
+			# not that anyone cares, just explaining how it got here
 		else:
 			self.user1 = User.objects.get(pk=1)
 			self.user2 = User.objects.get(pk=2)
@@ -43,16 +43,20 @@ class AccountsTestCase(unittest.TestCase):
 		self.assertTrue(bool(len(response.redirect_chain)))
 		self.assertTrue(response.context['user'].is_authenticated())
 		self.assertEqual(response.context['user'].username, "JackB")
+		self.assertMessageCount(response, 1)
+		self.assertHasMessage(response, "Welcome aboard, JackB.")
 
 	def testViewRegisterFailure(self):
 		# Send no POST data
 		response = self.client.post(reverse('register'))
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Send incomplete POST data
 		response = self.client.post(reverse('register'),
 			{'username': "JackB"})
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Send POST data with non-unique username
 		response = self.client.post(reverse('register'),
@@ -60,6 +64,7 @@ class AccountsTestCase(unittest.TestCase):
 			'email2': "jack24@aol.com", 'password1': "wearenotalone",
 			'password2': "wearenotalone"})
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Send POST data with mistyped second email
 		response = self.client.post(reverse('register'),
@@ -67,6 +72,7 @@ class AccountsTestCase(unittest.TestCase):
 			'email2': "jack25@aol.com", 'password1': "wearenotalone",
 			'password2': "wearenotalone"})
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Send POST data with mistyped second password
 		response = self.client.post(reverse('register'),
@@ -74,6 +80,7 @@ class AccountsTestCase(unittest.TestCase):
 			'email2': "jack24@aol.com", 'password1': "wearenotalone",
 			'password2': "wearealone"})
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Try to register while being logged in already
 		self.client.login(username=self.user1.username,
@@ -103,18 +110,23 @@ class AccountsTestCase(unittest.TestCase):
 		self.assertTrue(response.context['user'].is_authenticated())
 		self.assertEqual(response.context['user'].username,
 			self.user1.username)
+		self.assertMessageCount(response, 1)
+		self.assertHasMessage(response, "Hello, {0}."
+			.format(self.user1.username))
 
 	def testViewLoginFailure(self):
 		# Send no POST data
 		response = self.client.post(reverse('login'))
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(response.context['user'].is_authenticated())
+		self.assertTrue(response.context['form'].errors)
 
 		# Send incomplete POST data
 		response = self.client.post(reverse('login'),
 			{'username': self.user1.username})
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(response.context['user'].is_authenticated())
+		self.assertTrue(response.context['form'].errors)
 
 		# Send incorrect POST data
 		response = self.client.post(reverse('login'),
@@ -122,6 +134,16 @@ class AccountsTestCase(unittest.TestCase):
 			'password': 'topsecretwrong'})
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(response.context['user'].is_authenticated())
+		self.assertTrue(response.context['form'].errors)
+
+		# Try to login as disabled user
+		self.user1.is_active = False
+		response = self.client.post(reverse('login'),
+			{'username': self.user1.username,
+			'password': 'topsecret'})
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(response.context['user'].is_authenticated())
+		self.assertTrue(response.context['form'].errors)
 
 		# Try to login while being logged in already
 		self.client.login(username=self.user1.username,

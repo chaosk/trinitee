@@ -1,12 +1,12 @@
 from django.core.urlresolvers import reverse
 from django.test import Client
-from django.utils import unittest
+from lib.unittest import TestCase
 from reversion.models import Version
 from wiki.models import WikiPage
 
 INVALID_SLUG = '_invalidslug'
 
-class WikiTestCase(unittest.TestCase):
+class WikiTestCase(TestCase):
 	def setUp(self):
 		self.page1, c = WikiPage.objects.get_or_create(slug="Page_1", defaults={
 			'title': u"Page 1",
@@ -40,8 +40,9 @@ class WikiTestCase(unittest.TestCase):
 		response = self.client.post(reverse('wiki_new'),
 			{'title': u"Test page", 'content': "Lorem ipsum"},
 			follow=True)
-		
 		self.assertEqual(response.status_code, 200)
+		self.assertMessageCount(response, 1)
+		self.assertHasMessage(response, "New page has been added to the wiki.")
 		
 		final = response.redirect_chain[0]
 		self.assertEqual(final[1], 302)
@@ -51,11 +52,13 @@ class WikiTestCase(unittest.TestCase):
 		# Send no POST data
 		response = self.client.post(reverse('wiki_new'))
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 		
 		# Send incomplete POST data
 		response = self.client.post(reverse('wiki_new'),
 			{'title': u"Test page"})
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Send POST data with non-unique title
 		response = self.client.post(reverse('wiki_new'),
@@ -79,6 +82,9 @@ class WikiTestCase(unittest.TestCase):
 				'comment': "Slightly updated"}, follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(self.page1.get_absolute_url(), response.redirect_chain[0][0])
+		self.assertMessageCount(response, 1)
+		self.assertHasMessage(response, "Successfully updated \"{0}\" page."
+			.format(self.page1.title))
 		self.assertEqual(response.context['page'].content, new_content)
 
 	def testViewEditFailure(self):
@@ -86,6 +92,7 @@ class WikiTestCase(unittest.TestCase):
 		response = self.client.post(reverse('wiki_edit',
 			args=[self.page1.slug]))
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['form'].errors)
 
 		# Try to edit a nonexistent Page
 		response = self.client.post(reverse('wiki_edit',
@@ -107,6 +114,9 @@ class WikiTestCase(unittest.TestCase):
 			args=[self.page2.slug]), follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(reverse('wiki_index'), response.redirect_chain[0][0])
+		self.assertMessageCount(response, 1)
+		self.assertHasMessage(response, "Successfully removed \"{0}\" page."
+			.format(self.page2.title))
 		self.assertRaises(WikiPage.DoesNotExist, WikiPage.objects.get, pk=2)
 
 	def testViewDeleteFailure(self):
