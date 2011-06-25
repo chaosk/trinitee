@@ -21,17 +21,17 @@ def login(request):
 	if next_uri == get_config('LOGIN_URL', reverse('login')):
 		next_uri = get_config('LOGIN_REDIRECT_URL', reverse('home'))
 
-	login_form = LoginForm()
+	form = LoginForm()
 
 	if request.method == 'POST':
-		login_form = LoginForm(request.POST)
-		if login_form.is_valid() and login_form.user:
-			auth_login(request, login_form.user)
-			messages.success(request, "Hello, {0}.".format(login_form.user))
+		form = LoginForm(request.POST)
+		if form.is_valid() and form.user:
+			auth_login(request, form.user)
+			messages.success(request, "Hello, {0}.".format(form.user))
 			return redirect(next_uri)
 
 	return {
-		'login_form': login_form,
+		'form': form,
 		'next': next_uri,
 	}
 
@@ -54,14 +54,14 @@ def register(request):
 	if next_uri == get_config('LOGIN_URL', reverse('login')):
 		next_uri = reverse('home')
 
-	register_form = RegisterForm()
+	form = RegisterForm()
 
 	if request.method == 'POST':
-		register_form = RegisterForm(request.POST)
-		if register_form.is_valid():
-			register_form.save()
-			username = register_form.cleaned_data['username']
-			password = register_form.cleaned_data['password1']
+		form = RegisterForm(request.POST)
+		if form.is_valid():
+			form.save()
+			username = form.cleaned_data['username']
+			password = form.cleaned_data['password1']
 			user = authenticate(username=username, password=password)
 			if user is not None:
 				auth_login(request, user)
@@ -69,7 +69,7 @@ def register(request):
 			return redirect(next_uri)
 
 	return {
-		'register_form': register_form,
+		'form': form,
 		'next': next_uri,
 	}
 

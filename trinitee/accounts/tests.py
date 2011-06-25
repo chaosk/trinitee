@@ -138,12 +138,12 @@ class AccountsTestCase(TestCase):
 
 		# Try to login as disabled user
 		self.user1.is_active = False
-		response = self.client.post(reverse('login'),
-			{'username': self.user1.username,
-			'password': 'topsecret'})
+		self.user1.save()
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(response.context['user'].is_authenticated())
 		self.assertTrue(response.context['form'].errors)
+		self.user1.is_active = True
+		self.user1.save()
 
 		# Try to login while being logged in already
 		self.client.login(username=self.user1.username,
