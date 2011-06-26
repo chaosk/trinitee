@@ -7,7 +7,7 @@ from forums.models import Category, Topic, Post
 
 @render_to('forums/index.html')
 def forum_index(request):
-	categories = Category.objects.filter(parent__isnull=False) \
+	categories = Category.objects.filter(parent__isnull=True) \
 		.select_related()
 	return {
 		'categories': categories,
@@ -96,7 +96,7 @@ def post_edit(request, post_id):
 		if not post.created_by == request.user:
 			messages.error(request, "You are not allowed to edit this post.")
 			return redirect(topic.get_absolute_url())
-		
+
 	form = PostEditForm(instance=post)
 	if request.method == 'POST':
 		form = PostEditForm(request.POST, instance=post)
