@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from annoying.decorators import render_to
+from forums.forms import PostNewForm, TopicNewForm
 from forums.models import Category, Topic, Post
 
 
@@ -97,9 +98,9 @@ def post_edit(request, post_id):
 			messages.error(request, "You are not allowed to edit this post.")
 			return redirect(topic.get_absolute_url())
 
-	form = PostEditForm(instance=post)
+	form = PostNewForm(instance=post)
 	if request.method == 'POST':
-		form = PostEditForm(request.POST, instance=post)
+		form = PostNewForm(request.POST, instance=post)
 		if form.is_valid():
 			form.save()
 			messages.success(request,
