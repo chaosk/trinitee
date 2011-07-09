@@ -10,6 +10,8 @@ urlpatterns = patterns('',
 	(r'^accounts/', include('accounts.urls')),
 	(r'^forums/', include('forums.urls')),
 	(r'^wiki/', include('wiki.urls')),
+	(r'^admin/', include(admin.site.urls)),
+	(r'^', include('core.urls')),
 )
 
 if settings.DEBUG:

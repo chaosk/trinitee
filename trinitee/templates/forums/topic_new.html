@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+	New topic - {{ category.title }}- Forums
+{% endblock title %}
+
+{% block content %}
+	<h1 class="title">New topic</h1>
+	<form action="{% url topic_new category.id %}" method="post">{% csrf_token %}
+		{{ topic_form.as_p }}
+		{{ post_form.as_p }}
+		<input type="submit">
+	</form>
+{% endblock content %}

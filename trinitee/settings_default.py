@@ -97,6 +97,8 @@ USE_L10N = True
 # User profile model
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
+ANONYMOUS_USER_ID = -1
+
 # Message storage backend
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
@@ -105,7 +107,7 @@ LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
 
 ABSOLUTE_URL_OVERRIDES = {
-	'auth.user': lambda u: "/profile/%s/" % u.id,
+	'auth.user': lambda u: "/accounts/profile/%s/" % u.id,
 }
 
 # List of callables that know how to import templates from various sources.
@@ -122,6 +124,11 @@ if TEMPLATE_CACHING:
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
+AUTHENTICATION_BACKENDS = (
+	'django.contrib.auth.backends.ModelBackend',
+	'guardian.backends.ObjectPermissionBackend',
+)
+
 MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.http.ConditionalGetMiddleware',
@@ -131,6 +138,7 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
+	'wiki.middleware.WikiWhitespaceMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -149,6 +157,7 @@ TEMPLATE_DIRS = (
 )
 
 PROJECT_APPS = (
+	'core',
 	'lib',
 	'accounts',
 	'forums',
@@ -162,6 +171,7 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.messages',
 	'django.contrib.admin',
+	'guardian',
 	'reversion',
 	'south',
 ) + PROJECT_APPS

@@ -3,7 +3,7 @@ import unicodedata
 
 
 # code taken from django/template/defaultfilters.py
-# the only change is to not covert value to lowercase
+# the only change is removed converting value to lowercase
 def slugify(value):
 	"""
     Normalizes string, removes slashes, removes spaces

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+	New reply - {{ topic.title }}- Forums
+{% endblock title %}
+
+{% block content %}
+	<h1 class="title">New reply</h1>
+	<form action="{% url post_new topic.category_id topic.id %}" method="post">{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit">
+	</form>
+{% endblock content %}

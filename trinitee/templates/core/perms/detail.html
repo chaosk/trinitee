@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load guardian_tags %}{% load perms_tags %}{% load class_name %}
+
+{% block title %}
+	Permissions - {{ object }} ({{ object|class_name }})
+{% endblock title %}
+
+{% block content %}
+	<table>
+		<tr>
+			<th>Actor</th>
+		{% for perm in perms_to_check %}
+			<th>{{ perm|first }}</th>
+		{% endfor %}
+		</tr>
+		{% for actor in actors %}
+		<tr>
+			{# ajax to make it less painful #}
+			<td>{{ actor }} ({{ actor|class_name }})</td>
+			{% get_obj_perms actor for object as "actor_perms" %}
+			{% for perm in perms_to_check %}
+			<td>{% if perm|first in actor_perms %}&#x2713;{% else %}&#x2717;{% endif %}</td>
+			{% endfor %}
+			<td><a href="{% perms_edit_url object actor %}">edit</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endblock content %}

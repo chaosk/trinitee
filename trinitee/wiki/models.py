@@ -18,6 +18,12 @@ class WikiPage(models.Model):
 	content = models.TextField(help_text="Markdown syntax")
 	content_html = models.TextField()
 
+	class Meta:
+		permissions = (
+			('view_wikipage', 'Can view wikipage'),
+			('moderate_wikipage', 'Can moderate wiki'),
+		)
+
 	def save(self, *args, **kwargs):
 		self.slug = slugify(self.title)
 		self.content_html = markdown(self.content)

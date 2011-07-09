@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ topic.title }} - {{ topic.category.title }} - Forums
+{% endblock title %}
+
+{% block content %}
+	<a href="{% url post_new topic.category_id topic.id %}">New reply</a>
+	<ul>
+		{% for post in posts %}
+		<li>
+			<a href="{{ post.get_absolute_url }}">{{ post.created_by }}</a> at {{ post.created_at }}: {{ post.content_html|safe }}
+		</li>
+		{% empty %}
+		<li>There are no posts at all!</li>
+		{% endfor %}
+	</ul>
+{% endblock content %}

@@ -1,16 +1,31 @@
 from django.contrib.auth.models import User
 from django.db import models
+from core.perms.models import PermissionedModel
+from markdown import markdown
 
 
-class Category(models.Model):
+class Category(PermissionedModel):
 	title = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
 	parent = models.ForeignKey('self', blank=True, null=True,
 		related_name='categories')
 	ordering = models.IntegerField(default=1)
 
+	class Meta:
+		verbose_name_plural = "Categories"
+		permissions = (
+			('view_category', 'Can view category'),
+			('add_topics_category', 'Can create new topics in category'),
+			('add_posts_category', 'Can create new posts in category'),
+			('moderate_category', 'Can moderate category'),
+		)
+
 	def __unicode__(self):
 		return self.title
+
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.topic_list', (), {'category_id': self.id})
 
 
 class Topic(models.Model):
@@ -23,14 +38,36 @@ class Topic(models.Model):
 	category = models.ForeignKey('Category')
 	is_closed = models.BooleanField(default=False)
 	is_sticky = models.BooleanField(default=False)
-	first_post = models.OneToOneField('Post', related_name='topic_root')
+
+	@property
+	def first_post(self):
+		try:
+			return self.posts[0]
+		except IndexError:
+			return None
+
+	@property
+	def last_post(self):
+		try:
+			return self.posts.order_by('-created_at')[0]
+		except IndexError:
+			return None
+	
+	@property
+	def post_count(self):
+		return self.posts.count()
 
 	def __unicode__(self):
 		return self.title
 
+	@models.permalink
+	def get_absolute_url(self):
+		return ('forums.views.topic_detail', (),
+			{'category_id': self.category_id, 'topic_id': self.id})
+
 
 class Post(models.Model):
-	topic = models.ForeignKey('Topic')
+	topic = models.ForeignKey('Topic', related_name='posts')
 	created_at = models.DateTimeField(auto_now_add=True)
 	created_by = models.ForeignKey(User, related_name='created_posts')
 	modified_at = models.DateTimeField(auto_now=True)
@@ -40,8 +77,17 @@ class Post(models.Model):
 	content = models.TextField()
 	content_html = models.TextField()
 
+	def save(self, *args, **kwargs):
+		self.content_html = markdown(self.content)
+		super(Post, self).save(*args, **kwargs)
+
 	def __unicode__(self):
 		return "#{0} by {1}".format(self.id, self.created_by)
+
+	@models.permalink
+	def get_absolute_url(self):
+		# make it a real permalink
+		return ('forums.views.post_permalink', (), {'post_id': self.id})
 
 
 class PostKarma(models.Model):

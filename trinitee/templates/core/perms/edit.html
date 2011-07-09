@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load guardian_tags %}{% load class_name %}
+
+{% block title %}
+	Edit permissions - {{ target }} ({{ target|class_name }})
+{% endblock title %}
+
+{% block content %}
+	<h1 class="title">Edit permissions</h1>
+	<form action="" method="post">{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit">
+	</form>
+{% endblock content %}

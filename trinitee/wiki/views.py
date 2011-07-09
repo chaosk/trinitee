@@ -2,7 +2,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from annoying.decorators import render_to
 from reversion import revision
 from reversion.helpers import generate_patch_html
@@ -47,6 +47,8 @@ def wiki_detail(request, slug):
 
 @render_to('wiki/new.html')
 def wiki_new(request):
+	if not request.user.has_perm('wiki.add_wikipage'):
+		return HttpResponseForbidden()
 	form = WikiNewForm()
 	if request.method == 'POST':
 		form = WikiNewForm(request.POST)
@@ -63,6 +65,8 @@ def wiki_new(request):
 @render_to('wiki/edit.html')
 def wiki_edit(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
+	if not request.user.has_perm('wiki.edit_wikipage', page):
+		return HttpResponseForbidden()
 	form = WikiEditForm(instance=page)
 	if request.method == 'POST':
 		form = WikiEditForm(request.POST, instance=page)
@@ -82,6 +86,8 @@ def wiki_edit(request, slug):
 @render_to('wiki/delete.html')
 def wiki_delete(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
+	if not request.user.has_perm('wiki.delete_wikipage', page):
+		return HttpResponseForbidden()
 	if request.method == 'POST':
 		page.delete()
 		messages.success(request,
@@ -159,6 +165,8 @@ def wiki_compare(request, slug, rev_from, rev_to):
 
 @render_to("wiki/revert.html")
 def wiki_revert(request, slug, rev):
+	if not request.user.has_perm('wiki.moderate_wikipage'):
+		return HttpResponseForbidden()
 	page = get_object_or_404(WikiPage, slug=slug)
 	version = get_object_or_404(Version.objects.select_related(), pk=rev)
 	if page.id != int(version.object_id):
@@ -186,6 +194,8 @@ def wiki_revert(request, slug, rev):
 
 @render_to("wiki/restore.html")
 def wiki_restore(request, slug, rev):
+	if not request.user.has_perm('wiki.moderate_wikipage'):
+		return HttpResponseForbidden()
 	version = get_object_or_404(Version, pk=rev)
 	if request.method == 'POST':
 		version.revert()

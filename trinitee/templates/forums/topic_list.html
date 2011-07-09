@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ category.title }} - Forums
+{% endblock title %}
+
+{% block content %}
+	<a href="{{ category.get_permissions_url }}">Permissions</a>
+	{% if category.categories.exists %}
+		<ul>
+			{% for subcategory in category.categories.all %}
+				<li><a href="{{ subcategory.get_absolute_url }}">{{ subcategory.title }}</a></li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+	<a href="{% url topic_new category.id %}">New topic</a>
+	<ul>
+		{% for topic in topics %}
+		<li>
+			<a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a> by {{ topic.created_by }} ({{ topic.post_count }} post{{ topic.post_count|pluralize }}, <a href="{{ topic.last_post.get_absolute_url }}">last</a> by {{ topic.last_post.created_by }})
+		</li>
+		{% empty %}
+		<li>There are no topics at all!</li>
+		{% endfor %}
+	</ul>
+{% endblock content %}

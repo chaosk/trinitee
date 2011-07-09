@@ -15,7 +15,7 @@ class UserProfile(models.Model):
 
 
 def post_user_save(instance, **kwargs):
-	if kwargs['created']:
+	if kwargs['created'] and instance.id > 0:
 		profile = UserProfile(
 			user=instance,
 		)

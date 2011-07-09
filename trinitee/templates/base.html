@@ -26,6 +26,7 @@
 	<ul class="menu main">
 		<li><a href="{% url home %}">Home</a></li>
 		<li><a href="{% url wiki_index %}">Wiki</a></li>
+		<li><a href="{% url forums_index %}">Forums</a></li>
 		<li><a href="{% url userlist %}">User list</a></li>
 		{% if request.user.is_authenticated %}
 			<li><a href="{% url logout %}">Logout</a></li>
