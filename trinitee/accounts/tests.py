@@ -6,17 +6,15 @@ from accounts.models import UserProfile
 
 
 class AccountsTestCase(TestCase):
+	fixtures = ['accounts_tests']
+
 	def setUp(self):
-		if not User.objects.exclude(id__lt=0).exists():
-			self.user1 = User.objects.create_user(username="AnneM",
-				password='topsecret', email="anne@moore.com")
-			self.user2 = User.objects.create_user(username="JohnD",
-				password='dupa.8', email="john@doe.com")
-			# dupa.8 is kinda epic password in polish internet
-			# not that anyone cares, just explaining how it got here
-		else:
-			self.user1 = User.objects.get(username="AnneM")
-			self.user2 = User.objects.get(username="JohnD")
+		self.user1 = User.objects.get(pk=1)
+		# password for user1 - topsecret
+		self.user2 = User.objects.get(pk=2)
+		# password for user2 - dupa.8
+		# dupa.8 is kinda epic password in polish internet
+		# not that anyone cares, just explaining how it got here
 		self.client = Client()
 
 	def testViewProfileSuccess(self):

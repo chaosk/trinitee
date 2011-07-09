@@ -1,0 +1,30 @@
+[
+	{
+		"pk": 1,
+		"model": "wiki.wikipage",
+		"fields": {
+			"title": "Index",
+			"created_at": "2011-07-03 03:28:46",
+			"modified_at": "2011-07-03 03:28:46",
+			"created_by": null,
+			"modified_by": null,
+			"content_html": "",
+			"content": "",
+			"slug": "Index"
+		}
+	},
+	{
+		"pk": 2,
+		"model": "wiki.wikipage",
+		"fields": {
+			"title": "Page 2",
+			"created_at": "2011-07-03 03:28:47",
+			"modified_at": "2011-07-03 03:28:47",
+			"created_by": null,
+			"modified_by": null,
+			"content_html": "",
+			"content": "",
+			"slug": "Page_2"
+		}
+	}
+]

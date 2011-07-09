@@ -1,10 +1,10 @@
-from django.utils import unittest
+from django.test import TestCase as DjTestCase
 
 """
 Based on http://stackoverflow.com/questions/2897609/#4934325
 """
 
-class TestCase(unittest.TestCase):
+class TestCase(DjTestCase):
 	def assertMessageCount(self, response, expect_num):
 		"""
 		Asserts that exactly the given number of messages have been sent.
