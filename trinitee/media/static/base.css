@@ -7,7 +7,7 @@ html {
 	color: #666;
 	background-color: #e7e5be;
 	font-size: 13px;
-	font-family: 'Droid Sans', sans-serif;
+	font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans serif;
 	text-shadow: 0 1px 0 rgba(255,255,255,0.3);
 }
 
@@ -160,3 +160,31 @@ form {
 			background-color: #c54747;
 			padding: 5px 10px;
 		}
+
+table {
+	width: 100%;
+}
+
+tbody tr:nth-child(odd) {
+	background-color: #f9f8e8;
+}
+
+tbody tr:hover {
+	background-color: #e3fcac;
+}
+
+th {
+	font-weight: normal;
+}
+
+td {
+	text-align: center;
+}
+
+td, th {
+	padding: 5px 10px;
+}
+
+td:first-child, th:first-child {
+	text-align: left;
+}

@@ -5,16 +5,30 @@
 {% endblock title %}
 
 {% block content %}
-	<ul>
+	<table>
+		<thead>
+			<tr>
+				<th>Category</th>
+				<th>Topics</th>
+			</tr>
+		</thead>
+		<tbody>
 		{% for category in categories %}
-		<li>
-			<a href="{{ category.get_absolute_url }}">{{ category.title }}</a> - {{ category.description }}
+			<tr>
+				<td><a href="{{ category.get_absolute_url }}">{{ category.title }}</a>{% if category.description %} &ndash; {{ category.description }}{% endif %}</td>
+				<td>{{ category.topic_set.count }}</td>
+			</tr>
 			{% for subcategory in category.categories.all %}
-				<a href="{{ subcategory.get_absolute_url }}">{{ subcategory.title }}</a>
+			<tr class="subcategory">
+				<td><a href="{{ subcategory.get_absolute_url }}">{{ subcategory.title }}</a>{% if subcategory.description %} &ndash; {{ subcategory.description }}{% endif %}</td>
+				<td>{{ subcategory.topic_set.count }}</td>
+			</tr>
 			{% endfor %}
-		</li>
 		{% empty %}
-		<li>There are no categories at all!</li>
+		<tr>
+			<td>There are no categories at all!</td>
+		</tr>
 		{% endfor %}
-	</ul>
+		</tbody>
+	</table>
 {% endblock content %}
