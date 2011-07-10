@@ -5,14 +5,32 @@
 {% endblock title %}
 
 {% block content %}
-	<a href="{% url post_new topic.category_id topic.id %}">New reply</a>
-	<ul>
-		{% for post in posts %}
-		<li>
-			<a href="{{ post.get_absolute_url }}">{{ post.created_by }}</a> at {{ post.created_at }}: {{ post.content_html|safe }}
-		</li>
-		{% empty %}
-		<li>There are no posts at all!</li>
-		{% endfor %}
-	</ul>
+	<h3 class="nb">{{ topic.title }}</h3>
+	{% for post in posts %}
+	<div class="post{% if post.created_by == topic.created_by %} author{% endif %}">
+		<div class="sidebar">
+			<a class="user" href="{{ post.get_absolute_url }}">{{ post.created_by }}</a>
+			<div class="group">
+				{% if post.created_by.is_superuser %}
+					Superuser
+				{% else %}
+					{% if post.created_by.is_staff %}
+						Staff
+					{% else %}
+						Member
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="content">
+			{{ post.content_html|safe }}
+		</div>
+
+		<div class="footer">
+			Posted {{ post.created_at|timesince }} ago <a href="{{ post.get_absolute_url }}">#</a>
+		</div>
+	</div>
+	{% endfor %}
+	<a href="{% url post_new topic.category_id topic.id %}">New reply &raquo;</a>
 {% endblock content %}

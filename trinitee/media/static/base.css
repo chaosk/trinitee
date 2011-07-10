@@ -200,6 +200,58 @@ td:first-child, th:first-child {
 	width: 50%;
 }
 
-td:last-child, th:last-child {
+.forums td:last-child, .forums th:last-child {
 	width: 15%;
 }
+
+.post {
+	clear: both;
+	overflow: hidden;
+}
+
+	.post .sidebar {
+		padding: 20px 10px;
+		float: left;
+	}
+
+	.post .sidebar .user {
+		font-weight: bold;
+	}
+
+	.post .sidebar .group {
+		font-size: 11px;
+	}
+
+	.post .footer,
+	.post .content {
+		color: #333;
+		padding: 20px 10px;
+		width: 750px;
+		float: right;
+	}
+
+	.post:nth-child(even) .footer,
+	.post:nth-child(even) .content {
+		background-color: #f9f8e8;
+	}
+
+		.post .content p {
+			margin: 0 0 10px;
+		}
+
+		.post .content p:last-child {
+			margin-bottom: 0;
+		}
+
+	.post.author .footer,
+	.post.author .content {
+		background-color: #EAFFBE;
+	}
+
+	.post .footer {
+		border-top: thin dotted #ddd;
+		font-size: 10px;
+		text-transform: uppercase;
+		padding: 10px;
+		clear: right;
+	}
