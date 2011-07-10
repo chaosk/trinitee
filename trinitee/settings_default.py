@@ -8,6 +8,8 @@ Please override settings in settings_local.py instead.
 
 import os
 import sys
+from django.core.urlresolvers import reverse
+from django.utils.functional import lazy
 # Django settings for trinitee project.
 
 PROJECT_DIR = os.path.dirname(__file__)
@@ -106,8 +108,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
 
+reverse_lazy = lazy(reverse, str)
+
 ABSOLUTE_URL_OVERRIDES = {
-	'auth.user': lambda u: "/accounts/profile/%s/" % u.id,
+	'auth.user': lambda u: reverse_lazy('profile', kwargs={'user_id': u.id}),
 }
 
 # List of callables that know how to import templates from various sources.
