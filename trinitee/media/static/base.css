@@ -162,7 +162,12 @@ form {
 		}
 
 table {
+	border-collapse: collapse;
 	width: 100%;
+}
+
+thead {
+	font-size: 15px;
 }
 
 tbody tr:nth-child(odd) {
@@ -172,6 +177,11 @@ tbody tr:nth-child(odd) {
 tbody tr:hover {
 	background-color: #e3fcac;
 }
+
+	tbody tr.subcategory td:first-child {
+		font-size: 11px;
+		padding: 5px 25px;
+	}
 
 th {
 	font-weight: normal;
@@ -187,4 +197,9 @@ td, th {
 
 td:first-child, th:first-child {
 	text-align: left;
+	width: 50%;
+}
+
+td:last-child, th:last-child {
+	width: 15%;
 }

@@ -5,22 +5,53 @@
 {% endblock title %}
 
 {% block content %}
-	<a href="{{ category.get_permissions_url }}">Permissions</a>
 	{% if category.categories.exists %}
-		<ul>
-			{% for subcategory in category.categories.all %}
-				<li><a href="{{ subcategory.get_absolute_url }}">{{ subcategory.title }}</a></li>
-			{% endfor %}
-		</ul>
-	{% endif %}
-	<a href="{% url topic_new category.id %}">New topic</a>
-	<ul>
-		{% for topic in topics %}
-		<li>
-			<a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a> by {{ topic.created_by }} ({{ topic.post_count }} post{{ topic.post_count|pluralize }}, <a href="{{ topic.last_post.get_absolute_url }}">last</a> by {{ topic.last_post.created_by }})
-		</li>
-		{% empty %}
-		<li>There are no topics at all!</li>
+	<h3 class="nb">Subforums</h3>
+	<table class="forums">
+		<thead>
+			<tr>
+				<th>Category</th>
+				<th>Topics</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for subcategory in category.categories.all %}
+			<tr>
+				<td><a href="{{ subcategory.get_absolute_url }}">{{ subcategory.title }}</a>{% if subcategory.description %} &ndash; {{ subcategory.description }}{% endif %}</td>
+				<td>{{ subcategory.topic_set.count }}</td>
+			</tr>
 		{% endfor %}
-	</ul>
+		</tbody>
+	</table>
+	{% endif %}
+	<h3 class="nb">Topics</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Topic &ndash; <a href="{% url topic_new category.id %}">Add New &raquo;</a></th>
+				<th>Author</th>
+				<th>Posts</th>
+				<th>Last poster</th>
+				<th>Freshness</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for topic in topics %}
+			<tr>
+				<td><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></td>
+				<td><a href="{{ topic.created_by.get_absolute_url }}">{{ topic.created_by }}</a></td>
+				<td>{{ topic.post_count }}</td>
+				<td><a href="{{ topic.last_post.created_by.get_absolute_url }}">{{ topic.last_post.created_by }}</a></td>
+				<td>{{ topic.last_post.created_at|timesince }}</td>
+			</tr>
+		{% empty %}
+			<tr>
+				<td colspan="5">There are no topics at all!</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<p>
+		<a href="{{ category.get_permissions_url }}">Permissions</a>
+	</p>
 {% endblock content %}

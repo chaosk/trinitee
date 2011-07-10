@@ -5,7 +5,8 @@
 {% endblock title %}
 
 {% block content %}
-	<table>
+	<h3 class="nb">Forums</h3>
+	<table class="forums">
 		<thead>
 			<tr>
 				<th>Category</th>
@@ -26,7 +27,7 @@
 			{% endfor %}
 		{% empty %}
 		<tr>
-			<td>There are no categories at all!</td>
+			<td colspan="2">There are no categories at all!</td>
 		</tr>
 		{% endfor %}
 		</tbody>
