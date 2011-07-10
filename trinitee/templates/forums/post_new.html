@@ -9,5 +9,31 @@
 	<form action="{% url post_new topic.category_id topic.id %}" method="post">{% csrf_token %}
 		{{ form.as_p }}
 		<input type="submit">
+		<input type="submit" name="preview" value="Preview">
 	</form>
+	{% if post_preview %}
+	<h2>Preview</h2>
+	<div class="post author">
+		<div class="sidebar">
+			<a href="{{ request.user.get_absolute_url }}">{{ request.user }}</a>
+			<div class="group">
+				{% if request.user.is_superuser %}
+					Superuser
+				{% else %}
+					{% if request.user.is_staff %}
+						Staff
+					{% else %}
+						Member
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+		<div class="content">
+			{{ post_preview|safe }}
+		</div>
+		<div class="footer">
+			Posted 0 minutes ago <a href="#">#</a>
+		</div>
+	</div>
+	{% endif %}
 {% endblock content %}
