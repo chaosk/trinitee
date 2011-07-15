@@ -1,10 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import models
+from core.perms.models import PermissionedModel
 from lib.templatefilters import slugify
 from markdown import markdown
 
 
-class WikiPage(models.Model):
+class WikiPage(PermissionedModel):
 	""" A wiki page """
 
 	title = models.CharField(max_length=255, unique=True)
@@ -20,7 +21,6 @@ class WikiPage(models.Model):
 
 	class Meta:
 		permissions = (
-			('view_wikipage', 'Can view wikipage'),
 			('moderate_wikipage', 'Can moderate wiki'),
 		)
 

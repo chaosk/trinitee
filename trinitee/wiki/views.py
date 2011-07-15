@@ -65,7 +65,7 @@ def wiki_new(request):
 @render_to('wiki/edit.html')
 def wiki_edit(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
-	if not request.user.has_perm('wiki.edit_wikipage', page):
+	if not request.user.has_perm('wiki.edit_wikipage'):
 		return HttpResponseForbidden()
 	form = WikiEditForm(instance=page)
 	if request.method == 'POST':
@@ -86,7 +86,7 @@ def wiki_edit(request, slug):
 @render_to('wiki/delete.html')
 def wiki_delete(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
-	if not request.user.has_perm('wiki.delete_wikipage', page):
+	if not request.user.has_perm('wiki.delete_wikipage'):
 		return HttpResponseForbidden()
 	if request.method == 'POST':
 		page.delete()
@@ -103,7 +103,8 @@ def wiki_delete(request, slug):
 @render_to('wiki/list.html')
 def wiki_list(request):
 	return {
-		'pages': WikiPage.objects.all()
+		'pages': WikiPage.objects.all(),
+		'permissions_url': WikiPage().get_permissions_url(), # hackish
 	}
 
 

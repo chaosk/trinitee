@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
-from core.perms.models import PermissionedModel
+from core.perms.models import GranularPermissionedModel
 from markdown import markdown
 
 
-class Category(PermissionedModel):
+class Category(GranularPermissionedModel):
 	title = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
 	parent = models.ForeignKey('self', blank=True, null=True,
