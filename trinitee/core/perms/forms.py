@@ -187,9 +187,12 @@ class GroupPermissionsForm(BasePermissionsForm):
 		perms = self.cleaned_data[self.get_perms_field_name()]
 		model_perms = [c[0] for c in self.get_perms_field_choices()]
 
+		# woo.
+		app_label = ContentType.objects.get_for_model(self.model).app_label
+
 		to_remove = set(model_perms) - set(perms)
 		for perm in to_remove:
-			remove_perm(perm, self.group)
+			remove_perm("{0}.{1}".format(app_label, perm), self.group)
 
 		for perm in perms:
-			assign(perm, self.group)
+			assign("{0}.{1}".format(app_label, perm), self.group)
