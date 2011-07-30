@@ -82,11 +82,11 @@ def topic_new(request, category_id):
 				new_post.save()
 				messages.success(request, "Successfully created a new topic.")
 				return redirect(new_topic.get_absolute_url())
-	return {
+	return dict({
 		'category': category,
 		'topic_form': topic_form,
 		'post_form': post_form,
-	} + extra_context
+	}, **extra_context)
 
 
 @render_to('forums/post_new.html')
@@ -125,10 +125,10 @@ def post_new(request, category_id, topic_id):
 					"Your reply has been saved."
 				)
 				return redirect(new_post.get_absolute_url())
-	return {
+	return dict({
 		'topic': topic,
 		'form': form,
-	} + extra_context
+	}, **extra_context)
 
 
 @render_to('forums/post_edit.html')
@@ -163,10 +163,10 @@ def post_edit(request, post_id):
 						if request.user == post.created_by else "Post")
 				)
 				return redirect(post.get_absolute_url())
-	return {
+	return dict({
 		'page': page,
 		'form': form,
-	} + extra_context
+	}, **extra_context)
 
 
 @render_to('forums/post_delete.html')
