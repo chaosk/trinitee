@@ -3,21 +3,23 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-	<div style="float: left; padding: 0 15px 0 15px;">
-		<img src="http://teeworlds.com/images/splashtee.png" alt="">
-	</div>
-	<div style="margin-left: 240px">
-		<h1>A retro multiplayer shooter</h1>
-		<p>
-			Teeworlds is a <b>free online multiplayer game</b>, available for
-			<b>all major operating systems</b>. Battle with up to
-			<b>16 players</b> in a variety of game modes, including
-			<b>Team Deathmatch</b> and <b>Capture The Flag</b>. You can even
-			<b>design your own maps!</b>
-		</p>
-		<p>
-			Need help? Head over to the <a href="/help/"><b>support section</b></a>!
-		</p>
-	</div>
+	<div id="header">
+		<div style="float: left; padding: 20px 30px 0;">
+			<img src="{{ STATIC_URL }}images/splashtee1.png" alt="">
+		</div>
+
+		<div id="header_box">
+			<h1>A retro multiplayer shooter</h1>
+			<p>
+				Teeworlds is a <b>free online multiplayer game</b>, available for
+				<b>all major operating systems</b>. Battle with up to
+				<b>16 players</b> in a variety of game modes, including
+				<b>Team Deathmatch</b> and <b>Capture The Flag</b>. You can even
+				<b>design your own maps!</b>
+			</p>
+			<p>
+				Need help? Head over to the <a href="/help/"><b>support section</b></a>!
+			</p>
+		</div>
 </div>
 {% endblock content %}

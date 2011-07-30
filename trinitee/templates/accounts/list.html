@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock title %}
 {% block content %}
-	<h2>User list</h2>
-	<ul>
-	{% for user in users %}
-		<li><a href="{{ user.get_absolute_url }}">{{ user }}</a></li>
-	{% endfor %}
-	</ul>
-	Users count: {{ users.count }}
+	<div id="main">
+		<h2>User list</h2>
+		<ul>
+		{% for user in users %}
+			<li><a href="{{ user.get_absolute_url }}">{{ user }}</a></li>
+		{% endfor %}
+		</ul>
+		Users count: {{ users.count }}
+	</div>
 {% endblock %}

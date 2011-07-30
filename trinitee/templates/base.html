@@ -1,3 +1,4 @@
+{% load menu %}
 <!DOCTYPE html>
 <html>
 
@@ -9,9 +10,36 @@
 </head>
 
 <body>
-	<header class="main">
-		<h1>trinitee</h1>
-	</header>
+
+	<div id="menu">
+		<a id="logo" href=""><img src="{{ STATIC_URL }}images/teeworlds-logo.png" alt="teeworlds logo"></a>
+		<ul>
+			{% url home as url_home %}
+			{% url wiki_index as url_wiki_index %}
+			{% url forums_index as url_forums_index %}
+			{% url userlist as url_userlist %}
+			<li{% current request url_home %}><a href="{{ url_home }}">Home</a></li>
+			<li{% current request url_wiki_index %}><a href="{{ url_wiki_index }}">Wiki</a></li>
+			<li{% current request url_forums_index %}><a href="{{ url_forums_index }}">Forums</a></li>
+			<li{% current request url_userlist %}><a href="{{ url_userlist }}">User list</a></li>
+			{% if request.user.is_authenticated %}
+				<li><a href="{% url logout %}">Logout</a></li>
+			{% else %}
+				{% url login as url_login %}
+				{% url register as url_register %}
+				<li{% current request url_login %}><a href="{{ url_login }}">Login</a></li>
+				<li{% current request url_register %}><a href="{{ url_register }}">Register</a></li>
+			{% endif %}
+		</ul>
+	</div>
+
+	<div id="submenu">
+		<div class="in">
+			<ul>
+				{% block extra_menu %}{% endblock extra_menu %}
+			</ul>
+		</div>
+	</div>
 
 	{% if messages %}
 	<section id="messages">
@@ -23,27 +51,16 @@
 	</section>
 	{% endif %}
 
-	<ul class="menu main">
-		<li><a href="{% url home %}">Home</a></li>
-		<li><a href="{% url wiki_index %}">Wiki</a></li>
-		<li><a href="{% url forums_index %}">Forums</a></li>
-		<li><a href="{% url userlist %}">User list</a></li>
-		{% if request.user.is_authenticated %}
-			<li><a href="{% url logout %}">Logout</a></li>
-		{% else %}
-			<li><a href="{% url login %}">Login</a></li>
-			<li><a href="{% url register %}">Register</a></li>
-		{% endif %}
-		{% block extra_menu %}{% endblock extra_menu %}
-	</ul>
+	<div id="page" class="in">
 
-	<div id="content">
 		{% block content %}{% endblock content %}
+
 	</div>
 
-	<footer>
-		&copy; 2011
-	</footer>
+
+	<div id="page_foot">
+		Trinitee - Copyright &copy; 2011
+	</div>
 </body>
 
 </html>

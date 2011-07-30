@@ -13,7 +13,9 @@
 {% endblock extra_menu %}
 
 {% block content %}
-	<h1 class="title">{{ page }}</h1>
+	<div id="main">
+		<h1 class="title">{{ page }}</h1>
 
-	{{ page.content_html|safe }}
+		{{ page.content_html|safe }}
+	</div>
 {% endblock content %}
