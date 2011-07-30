@@ -3,6 +3,7 @@
 *.sqlite
 *.svn*
 *.tmproj
+*.geany
 trinitee/settings_local.py
 build/
 pip-log.txt
