@@ -10,6 +10,8 @@ urlpatterns = patterns('forums.views',
 		'topic_quick_moderation', name='topic_quick_moderation'),
 	url(r'^(?P<category_id>\d+)/(?P<topic_id>\d+)/reply/$', 'post_new',
 		name='post_new'),
+	url(r'^post/(?P<post_id>\d+)/karma/(?P<action>\w+)/$', 'karma_vote',
+		name='karma_vote'),
 	url(r'^post/(?P<post_id>\d+)/$', 'post_permalink',
 		name='post_permalink'),
 )
