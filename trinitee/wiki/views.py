@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden
-from annoying.decorators import render_to
+from django.template.response import TemplateResponse
 from reversion import revision
 from reversion.helpers import generate_patch_html
 from reversion.models import Version
@@ -11,18 +11,16 @@ from wiki.forms import WikiNewForm, WikiEditForm
 from wiki.models import WikiPage
 
 
-@render_to('wiki/detail.html')
 def wiki_index(request):
 	""" Returns Index wiki page """
 	page, created = WikiPage.objects.get_or_create(slug='Index',
 		defaults={'title': u'Index'}
 	)
-	return {
+	return TemplateResponse(request, 'wiki/detail.html', {
 		'page': page,
-	}
+	})
 
 
-@render_to('wiki/detail.html')
 def wiki_detail(request, slug):
 	try:
 		page = WikiPage.objects.get(slug=slug)
@@ -40,12 +38,11 @@ def wiki_detail(request, slug):
 				'slug': slug,
 				'rev': deleted_version.id,
 			}))
-	return {
+	return TemplateResponse(request, 'wiki/detail.html', {
 		'page': page,
-	}
+	})
 
 
-@render_to('wiki/new.html')
 def wiki_new(request):
 	if not request.user.has_perm('wiki.add_wikipage'):
 		return HttpResponseForbidden()
@@ -57,12 +54,11 @@ def wiki_new(request):
 			messages.success(request, "New page has been added to the wiki.")
 			revision.comment = "Initial version"
 			return redirect(new_page.get_absolute_url())
-	return {
+	return TemplateResponse(request, 'wiki/new.html', {
 		'form': form,
-	}
+	})
 
 
-@render_to('wiki/edit.html')
 def wiki_edit(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
 	if not request.user.has_perm('wiki.edit_wikipage'):
@@ -77,13 +73,12 @@ def wiki_edit(request, slug):
 			)
 			revision.comment = form.cleaned_data.get('comment')
 			return redirect(page.get_absolute_url())
-	return {
+	return TemplateResponse(request, 'wiki/edit.html', {
 		'page': page,
 		'form': form,
-	}
+	})
 
 
-@render_to('wiki/delete.html')
 def wiki_delete(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
 	if not request.user.has_perm('wiki.delete_wikipage'):
@@ -95,20 +90,18 @@ def wiki_delete(request, slug):
 		)
 		revision.comment = "Page deleted"
 		return redirect(reverse('wiki_index'))
-	return {
+	return TemplateResponse(request, 'wiki/delete.html', {
 		'page': page,
-	}
+	})
 
 
-@render_to('wiki/list.html')
 def wiki_list(request):
-	return {
+	return TemplateResponse(request, 'wiki/list.html', {
 		'pages': WikiPage.objects.all(),
 		'permissions_url': WikiPage().get_permissions_url(), # hackish
-	}
+	})
 
 
-@render_to('wiki/history.html')
 def wiki_history(request, slug):
 	page = get_object_or_404(WikiPage, slug=slug)
 	versions = Version.objects.get_for_object(page).select_related() \
@@ -117,14 +110,13 @@ def wiki_history(request, slug):
 		latest_version_id = versions[0].id
 	except IndexError:
 		latest_version_id = None
-	return {
+	return TemplateResponse(request, 'wiki/history.html', {
 		'page': page,
 		'latest_version_id': latest_version_id,
 		'versions': versions,
-	}
+	})
 
 
-@render_to('wiki/history_detail.html')
 def wiki_history_detail(request, slug, rev):
 	page = get_object_or_404(WikiPage, slug=slug)
 	try:
@@ -133,13 +125,12 @@ def wiki_history_detail(request, slug, rev):
 		raise Http404
 	if page.id != int(version.object_id):
 		raise Http404
-	return {
+	return TemplateResponse(request, 'wiki/history_detail.html', {
 		'page': version.get_field_dict(),
 		'revision': version.revision,
-	}
+	})
 
 
-@render_to('wiki/compare.html')
 def wiki_compare(request, slug, rev_from, rev_to):
 	page = get_object_or_404(WikiPage, slug=slug)
 	try:
@@ -156,15 +147,14 @@ def wiki_compare(request, slug, rev_from, rev_to):
 	revision_to = version_to.revision
 	revision_from = version_from.revision
 	patch_html = generate_patch_html(version_from, version_to, "content")
-	return {
+	return TemplateResponse(request, 'wiki/compare.html', {
 		'page': page,
 		'patch_html': patch_html,
 		'revision_from': revision_from,
 		'revision_to': revision_to,
-	}
+	})
 
 
-@render_to("wiki/revert.html")
 def wiki_revert(request, slug, rev):
 	if not request.user.has_perm('wiki.moderate_wikipage'):
 		return HttpResponseForbidden()
@@ -187,13 +177,12 @@ def wiki_revert(request, slug, rev):
 		)
 		revision.comment = "Reverted to #{0}".format(version.id)
 		return redirect(reverse('wiki_detail', kwargs={'slug': slug}))
-	return {
+	return TemplateResponse(request, 'wiki/revert.html', {
 		'page': page,
 		'version': version,
-	}
+	})
 
 
-@render_to("wiki/restore.html")
 def wiki_restore(request, slug, rev):
 	if not request.user.has_perm('wiki.moderate_wikipage'):
 		return HttpResponseForbidden()
@@ -210,6 +199,6 @@ def wiki_restore(request, slug, rev):
 		)
 		revision.comment = "Page restored"
 		return redirect(reverse('wiki_detail', kwargs={'slug': slug}))
-	return {
+	return TemplateResponse(request, 'wiki/restore.html', {
 		'version': version,
-	}
+	})

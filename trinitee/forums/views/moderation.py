@@ -2,14 +2,11 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from annoying.decorators import render_to
+from django.template.response import TemplateResponse
 from forums.forms import QModMoveForm, TopicNewForm
 from forums.models import Post, Topic
 
 
-# decorating with render_to for
-# confirmation-requiring methods (e.g. topic delete)
-@render_to('forums/qmod_confirmation.html')
 @login_required
 # note:
 #   Those actions are POST only, and confirmation is not required.
@@ -22,13 +19,16 @@ def topic_quick_moderation(request, topic_id, **kwargs):
 		raise Http404
 	if request.method == 'POST':
 		action = request.cleaned_data.get('action')
+		# BTW: magic happens here
 		allowed_methods = ['topic_delete', 'topic_move', 'topic_open',
 				'topic_close', 'topic_stick', 'topic_unstick',
 				'topic_delete_posts', 'topic_split']
 		if action in allowed_methods:
 			ret = globals().get('qmod_' + action)(request, topic)
 			if ret != None:
-				return ret
+				# confirmation-requiring methods (e.g. topic delete)
+				return TemplateResponse(request,
+					'forums/qmod_confirmation.html', ret)
 	return redirect(topic.get_absolute_url())
 
 

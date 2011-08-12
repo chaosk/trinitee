@@ -8,7 +8,7 @@ from django.http import Http404
 from core.perms.forms import UserPermissionsForm
 from core.perms.forms import GroupPermissionsForm
 from core.perms.models import GranularPermissionedModel, PermissionedModel
-from annoying.decorators import render_to
+from django.template.response import TemplateResponse
 from guardian.forms import GroupObjectPermissionsForm
 from guardian.forms import UserObjectPermissionsForm
 from guardian.shortcuts import get_users_with_perms
@@ -16,7 +16,6 @@ from guardian.shortcuts import get_perms_for_model
 from guardian.utils import get_anonymous_user
 
 
-@render_to('core/perms/granular_detail.html')
 @login_required
 def granular_perms_detail(request, contenttype_id, object_id):
 	if not request.user.is_staff:
@@ -42,15 +41,14 @@ def granular_perms_detail(request, contenttype_id, object_id):
 	actors += list(get_users_with_perms(obj,
 		with_group_users=False).exclude(pk=anonymous.id))
 
-	return {
+	return TemplateResponse(request, 'core/perms/granular_detail.html', {
 		'perms_to_check': model._meta.permissions,
 		'actors': actors,
 		'object': obj,
 		'obj_ct_id': contenttype_id,
-	}
+	})
 
 
-@render_to('core/perms/detail.html')
 @login_required
 def perms_detail(request, contenttype_id):
 	if not request.user.is_staff:
@@ -66,14 +64,13 @@ def perms_detail(request, contenttype_id):
 	# adding anonymous user
 	actors.append(anonymous)
 
-	return {
+	return TemplateResponse(request, 'core/perms/detail.html', {
 		'perms_to_check': get_perms_for_model(model),
 		'actors': actors,
 		'model': model,
-	}
+	})
 
 
-@render_to('core/perms/edit.html')
 @login_required
 def perms_edit(request, target_ct_id, target_obj_id,
 	actor_type, actor_obj_id):
@@ -133,7 +130,7 @@ def perms_edit(request, target_ct_id, target_obj_id,
 	}
 	if target:
 		extra_context['target'] = target
-	return extra_context
+	return TemplateResponse(request, 'core/perms/edit.html', extra_context)
 
 
 # TODO DRY

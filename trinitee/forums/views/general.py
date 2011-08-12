@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from annoying.decorators import render_to
+from django.template.response import TemplateResponse
 from annoying.functions import get_config
 from guardian.shortcuts import get_objects_for_user
 from guardian.utils import get_anonymous_user
@@ -12,7 +12,6 @@ from forums.forms import PostNewForm, TopicNewForm
 from forums.models import Category, Topic, Post
 
 
-@render_to('forums/index.html')
 def forums_index(request):
 	if request.user.is_authenticated():
 		user = request.user
@@ -22,36 +21,33 @@ def forums_index(request):
 	categories = categories.filter(parent__isnull=True).select_related()
 	# FIXME currently all subcategories will be shown
 	#       if an user has access to root category
-	return {
+	return TemplateResponse(request, 'forums/index.html', {
 		'categories': categories,
-	}
+	})
 
 
-@render_to('forums/topic_list.html')
 def topic_list(request, category_id):
 	category = get_object_or_404(Category, pk=category_id)
 	if not request.user.has_perm('forums.view_category', category):
 		raise Http404
 	topics = Topic.objects.filter(category=category).select_related()
-	return {
+	return TemplateResponse(request, 'forums/topic_list.html', {
 		'category': category,
 		'topics': topics,
-	}
+	})
 
 
-@render_to('forums/topic_detail.html')
 def topic_detail(request, category_id, topic_id):
 	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
 	if not request.user.has_perm('forums.view_category', topic.category):
 		raise Http404
 	posts = Post.objects.filter(topic=topic).select_related()
-	return {
+	return TemplateResponse(request, 'forums/topic_detail.html', {
 		'topic': topic,
 		'posts': posts,
-	}
+	})
 
 
-@render_to('forums/topic_new.html')
 @login_required
 def topic_new(request, category_id):
 	category = get_object_or_404(Category, pk=category_id)
@@ -62,15 +58,16 @@ def topic_new(request, category_id):
 		return redirect(category.get_absolute_url())
 	topic_form = TopicNewForm()
 	post_form = PostNewForm()
-	extra_context = {}
+	extra_context = {
+		'category': category,
+	}
 	if request.method == 'POST':
 		topic_form = TopicNewForm(request.POST)
 		post_form = PostNewForm(request.POST)
 		if topic_form.is_valid() and post_form.is_valid():
 			if request.POST.get('preview'):
-				extra_context = {
-					'post_preview': markdown(post_form.cleaned_data.get('content')),
-				}
+				extra_context['post_preview'] = markdown(post_form \
+					.cleaned_data.get('content'))
 			else:
 				new_topic = topic_form.save(commit=False)
 				new_topic.created_by = request.user
@@ -82,14 +79,11 @@ def topic_new(request, category_id):
 				new_post.save()
 				messages.success(request, "Successfully created a new topic.")
 				return redirect(new_topic.get_absolute_url())
-	return dict({
-		'category': category,
-		'topic_form': topic_form,
-		'post_form': post_form,
-	}, **extra_context)
+	extra_context['topic_form'] = topic_form
+	extra_context['post_form'] = post_form
+	return TemplateResponse(request, 'forums/topic_new.html', extra_context)
 
 
-@render_to('forums/post_new.html')
 @login_required
 def post_new(request, category_id, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
@@ -108,14 +102,15 @@ def post_new(request, category_id, topic_id):
 			return redirect(topic.get_absolute_url())
 
 	form = PostNewForm()
-	extra_context = {}
+	extra_context = {
+		'topic': topic,
+	}
 	if request.method == 'POST':
 		form = PostNewForm(request.POST)
 		if form.is_valid():
 			if request.POST.get('preview'):
-				extra_context = {
-					'post_preview': markdown(form.cleaned_data.get('content')),
-				}
+				extra_context['post_preview'] = markdown(form \
+					.cleaned_data.get('content'))
 			else:
 				new_post = form.save(commit=False)
 				new_post.created_by = request.user
@@ -125,13 +120,10 @@ def post_new(request, category_id, topic_id):
 					"Your reply has been saved."
 				)
 				return redirect(new_post.get_absolute_url())
-	return dict({
-		'topic': topic,
-		'form': form,
-	}, **extra_context)
+	extra_context['form'] = form
+	return TemplateResponse(request, 'forums/post_new.html', extra_context)
 
 
-@render_to('forums/post_edit.html')
 @login_required
 def post_edit(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
@@ -148,14 +140,15 @@ def post_edit(request, post_id):
 			return redirect(topic.get_absolute_url())
 
 	form = PostNewForm(instance=post)
-	extra_context = {}
+	extra_context = {
+		'post': post,
+	}
 	if request.method == 'POST':
 		form = PostNewForm(request.POST, instance=post)
 		if form.is_valid():
 			if request.POST.get('preview'):
-				extra_context = {
-					'post_preview': markdown(form.cleaned_data.get('content')),
-				}
+				extra_context['post_preview'] = markdown(form \
+					.cleaned_data.get('content'))
 			else:
 				form.save()
 				messages.success(request,
@@ -163,13 +156,10 @@ def post_edit(request, post_id):
 						if request.user == post.created_by else "Post")
 				)
 				return redirect(post.get_absolute_url())
-	return dict({
-		'page': page,
-		'form': form,
-	}, **extra_context)
+	extra_context['form'] = form
+	return TemplateResponse(request, 'forums/post_edit.html', extra_context)
 
 
-@render_to('forums/post_delete.html')
 @login_required
 def post_delete(request, post_id):
 	post = get_object_or_404(Post, pk=post_id)
@@ -195,9 +185,9 @@ def post_delete(request, post_id):
 			messages.warning(request,
 				"This action will delete whole topic with all posts within."
 			)
-	return {
+	return TemplateResponse(request, 'forums/post_delete.html', {
 		'post': post,
-	}
+	})
 
 
 def post_permalink(request, post_id):

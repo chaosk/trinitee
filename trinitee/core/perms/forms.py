@@ -1,10 +1,8 @@
+from core.perms.utilities import get_codename_perms
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
-from core.perms.utilities import get_codename_perms
-from guardian.shortcuts import assign
-from guardian.shortcuts import remove_perm
-from guardian.shortcuts import get_perms_for_model
+from guardian.shortcuts import assign, remove_perm, get_perms_for_model
 
 
 class BasePermissionsForm(forms.Form):
