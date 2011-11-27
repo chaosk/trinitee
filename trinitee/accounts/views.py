@@ -81,5 +81,5 @@ def profile(request, user_id):
 
 def userlist(request):
 	return TemplateResponse(request, 'accounts/list.html', {
-		'users': User.objects.all().select_related(),
+		'users': User.objects.exclude(id__exact=-1).select_related(),
 	})
