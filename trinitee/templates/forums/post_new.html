@@ -6,7 +6,7 @@
 
 {% block content %}
 	<h1 class="title">New reply</h1>
-	<form action="{% url post_new topic.category_id topic.id %}" method="post">{% csrf_token %}
+	<form action="{% url post_new topic.id %}" method="post">{% csrf_token %}
 		{{ form.as_p }}
 		<input type="submit">
 		<input type="submit" name="preview" value="Preview">

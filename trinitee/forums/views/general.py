@@ -37,7 +37,7 @@ def topic_list(request, category_id):
 	})
 
 
-def topic_detail(request, category_id, topic_id):
+def topic_detail(request, topic_id):
 	topic = get_object_or_404(Topic.objects.select_related(), pk=topic_id)
 	if not request.user.has_perm('forums.view_category', topic.category):
 		raise Http404
@@ -85,7 +85,7 @@ def topic_new(request, category_id):
 
 
 @login_required
-def post_new(request, category_id, topic_id):
+def post_new(request, topic_id):
 	topic = get_object_or_404(Topic, pk=topic_id)
 	if not request.user.has_perm('forums.add_posts_category', topic.category):
 		messages.error(request,

@@ -62,8 +62,7 @@ class Topic(models.Model):
 
 	@models.permalink
 	def get_absolute_url(self):
-		return ('forums.views.topic_detail', (),
-			{'category_id': self.category_id, 'topic_id': self.id})
+		return ('forums.views.topic_detail', (), {'topic_id': self.id})
 
 
 class Post(models.Model):
