@@ -23,10 +23,10 @@
 			<li{% current request url_forums_index %}><a href="{{ url_forums_index }}">Forums</a></li>
 			<li{% current request url_userlist %}><a href="{{ url_userlist }}">User list</a></li>
 			{% if request.user.is_authenticated %}
-				<li><a href="{% url logout %}">Logout</a></li>
+				<li><a href="{% url userena_signout %}">Logout</a></li>
 			{% else %}
-				{% url login as url_login %}
-				{% url register as url_register %}
+				{% url userena_signin as url_login %}
+				{% url userena_signup as url_register %}
 				<li{% current request url_login %}><a href="{{ url_login }}">Login</a></li>
 				<li{% current request url_register %}><a href="{{ url_register }}">Register</a></li>
 			{% endif %}

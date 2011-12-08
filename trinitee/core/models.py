@@ -1,6 +1,9 @@
-# This is actually an empty file, it's here due to bug in django.
-# It occurs when we register an application that doesn't have
-# models.py file and then try to use django-jenkins over our project.
-#
-# Ticket on Django bugtracker:
-# http://code.djangoproject.com/ticket/7198
+from django.contrib.auth.models import User
+from django.db import models
+from userena.models import UserenaBaseProfile
+
+
+class UserProfile(UserenaBaseProfile):
+
+	user = models.OneToOneField(User, unique=True, verbose_name='Profile',
+		related_name='profile')

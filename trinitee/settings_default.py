@@ -97,21 +97,21 @@ USE_I18N = False
 USE_L10N = True
 
 # User profile model
-AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+AUTH_PROFILE_MODULE = 'core.UserProfile'
 
 ANONYMOUS_USER_ID = -1
 
 # Message storage backend
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/accounts/login/'
-LOGOUT_URL = '/accounts/logout/'
+LOGIN_REDIRECT_URL = '/accounts/%(username)s/'
+LOGIN_URL = '/accounts/signin/'
+LOGOUT_URL = '/accounts/signout/'
 
 reverse_lazy = lazy(reverse, str)
 
 ABSOLUTE_URL_OVERRIDES = {
-	'auth.user': lambda u: reverse_lazy('profile', kwargs={'user_id': u.id}),
+	# 'auth.user': lambda u: reverse_lazy('profile', kwargs={'user_id': u.id}),
 }
 
 # List of callables that know how to import templates from various sources.
@@ -129,8 +129,9 @@ if TEMPLATE_CACHING:
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 AUTHENTICATION_BACKENDS = (
-	'django.contrib.auth.backends.ModelBackend',
+	'userena.backends.UserenaAuthenticationBackend',
 	'guardian.backends.ObjectPermissionBackend',
+	'django.contrib.auth.backends.ModelBackend',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -163,7 +164,7 @@ TEMPLATE_DIRS = (
 PROJECT_APPS = (
 	'core',
 	'lib',
-	'accounts',
+	# 'accounts',
 	'forums',
 	'wiki',
 )
@@ -178,6 +179,9 @@ INSTALLED_APPS = (
 	'guardian',
 	'reversion',
 	'south',
+	'easy_thumbnails',
+	'userena',
+	'userena.contrib.umessages',
 ) + PROJECT_APPS
 
 PYLINT_RCFILE = os.path.join(os.path.dirname(PROJECT_DIR), '.pylintrc')
