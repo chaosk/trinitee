@@ -28,7 +28,7 @@ def wiki_detail(request, slug):
 		deleted_versions = Version.objects.get_deleted(WikiPage)[:5]
 		deleted_version = None
 		for version in deleted_versions:
-			if version.get_field_dict().get('slug') == slug:
+			if version.field_dict.get('slug') == slug:
 				deleted_version = version
 				break
 		if not deleted_version:
@@ -126,7 +126,7 @@ def wiki_history_detail(request, slug, rev):
 	if page.id != int(version.object_id):
 		raise Http404
 	return TemplateResponse(request, 'wiki/history_detail.html', {
-		'page': version.get_field_dict(),
+		'page': version.field_dict,
 		'revision': version.revision,
 	})
 
@@ -191,7 +191,7 @@ def wiki_restore(request, slug, rev):
 		version.revert()
 		messages.success(request,
 			"Successfully restored \"{0}\" page to state from {1}.".format(
-				version.get_field_dict().get('title'),
+				version.field_dict.get('title'),
 				datetime.strftime(version.revision.date_created, 
 					"%B %d, %Y, %I:%M %p"
 				)
