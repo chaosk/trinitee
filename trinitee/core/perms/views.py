@@ -42,6 +42,7 @@ def granular_perms_detail(request, contenttype_id, object_id):
 		with_group_users=False).exclude(pk=anonymous.id))
 
 	return TemplateResponse(request, 'core/perms/granular_detail.html', {
+		'model': model,
 		'perms_to_check': model._meta.permissions,
 		'actors': actors,
 		'object': obj,
